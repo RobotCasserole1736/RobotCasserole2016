@@ -16,8 +16,9 @@ public class Robot extends IterativeRobot {
      * used for any initialization code.
      */
     public void robotInit() {
-    	//Add overall initilization code here
+    	
 
+    	//test
     }
 
     /**
@@ -37,6 +38,7 @@ public class Robot extends IterativeRobot {
     
     /**
      * This function is called periodically during test mode
+     * This is a random comment
      */
     public void testPeriodic() {
     	//Add teleop code here
