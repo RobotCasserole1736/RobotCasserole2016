@@ -16,8 +16,8 @@ public class Robot extends IterativeRobot {
      * used for any initialization code.
      */
     public void robotInit() {
-    	//Add overall initilization code here
-
+    	//Add overall initialization code here
+    	//You're an idiot, Jason.
     }
 
     /**
