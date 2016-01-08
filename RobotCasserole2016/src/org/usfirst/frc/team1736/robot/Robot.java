@@ -19,6 +19,9 @@ public class Robot extends IterativeRobot {
     	//Add overall initilization code here
     	//A Second comment added by chris gerth! This can be removed in the future.
     	//test
+    	//Add overall initialization code here
+    	//You're an VERY NICE PERSON, Jason.
+
     }
 
     /**
