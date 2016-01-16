@@ -1,13 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
-<<<<<<< HEAD
 	<classpathentry kind="var" path="wpilib" sourcepath="/wpilib"/>
 	<classpathentry kind="var" path="networktables" sourcepath="/networktables.sources"/>
-=======
-	<classpathentry kind="var" path="wpilib" sourcepath="/wpili.sources"/>
-	<classpathentry kind="var" path="networktables" sourcepath="/wpili.sources"/>
->>>>>>> Justin_C_Git_Test
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
