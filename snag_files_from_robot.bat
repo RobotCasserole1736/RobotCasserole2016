@@ -1,7 +1,7 @@
 @setlocal enableextensions enabledelayedexpansion
 @echo off
-set rioPath=roboRIO-1736.local
-set rioCaptureFilePath=U\data_captures_2016\
+set rioPath=10.17.36.2
+set rioCaptureFilePath=media\sda1\data_captures_2016
 set output_path=C:\RobotLogs2016\
 
 echo ****************************************************************
@@ -21,7 +21,7 @@ echo ERROR Cannot ping RoboRIO
 echo Make sure PC is connected to robot, and get someone from Programming Team ASAP
 echo Sad Day :(
 pause 
-exit -1
+goto EOF
 )
 
 echo Starting file transfer...
@@ -30,7 +30,7 @@ echo Starting file transfer...
 :: Verify each file as it's copied, list out filenames copied, copy all files from source folder to destination
 :: without prompting, use network copy mode, always prompt for overwrite
 xcopy ftp:\\!rioPath!\!rioCaptureFilePath! !output_path! /v /l /i /z /-y
-if errorlevel 0 echo New files were copied to !output_path!.
+if errorlevel 0 echo New files were copied to !output_path!
 
 echo File Copy Complete! 
 pause 
