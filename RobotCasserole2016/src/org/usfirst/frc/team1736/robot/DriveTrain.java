@@ -1,7 +1,6 @@
 package org.usfirst.frc.team1736.robot;
 
 import edu.wpi.first.wpilibj.Encoder;
-import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.SpeedController;
 
 public class DriveTrain {
@@ -56,9 +55,40 @@ public class DriveTrain {
 		
 	}
 	
-	public void arcadeDrive(double joy_x, double joy_y, double tunedVal)
+	public void drive(double joy_x, double joy_y, double tunedVal)
 	{
+		double leftOutput, rightOutput;
 		
+		if(joy_y > Math.abs(0.1) && joy_x < Math.abs(0.1))
+		{
+			leftOutput = joy_y;
+			rightOutput = joy_y;
+		}
+		else if(joy_x > Math.abs(0.1))
+		{
+			//This code creates a scenario where joy_x and joy_y can both be 1 or -1
+			//and thus would create outputs of 2 and 0...
+			leftOutput = joy_x + joy_y;
+			rightOutput = -joy_x + joy_y;
+		}
+		else
+		{
+			leftOutput = 0;
+			rightOutput = 0;
+		}
+		
+		leftOutput = Math.pow(Math.max(1, leftOutput), tunedVal);
+		rightOutput = Math.pow(Math.max(1, rightOutput), tunedVal);
+		setMotorVals(leftOutput, rightOutput);
+	}
+	
+	public void setMotorVals(double leftOut, double rightOut)
+	{
+		leftMotor_1.set(leftOut);
+		leftMotor_2.set(leftOut);
+		
+		rightMotor_1.set(rightOut);
+		rightMotor_2.set(rightOut);
 	}
 
 }

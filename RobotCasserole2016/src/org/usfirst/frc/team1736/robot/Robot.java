@@ -4,8 +4,10 @@ package org.usfirst.frc.team1736.robot;
 import edu.wpi.first.wpilibj.BuiltInAccelerometer;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.IterativeRobot;
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.PowerDistributionPanel;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.VictorSP;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -43,7 +45,16 @@ public class Robot extends IterativeRobot {
 		
 		//-Controller D-Pad POV Hat
 		final static int XBOX_DPAD_POV = 0;
-	
+		
+		//-Motor IDs
+		final static int L_Motor_ID1 = 0;
+		final static int L_Motor_ID2 = 0;
+		final static int R_Motor_ID1 = 0;
+		final static int R_Motor_ID2 = 0;
+		
+		//-Tuned Value for Joystick Input
+		double tunedVal = 0;
+		
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	// CLASS OBJECTS
     ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -67,6 +78,17 @@ public class Robot extends IterativeRobot {
 			                               "AccelY",
 			                               "AccelZ"};
 	
+	//Joysticks
+	Joystick joy1;
+	Joystick joy2;
+	//Drive Train
+	DriveTrain driveTrain;
+	//Motors
+	VictorSP L_Motor_1;
+	VictorSP L_Motor_2;
+	VictorSP R_Motor_1;
+	VictorSP R_Motor_2;
+	
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	// PUBLIC METHODS 
     ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -77,7 +99,17 @@ public class Robot extends IterativeRobot {
      */
     public void robotInit() {
     	//Add overall initialization code here
-
+    	//Motors
+    	L_Motor_1 = new VictorSP(L_Motor_ID1);
+    	L_Motor_2 = new VictorSP(L_Motor_ID2);
+    	R_Motor_1 = new VictorSP(R_Motor_ID1);
+    	R_Motor_2 = new VictorSP(R_Motor_ID2);
+    	//Drivetrain
+    	driveTrain = new DriveTrain(L_Motor_1, L_Motor_2, R_Motor_1, R_Motor_2);
+    	
+    	//Joysticks
+    	joy1 = new Joystick(JOY1_INT);
+    	joy2 = new Joystick(JOY2_INT);
     }
     
     /**
@@ -121,7 +153,6 @@ public class Robot extends IterativeRobot {
     	//Initialize the new log file for Teleop
     	logger.init(logger_fields);
 
-
     }
 
     /**
@@ -129,9 +160,11 @@ public class Robot extends IterativeRobot {
      */
     public void teleopPeriodic() {
         //Add teleop code here
+    	driveTrain.drive(joy1.getRawAxis(XBOX_RSTICK_XAXIS), joy1.getRawAxis(XBOX_LSTICK_YAXIS), tunedVal);
     	
     	//Log data from this timestep
     	log_data();
+    	
     }
     
     /**
