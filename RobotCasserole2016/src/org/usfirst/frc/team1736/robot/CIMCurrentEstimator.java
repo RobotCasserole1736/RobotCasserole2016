@@ -15,7 +15,7 @@ public class CIMCurrentEstimator {
      *      motorEncRatio = ratio of motor gear teeth divided by encoder gear teeth. A number smaller than one means the motor spins slower than the encoder.
      *      controllerVDrop_V = voltage drop induced by the motor controller, in V. 
 	 */
-	public void init( int numMotors, double motorEncRatio, double controllerVDrop_V ) {
+	public CIMCurrentEstimator(int numMotors, double motorEncRatio, double controllerVDrop_V ) {
 		numMotorsInSystem = numMotors;
 		motorEncoderRatio = motorEncRatio;
 		contVDrop = controllerVDrop_V;

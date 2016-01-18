@@ -17,12 +17,7 @@ public class BatteryParamEstimator {
 	int index;
 	
 	
-	
-	public void setConfidenceThresh(double Thresh_A){
-		min_spread_thresh = Thresh_A;
-	}
-	
-	public void init(int length){
+	public BatteryParamEstimator(int length){
 		lms_window_length = length;
 		index = 0;
 		circ_buf_SysCurDraw_A = new double[lms_window_length];
@@ -30,6 +25,10 @@ public class BatteryParamEstimator {
 		Arrays.fill(circ_buf_SysCurDraw_A, 3.0);
 		Arrays.fill(circ_buf_SysVoltage_V, 13.0);
 		
+	}
+	
+	public void setConfidenceThresh(double Thresh_A){
+		min_spread_thresh = Thresh_A;
 	}
 	
 	public void updateEstimate(double measSysVoltage_V, double measSysCurrent_A){
