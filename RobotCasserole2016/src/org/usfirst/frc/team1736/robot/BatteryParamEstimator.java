@@ -1,7 +1,14 @@
 package org.usfirst.frc.team1736.robot;
 
 import java.util.Arrays;
-
+/**
+ * Battery parameter estimator - calculates an estimate for a battery's open circuit voltage (Voc) and
+ * equivilant series resistance (ESR) based on a windows of system current/voltage measurements.
+ * Ensures enough spread in the measurement window to ensure confidence in the estimate. Based on a 
+ * whitepaper detailing an algorithm developed for the 2016 FRC season by FRC1736 RobotCasserole.
+ * @author Chris Gerth
+ *
+ */
 public class BatteryParamEstimator {
 
 	double VocEst = 13;
@@ -16,7 +23,11 @@ public class BatteryParamEstimator {
 	double[] circ_buf_SysVoltage_V;
 	int index;
 	
-	
+	/**
+	 * setConfidenceThresh - sets a new threshold for a minimum standard deviation (spread) of current 
+	 * readings needed before an estimate window is considered accurate.
+	 * @param Thresh_A
+	 */
 	
 	public void setConfidenceThresh(double Thresh_A){
 		min_spread_thresh = Thresh_A;
@@ -31,7 +42,13 @@ public class BatteryParamEstimator {
 		Arrays.fill(circ_buf_SysVoltage_V, 13.0);
 		
 	}
-	
+
+	/**
+	 * updateEstimate - Update the internal estimates with a new measured system voltage and current. Should be called
+	 * once per control loop.
+	 * @param measSysVoltage_V - Battery voltage as measured by PDB
+	 * @param measSysCurrent_A - Current draw as measured by PDB
+	 */
 	public void updateEstimate(double measSysVoltage_V, double measSysCurrent_A){
 		
 		//Update buffers with new inputs
@@ -81,24 +98,45 @@ public class BatteryParamEstimator {
 		
 	}
 	
+	/**
+	 * getEstESR - returns the most recent calculated equivilant series resistance
+	 * @return the most recent calculated equivilant series resistance
+	 */
 	public double getEstESR(){
 		return ESREst;
 	}
-	
+
+	/**
+	 * getEstVoc - returns the most recent calculated open circuit resistance
+	 * @return the most recent calculated open circuit resistance
+	 */
 	public double getEstVoc(){
 		return VocEst;
 	}
 	
+	/**
+	 * getConfidence - returns the most recent confidenc decision
+	 * @return True if the most recent window had enough spread for a reasonable estimate, false if not.
+	 */
 	public boolean getConfidence(){
 		return confident;
 	}
 	
+	/**
+	 * getEstVsys - given a system current draw, estimate the resulting system voltage given the battery parameters.
+	 * @param Idraw_A - estimated system current draw in Amps
+	 * @return Estimated Vsys in Volts
+	 */
 	public double getEstVsys(double Idraw_A){
 		return VocEst - Idraw_A * ESREst;
 	}
 	
 	
-	
+	/**
+	 * findSum - calculates the sum of all elements in an array of doubles
+	 * @param input - array to add up.
+	 * @return sum of all values in the array.
+	 */
 	private double findSum(double[] input){
 		double sum = 0;
 		for(double i : input){
@@ -107,6 +145,13 @@ public class BatteryParamEstimator {
 		return sum;
 	}
 	
+	/**
+	 * findDotProd - calculates the dot product of two equally-sized arrays of doubles A and B. Dot product is found by multiplying each
+	 * element of A with the corresponding element of B, and adding together the result of each multiplication. 
+	 * @param A First Array
+	 * @param B Second Array
+	 * @return dot product of A and B.
+	 */
 	private double findDotProd(double[] A, double[] B){
 		double sum = 0;
 		if(A.length != B.length){
@@ -121,6 +166,12 @@ public class BatteryParamEstimator {
 		return sum;
 	}
 	
+	/**
+	 * findStdDev - Calculates the standard deviation of a set of doubles. Standard deviation is defined as the square root of the 
+	 * sum of the squares of the distances of each element from the average of the dataset.
+	 * @param input - doubles to take the Standard Deviation of.
+	 * @return standard deviation of the input set.
+	 */
 	private double findStdDev(double[] input){
 		double avg_input = findSum(input)/input.length;
 		double sum = 0;

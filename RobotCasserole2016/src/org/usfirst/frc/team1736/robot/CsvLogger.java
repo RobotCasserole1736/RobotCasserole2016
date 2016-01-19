@@ -1,9 +1,3 @@
-/**
- * CSV Logger Class - Provides an API for FRC 1736 Robot Casserole datalogging on the robot during runs
- * Will write lines into a CSV file with a unique name between calls to init() and close(). output_dir is 
- * hardcoded to point to a specific 2016 folder on a flash drive connected to the roboRIO. 
- */
-
 package org.usfirst.frc.team1736.robot;
 
 import java.io.File;
@@ -12,6 +6,9 @@ import java.io.IOException;
 import java.io.BufferedWriter;
 
 /**
+ * CSV Logger Class - Provides an API for FRC 1736 Robot Casserole datalogging on the robot during runs
+ * Will write lines into a CSV file with a unique name between calls to init() and close(). output_dir is 
+ * hardcoded to point to a specific 2016 folder on a flash drive connected to the roboRIO. 
  * @author Chris Gerth
  *
  */
@@ -28,8 +25,8 @@ public class CsvLogger {
 	/**
 	 * init - Determines a unique file name, and opens a file in the data captures directory
 	 *        and writes the initial lines to it. 
-	 * Input - A set of row titles to write into the file
-	 * Output - 0 on file open success, -1 on any errors
+	 * @param Input - A set of row titles to write into the file
+	 * @return 0 on successful log open, -1 on failure
 	 */
 	public int init(String[] data_fields ) {
 		
@@ -76,9 +73,10 @@ public class CsvLogger {
 	
 	
 	/**
-	 * writeData - writes a list of doubles to the output file, assuming it's open.
-	 * Input - doubles to write (any number of doubles, each as its own argument)
-	 * Output - new line in the output file, or an error if line not written
+	 * writeData - writes a list of doubles to the output file, assuming it's open. Creates a new line
+	 * in the .csv log file.
+	 * @param data_element(s) - doubles to write (any number of doubles, each as its own argument)
+	 * @return 0 on write success, -1 on failure.
 	 */	
 	public int writeData(double... data_elements){
 		if(log_open == false){
@@ -116,7 +114,7 @@ public class CsvLogger {
 	 * good idea to use this as infrequently as possible (because it increases logging overhead),
 	 * but definitely use it before the roboRIO might crash without a proper call to the close() method
 	 * (ie, during brownout)
-	 * Returns 0 on flush success or -1 on failure.
+	 * @return Returns 0 on flush success or -1 on failure.
 	 */	
 	public int forceSync(){
 		if(log_open == false){
@@ -141,6 +139,7 @@ public class CsvLogger {
 	/**
 	 * close - closes the log file and ensures everything is written to disk. 
 	 * init() must be called again in order to write to the file.
+	 * @return -1 on failure to close, 0 on success
 	 */	
 	public int close(){
 		

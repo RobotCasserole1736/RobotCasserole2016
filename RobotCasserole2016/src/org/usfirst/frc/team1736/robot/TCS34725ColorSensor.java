@@ -3,6 +3,14 @@ package org.usfirst.frc.team1736.robot;
 import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.I2C.Port;
 
+/**
+ * TCS34725ColorSensor - Simple API for the TCS34725 color sensor from adafruit
+ * Provides interfacing for initializing the sensor and performing qualified reads of color values.
+ * Coded with lots and lots of help from https://github.com/adafruit/Adafruit_TCS34725. 
+ * Thanks KTOWN!!! If I ever meet you, I owe you a beer.
+ * @author Chris Gerth
+ *
+ */
 public class TCS34725ColorSensor {
 	// FRC I2C object, since color sensor will work over that
 	I2C color_sen;
@@ -56,7 +64,8 @@ public class TCS34725ColorSensor {
 	
 	
 	/**
-	 * Constructor for TCS34725 Color Sensor from Adafruit
+	 * Constructor for TCS34725 Color Sensor from Adafruit.
+	 * Initializes internal data structures and opens I2C coms to the device.
 	 */
 	TCS34725ColorSensor(){
 		color_sen = new I2C(Port.kOnboard, TCS34725_I2C_ADDR);
@@ -65,11 +74,15 @@ public class TCS34725ColorSensor {
 		
 	}
 	
+
 	/**
-	 * init - Initializes sensor 
+	 * init - initializes the actual sensor state so colors can be read.
+	 * By default the sensor powers up to a "disabled" state. This enables it.
+	 * Additionally, checks the sensor has the proper internal ID and 
+	 * sets hard-coded gains and integrator times.
+	 * @return 0 on success, -1 on failure to initialize
 	 */
-	
-	public void init(){
+	public int init(){
 		sensor_initalized = false;
 		
 		System.out.print("Initalizing Color Sensor...");
@@ -81,7 +94,7 @@ public class TCS34725ColorSensor {
 		color_sen.read(TCS34725_ID, 1, whoamiResponse);
 		if((whoamiResponse[0] != 0x44) && (whoamiResponse[0] != 0x10)){
 			System.out.println("\nError - whoami register mismatch on Color Sensor! Cannot Initalize!");
-			return;
+			return -1;
 		}
 			
 		//Set the integration time
@@ -97,10 +110,15 @@ public class TCS34725ColorSensor {
 		
 		System.out.println("done!");
 		sensor_initalized = true;
-		return;
+		return 0;
 		
 	}
 	
+	/**
+	 * readColors - queries the sensor for the red, green, blue, and clear values
+	 * Qualifies the read to ensure the sensor has not been reset since the last read.
+	 * @return 0 on read success, -1 on failure.
+	 */
 	public int readColors(){
 		byte[] red_bytes = {0,0};
 		byte[] green_bytes = {0,0};
@@ -126,39 +144,60 @@ public class TCS34725ColorSensor {
 		}
 		
 		
-		
+		//Read data off of the sensor
 		color_sen.read(TCS34725_RDATAH, 2, red_bytes);
 		color_sen.read(TCS34725_GDATAH, 2, green_bytes);
 		color_sen.read(TCS34725_BDATAH, 2, blue_bytes);
 		color_sen.read(TCS34725_CDATAH, 2, clear_bytes);
 
-		
+		//Perform typecasting and bit-shifting on the recieved data.
 		red_val = (int)((red_bytes[1] << 8) | (red_bytes[0] & 0xFF));
 		green_val = (int)((green_bytes[1] << 8) | (green_bytes[0] & 0xFF));
 		blue_val = (int)((blue_bytes[1] << 8) | (blue_bytes[0] & 0xFF));
 		clear_val = (int)((clear_bytes[1] << 8) | (clear_bytes[0] & 0xFF));
 		
+		//Set that we've got good data and return.
 		good_data_read = true;
 		return 0;
 		
 	}
 	
+	/**
+	 * getRedVal - returns the most recent red intensity read from the sensor
+	 * @return most recently read red intensity
+	 */
 	public int getRedVal(){
 		return red_val;
 	}
 	
+	/**
+	 * getGreenVal - returns the most recent green intensity read from the sensor
+	 * @return most recently read green intensity
+	 */
 	public int getGreenVal(){
 		return green_val;
 	}
 	
+	/**
+	 * getBlueVal - returns the most recent blue intensity read from the sensor
+	 * @return most recently read blue intensity
+	 */
 	public int getBlueVal(){
 		return blue_val;
 	}
 	
+	/**
+	 * getClearVal - returns the most recent overall intensity read from the sensor
+	 * @return most recently read overall intensity
+	 */
 	public int getClearVal(){
 		return clear_val;
 	}
 	
+	/**
+	 * safeSleep - wrapped Thread.sleep call to safely delay for a given period of time
+	 * @param milliseconds - time to delay for in ms.
+	 */
 	private void safeSleep(long milliseconds){
 		try {
 			Thread.sleep(milliseconds);
