@@ -3,6 +3,8 @@ package org.usfirst.frc.team1736.robot;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.io.BufferedWriter;
 
 /**
@@ -15,8 +17,8 @@ import java.io.BufferedWriter;
 public class CsvLogger {
 	
 	long log_write_index;
-	File log_name = null;
-	File output_dir = new File("/U/data_captures_2016/"); // USB drive is mounted to /U on roboRIO
+	String log_name = null;
+	String output_dir = "/U/data_captures_2016/"; // USB drive is mounted to /U on roboRIO
 	BufferedWriter log_file = null;
 	boolean log_open = false;
 	
@@ -42,7 +44,7 @@ public class CsvLogger {
 			log_write_index = 0;
 			
 			//Determine a unique file name
-			log_name = File.createTempFile("log_", ".csv", output_dir);
+			log_name = output_dir + "log_" + getDateTimeString() + ".csv";
 			
 			//Open File
 			FileWriter fstream = new FileWriter(log_name, true);
@@ -159,6 +161,10 @@ public class CsvLogger {
 		}
 		return 0;
 		
+	}
+	
+	private String getDateTimeString() {
+		return new SimpleDateFormat("yyyy-MM-dd_HHmmss").format(new Date());
 	}
 
 }
