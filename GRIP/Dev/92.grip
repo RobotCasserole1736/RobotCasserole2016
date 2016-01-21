@@ -1,0 +1,96 @@
+<grip:Pipeline>
+  <sources>
+    <grip:ImageFile>
+      <property name="path" value="C:\Users\FIRSTMentor\Documents\RealFullField\92.jpg"/>
+    </grip:ImageFile>
+  </sources>
+  <steps>
+    <grip:Step name="RGB Threshold">
+      <grip:Input step="0" socket="0"/>
+      <grip:Input step="0" socket="1">
+        <value>
+          <double>0.5006753473990324</double>
+          <double>157.5911190334058</double>
+        </value>
+      </grip:Input>
+      <grip:Input step="0" socket="2">
+        <value>
+          <double>133.00359683591478</double>
+          <double>172.32081882624064</double>
+        </value>
+      </grip:Input>
+      <grip:Input step="0" socket="3">
+        <value>
+          <double>112.36510791366906</double>
+          <double>167.9692832764505</double>
+        </value>
+      </grip:Input>
+      <grip:Output step="0" socket="0" previewed="true"/>
+    </grip:Step>
+    <grip:Step name="CV dilate">
+      <grip:Input step="1" socket="0"/>
+      <grip:Input step="1" socket="1"/>
+      <grip:Input step="1" socket="2"/>
+      <grip:Input step="1" socket="3">
+        <value>1</value>
+      </grip:Input>
+      <grip:Input step="1" socket="4">
+        <value>BORDER_CONSTANT</value>
+      </grip:Input>
+      <grip:Input step="1" socket="5"/>
+      <grip:Output step="1" socket="0" previewed="true"/>
+    </grip:Step>
+    <grip:Step name="Find Contours">
+      <grip:Input step="2" socket="0"/>
+      <grip:Input step="2" socket="1">
+        <value>false</value>
+      </grip:Input>
+      <grip:Output step="2" socket="0" previewed="false"/>
+    </grip:Step>
+    <grip:Step name="Filter Contours">
+      <grip:Input step="3" socket="0"/>
+      <grip:Input step="3" socket="1">
+        <value>0</value>
+      </grip:Input>
+      <grip:Input step="3" socket="2">
+        <value>125.0</value>
+      </grip:Input>
+      <grip:Input step="3" socket="3">
+        <value>0</value>
+      </grip:Input>
+      <grip:Input step="3" socket="4">
+        <value>1000</value>
+      </grip:Input>
+      <grip:Input step="3" socket="5">
+        <value>0</value>
+      </grip:Input>
+      <grip:Input step="3" socket="6">
+        <value>50.0</value>
+      </grip:Input>
+      <grip:Output step="3" socket="0" previewed="true"/>
+    </grip:Step>
+  </steps>
+  <connections>
+    <grip:Connection>
+      <grip:Output step="1" socket="0" previewed="true"/>
+      <grip:Input step="2" socket="0"/>
+    </grip:Connection>
+    <grip:Connection>
+      <grip:Output step="2" socket="0" previewed="false"/>
+      <grip:Input step="3" socket="0"/>
+    </grip:Connection>
+    <grip:Connection>
+      <grip:Output step="0" socket="0" previewed="true"/>
+      <grip:Input step="1" socket="0"/>
+    </grip:Connection>
+    <grip:Connection>
+      <grip:Output source="0" socket="0" previewed="true"/>
+      <grip:Input step="0" socket="0"/>
+    </grip:Connection>
+  </connections>
+  <settings>
+    <teamNumber>0</teamNumber>
+    <publishAddress></publishAddress>
+    <deployAddress></deployAddress>
+  </settings>
+</grip:Pipeline>
