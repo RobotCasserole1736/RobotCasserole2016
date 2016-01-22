@@ -131,6 +131,15 @@ public class BatteryParamEstimator {
 		return VocEst - Idraw_A * ESREst;
 	}
 	
+	/**
+	 * getMaxIdraw - given a minimum system voltage allowable, estimate the maximum current which may be drawn from the battery at present time..
+	 * @param VsysMin_V - minimum desireable system voltage
+	 * @return The maximum current which the robot may pull in amps.
+	 */
+	public double getMaxIdraw(double VsysMin_V){
+		return (VocEst - VsysMin_V) / ESREst;
+	}
+	
 	
 	/**
 	 * findSum - calculates the sum of all elements in an array of doubles
