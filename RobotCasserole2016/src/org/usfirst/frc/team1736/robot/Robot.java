@@ -4,8 +4,10 @@ package org.usfirst.frc.team1736.robot;
 import edu.wpi.first.wpilibj.BuiltInAccelerometer;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.IterativeRobot;
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.PowerDistributionPanel;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.VictorSP;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -16,14 +18,55 @@ import edu.wpi.first.wpilibj.Timer;
  */
 public class Robot extends IterativeRobot {
 	
+		final static int JOY1_INT = 0;
+		final static int JOY2_INT = 1;
+		//soon
+		final static boolean SINGLE_JOYSTICK_IS_BEST_JOYSTICK = false;
+		
+		//-Controller Buttons
+		final static int XBOX_A_BUTTON = 1;
+		final static int XBOX_B_BUTTON = 2;
+		final static int XBOX_X_BUTTON = 3;
+		final static int XBOX_Y_BUTTON = 4;
+		final static int XBOX_LEFT_BUTTON = 5;
+		final static int XBOX_RIGHT_BUTTON = 6;
+		final static int XBOX_SELECT_BUTTON = 7;
+		final static int XBOX_START_BUTTON = 8;
+		final static int XBOX_LSTICK_BUTTON = 9;
+		final static int XBOX_RSTICK_BUTTON = 10;
+		
+		//-Controller Axes
+		final static int XBOX_LSTICK_XAXIS = 0;
+		final static int XBOX_LSTICK_YAXIS = 1;
+		final static int XBOX_LTRIGGER_AXIS = 2;
+		final static int XBOX_RTRIGGER_AXIS = 3;
+		final static int XBOX_RSTICK_XAXIS = 4;
+		final static int XBOX_RSTICK_YAXIS = 5;
+		
+		//-Controller D-Pad POV Hat
+		final static int XBOX_DPAD_POV = 0;
+		
+		//-Motor IDs
+		final static int L_Motor_ID1 = 0;
+		final static int L_Motor_ID2 = 0;
+		final static int R_Motor_ID1 = 0;
+		final static int R_Motor_ID2 = 0;
+		
+		//-Square joystick input?
+		final static boolean squaredInputs = true;
+		
+		//-BatteryParamEstimator length -- CHRIS MANAGES THIS CONSTANT
+		final static int BPE_length = 20; 
+		
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	// CLASS OBJECTS
     ///////////////////////////////////////////////////////////////////////////////////////////////
 	
-	//Devices on the Robot we will querey
-	DriverStation ds = DriverStation.getInstance();
-	PowerDistributionPanel pdp = new PowerDistributionPanel();
-	BuiltInAccelerometer accel_RIO = new BuiltInAccelerometer();
+	//Devices on the Robot we will query
+	DriverStation ds;
+	PowerDistributionPanel pdp;
+	BatteryParamEstimator bpe;
+	BuiltInAccelerometer accel_RIO;
 	
 	//Data Logger
 	CsvLogger logger = new CsvLogger();
@@ -39,6 +82,17 @@ public class Robot extends IterativeRobot {
 			                               "AccelY",
 			                               "AccelZ"};
 	
+	//Joysticks
+	Joystick joy1;
+	Joystick joy2;
+	//Drive Train
+	DriveTrain driveTrain;
+	//Motors
+	VictorSP L_Motor_1;
+	VictorSP L_Motor_2;
+	VictorSP R_Motor_1;
+	VictorSP R_Motor_2;
+	
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	// PUBLIC METHODS 
     ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -49,7 +103,21 @@ public class Robot extends IterativeRobot {
      */
     public void robotInit() {
     	//Add overall initialization code here
-
+    	ds = DriverStation.getInstance();
+    	pdp = new PowerDistributionPanel();
+    	bpe = new BatteryParamEstimator(BPE_length);
+    	accel_RIO = new BuiltInAccelerometer();
+    	//Motors
+    	L_Motor_1 = new VictorSP(L_Motor_ID1);
+    	L_Motor_2 = new VictorSP(L_Motor_ID2);
+    	R_Motor_1 = new VictorSP(R_Motor_ID1);
+    	R_Motor_2 = new VictorSP(R_Motor_ID2);
+    	//Drivetrain
+    	driveTrain = new DriveTrain(L_Motor_1, L_Motor_2, R_Motor_1, R_Motor_2, pdp, bpe);
+    	
+    	//Joysticks
+    	joy1 = new Joystick(JOY1_INT);
+    	joy2 = new Joystick(JOY2_INT);
     }
     
     /**
@@ -93,7 +161,6 @@ public class Robot extends IterativeRobot {
     	//Initialize the new log file for Teleop
     	logger.init(logger_fields);
 
-
     }
 
     /**
@@ -101,9 +168,11 @@ public class Robot extends IterativeRobot {
      */
     public void teleopPeriodic() {
         //Add teleop code here
+    	driveTrain.arcadeDrive(joy1.getRawAxis(XBOX_LSTICK_YAXIS), joy1.getRawAxis(XBOX_RSTICK_XAXIS), squaredInputs);
     	
     	//Log data from this timestep
     	log_data();
+    	
     }
     
     /**

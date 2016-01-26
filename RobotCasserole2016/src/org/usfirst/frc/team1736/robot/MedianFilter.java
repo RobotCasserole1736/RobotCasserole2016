@@ -20,7 +20,7 @@ public class MedianFilter {
 	 * @param length
 	 * @param init_val
 	 */
-	public void init(int length, double init_val){
+	public MedianFilter(int length, double init_val){
 		index = 0;
 		N = length;
 		//Allocate buffer

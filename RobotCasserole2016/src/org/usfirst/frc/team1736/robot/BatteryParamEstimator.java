@@ -23,17 +23,7 @@ public class BatteryParamEstimator {
 	double[] circ_buf_SysVoltage_V;
 	int index;
 	
-	/**
-	 * setConfidenceThresh - sets a new threshold for a minimum standard deviation (spread) of current 
-	 * readings needed before an estimate window is considered accurate.
-	 * @param Thresh_A
-	 */
-	
-	public void setConfidenceThresh(double Thresh_A){
-		min_spread_thresh = Thresh_A;
-	}
-	
-	public void init(int length){
+	public BatteryParamEstimator(int length){
 		lms_window_length = length;
 		index = 0;
 		circ_buf_SysCurDraw_A = new double[lms_window_length];
@@ -41,6 +31,11 @@ public class BatteryParamEstimator {
 		Arrays.fill(circ_buf_SysCurDraw_A, 3.0);
 		Arrays.fill(circ_buf_SysVoltage_V, 13.0);
 		
+	}
+	
+	public void setConfidenceThresh(double Thresh_A){
+		min_spread_thresh = Thresh_A;
+	}min_spread_thresh = Thresh_A;
 	}
 
 	/**
