@@ -52,17 +52,21 @@ public class Robot extends IterativeRobot {
 		final static int R_Motor_ID1 = 0;
 		final static int R_Motor_ID2 = 0;
 		
-		//-Tuned Value for Joystick Input
-		double tunedVal = 0;
+		//-Square joystick input?
+		final static boolean squaredInputs = true;
+		
+		//-BatteryParamEstimator length -- CHRIS MANAGES THIS CONSTANT
+		final static int BPE_length = 20; 
 		
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	// CLASS OBJECTS
     ///////////////////////////////////////////////////////////////////////////////////////////////
 	
 	//Devices on the Robot we will query
-	DriverStation ds = DriverStation.getInstance();
-	PowerDistributionPanel pdp = new PowerDistributionPanel();
-	BuiltInAccelerometer accel_RIO = new BuiltInAccelerometer();
+	DriverStation ds;
+	PowerDistributionPanel pdp;
+	BatteryParamEstimator bpe;
+	BuiltInAccelerometer accel_RIO;
 	
 	//Data Logger
 	CsvLogger logger = new CsvLogger();
@@ -99,13 +103,17 @@ public class Robot extends IterativeRobot {
      */
     public void robotInit() {
     	//Add overall initialization code here
+    	ds = DriverStation.getInstance();
+    	pdp = new PowerDistributionPanel();
+    	bpe = new BatteryParamEstimator(BPE_length);
+    	accel_RIO = new BuiltInAccelerometer();
     	//Motors
     	L_Motor_1 = new VictorSP(L_Motor_ID1);
     	L_Motor_2 = new VictorSP(L_Motor_ID2);
     	R_Motor_1 = new VictorSP(R_Motor_ID1);
     	R_Motor_2 = new VictorSP(R_Motor_ID2);
     	//Drivetrain
-    	driveTrain = new DriveTrain(L_Motor_1, L_Motor_2, R_Motor_1, R_Motor_2);
+    	driveTrain = new DriveTrain(L_Motor_1, L_Motor_2, R_Motor_1, R_Motor_2, pdp, bpe);
     	
     	//Joysticks
     	joy1 = new Joystick(JOY1_INT);
@@ -160,7 +168,7 @@ public class Robot extends IterativeRobot {
      */
     public void teleopPeriodic() {
         //Add teleop code here
-    	driveTrain.drive(joy1.getRawAxis(XBOX_RSTICK_XAXIS), joy1.getRawAxis(XBOX_LSTICK_YAXIS), tunedVal);
+    	driveTrain.arcadeDrive(joy1.getRawAxis(XBOX_LSTICK_YAXIS), joy1.getRawAxis(XBOX_RSTICK_XAXIS), squaredInputs);
     	
     	//Log data from this timestep
     	log_data();
