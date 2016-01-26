@@ -57,6 +57,12 @@ public class DriveTrain extends RobotDrive { //Inherits methods from RobotDrive 
 		leftCCE = new CIMCurrentEstimator(2, motorEncRatio, controllerVDrop_V, pdp);
 		rightCCE = new CIMCurrentEstimator(2, motorEncRatio, controllerVDrop_V, pdp);
 		
+		//Battery Para Estimator
+		this.bpe = bpe;
+		
+		//Power Distribution Panel
+		this.pdp = pdp;
+		
 		//Encoders
 		leftEncoder = new Encoder(leftEncoderChannel_1, leftEncoderChannel_2);
 		rightEncoder = new Encoder(rightEncoderChannel_1, rightEncoderChannel_2);
@@ -68,10 +74,24 @@ public class DriveTrain extends RobotDrive { //Inherits methods from RobotDrive 
 		
 	}
 	
-	public boolean isAcceptableVoltage()
+	public boolean isAcceptableVoltage(double leftOutput, double rightOutput)
 	{
-		
+		//Implement current/voltage checking here
+		//Need to ask Chris about how to implement with BPE
 		return true;
+	}
+	
+	public void setLeftRightMotorOutputs(double leftOutput, double rightOutput)
+	{
+		if(isAcceptableVoltage(leftOutput, rightOutput))
+		{
+			super.setLeftRightMotorOutputs(leftOutput, rightOutput);
+		}
+		else
+		{
+			super.setLeftRightMotorOutputs(0, 0);
+			System.out.println("Voltage too low!");
+		}
 	}
 
 }
