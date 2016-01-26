@@ -47,10 +47,10 @@ public class Robot extends IterativeRobot {
 		final static int XBOX_DPAD_POV = 0;
 		
 		//-Motor IDs
-		final static int L_Motor_ID1 = 0;
-		final static int L_Motor_ID2 = 0;
+		final static int L_Motor_ID1 = 2;
+		final static int L_Motor_ID2 = 3;
 		final static int R_Motor_ID1 = 0;
-		final static int R_Motor_ID2 = 0;
+		final static int R_Motor_ID2 = 1;
 		
 		//-Square joystick input?
 		final static boolean squaredInputs = true;
