@@ -30,7 +30,7 @@ public class CsvLogger {
 	 * @param Input - A set of row titles to write into the file
 	 * @return 0 on successful log open, -1 on failure
 	 */
-	public int init(String[] data_fields ) {
+	public int init(String[] data_fields, String[] units_fields ) {
 		
 		if(log_open){
 			System.out.println("Warning - log is already open!");
@@ -50,16 +50,21 @@ public class CsvLogger {
 			FileWriter fstream = new FileWriter(log_name, true);
 			log_file = new BufferedWriter(fstream);
 			
-			//Write fixed header data
-			log_file.write("INDEX, ");
-			
 			//Write user-defined header line
 			for(String header_txt : data_fields){
 				log_file.write(header_txt + ", ");
 			}
-			
 			//End of line
 			log_file.write("\n");
+			
+			
+			//Write user-defined units line
+			for(String header_txt : units_fields){
+				log_file.write(header_txt + ", ");
+			}
+			//End of line
+			log_file.write("\n");
+			
 		}
 		//Catch ALL the errors!!!
 		catch(IOException e){

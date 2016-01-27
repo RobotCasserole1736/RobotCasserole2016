@@ -80,7 +80,7 @@ public class DriveTrain extends RobotDrive { //Inherits methods from RobotDrive 
 	}
 	
 	public double getRightMotorCurrent(){
-		return rightCCE.getCurrentEstimate(rightEncoder.getRate(), rightMotor_1.get());
+		return rightCCE.getCurrentEstimate(rightEncoder.getRate(), -rightMotor_1.get());
 	}
 
 }
