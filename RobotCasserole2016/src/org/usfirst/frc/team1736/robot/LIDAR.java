@@ -14,7 +14,7 @@ import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.I2C.Port;
  
-public class LIDAR { //We don't need any pid system, So I took out the code where LIDAR inherits from a PID system
+public class LIDAR { //We don't need any PID system, so I took out the code where LIDAR inherits from a PID system.
 	private I2C i2c;
 	private byte[] distance;
 	private java.util.Timer updater;
@@ -37,7 +37,7 @@ public class LIDAR { //We don't need any pid system, So I took out the code wher
 	public double getDistanceIn() { //I made this function better. It used to be part of a PID system. We didn't need a PID system.
 		return (double)getDistance()*0.393701; //inches cuz Merica.
 	}
-	// Start 10Hz polling. Only allow 10 Hz. poling
+	// Start 10Hz polling. Only allow 10 Hz. polling
 	public void start() {
 		updater.scheduleAtFixedRate(new LIDARUpdater(), 0, 100);
 	}
