@@ -35,7 +35,6 @@ public class BatteryParamEstimator {
 	
 	public void setConfidenceThresh(double Thresh_A){
 		min_spread_thresh = Thresh_A;
-	}min_spread_thresh = Thresh_A;
 	}
 
 	/**

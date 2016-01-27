@@ -70,17 +70,27 @@ public class Robot extends IterativeRobot {
 	
 	//Data Logger
 	CsvLogger logger = new CsvLogger();
-	static final String[] logger_fields = {"MatchTime", 
-			                               "ProcessorTime",
+	static final String[] logger_fields = {"MatchTime_s", 
+			                               "ProcessorTime_s",
 			                               "BrownedOut", 
 			                               "FMSAttached", 
 			                               "SysActive", 
-			                               "MeasuredPDPVoltage",
-			                               "MeasuredRIOVoltage",
-			                               "MeasuredCurrent",
-			                               "AccelX",
-			                               "AccelY",
-			                               "AccelZ"};
+			                               "MeasuredPDPVoltage_V",
+			                               "MeasuredRIOVoltage_V",
+			                               "MeasuredCurrent_A",
+			                               "EstLeftDTCurrent_A",
+			                               "EstRightDTCurrent_A",
+			                               "EstBattESR_Ohm",
+			                               "EstBatVoc_V",
+			                               "EstBatConfidence",
+			                               "EstVsys_V",
+			                               "DriverFwdRevCmd",
+			                               "DriverLftRtCmd",
+			                               "LeftDTSpeed_RPM",
+			                               "RightDTSpeed_RPM",
+			                               "AccelX_g",
+			                               "AccelY_g",
+			                               "AccelZ_g"};
 	
 	//Joysticks
 	Joystick joy1;
@@ -147,7 +157,8 @@ public class Robot extends IterativeRobot {
      */
     public void autonomousPeriodic() {
     	//Add autonomous code here
-
+    	//Estimate battery Parmaeters
+    	bpe.updateEstimate(pdp.getVoltage(), pdp.getTotalCurrent());
     	
     	//Log data from this timestep
     	log_data();
@@ -167,7 +178,10 @@ public class Robot extends IterativeRobot {
      * This function is called periodically during operator control (teleop)
      */
     public void teleopPeriodic() {
-        //Add teleop code here
+    	//Estimate battery Parmaeters
+    	bpe.updateEstimate(pdp.getVoltage(), pdp.getTotalCurrent());
+    	
+        //Run Drivetrain
     	driveTrain.arcadeDrive(joy1.getRawAxis(XBOX_LSTICK_YAXIS), joy1.getRawAxis(XBOX_RSTICK_XAXIS), squaredInputs);
     	
     	//Log data from this timestep
@@ -218,6 +232,16 @@ public class Robot extends IterativeRobot {
 			    				      pdp.getVoltage(),
 			    				      ds.getBatteryVoltage(),
 			    			          pdp.getTotalCurrent(),
+			    			          driveTrain.getLeftMotorCurrent(),
+			    			          driveTrain.getRightMotorCurrent(),
+			    			          bpe.getEstESR(),
+    								  bpe.getEstVoc(),
+    								  (bpe.getConfidence()?1.0:0.0),
+    								  bpe.getEstVsys(driveTrain.getLeftMotorCurrent() + driveTrain.getRightMotorCurrent() + 5),
+			    			          joy1.getRawAxis(XBOX_LSTICK_YAXIS),
+			    			          joy1.getRawAxis(XBOX_RSTICK_YAXIS),
+			    			          driveTrain.leftEncoder.getRate()*9.5492, //report rate in RPM
+			    			          driveTrain.rightEncoder.getRate()*9.5492,
 			    			          accel_RIO.getX(),
 			    					  accel_RIO.getY(),
 			    					  accel_RIO.getZ()

@@ -21,8 +21,9 @@ public class DriveTrain extends RobotDrive { //Inherits methods from RobotDrive 
 	protected BatteryParamEstimator bpe;
 	
 	//Chris' CIM Current Estimators
-	CIMCurrentEstimator leftCCE;
-	CIMCurrentEstimator rightCCE;
+	public CIMCurrentEstimator leftCCE;
+	public CIMCurrentEstimator rightCCE;
+	
 	//Using Chris' naming convention
 	double motorEncRatio = 0;
 	double controllerVDrop_V = 0;
@@ -33,9 +34,9 @@ public class DriveTrain extends RobotDrive { //Inherits methods from RobotDrive 
 	protected Encoder rightEncoder;
 	//Encoder channels
 	protected int leftEncoderChannel_1 = 0;
-	protected int leftEncoderChannel_2 = 0;
-	protected int rightEncoderChannel_1 = 0;
-	protected int rightEncoderChannel_2 = 0;
+	protected int leftEncoderChannel_2 = 1;
+	protected int rightEncoderChannel_1 = 2;
+	protected int rightEncoderChannel_2 = 3;
 	
 	
 	
@@ -72,6 +73,14 @@ public class DriveTrain extends RobotDrive { //Inherits methods from RobotDrive 
 	{
 		
 		return true;
+	}
+	
+	public double getLeftMotorCurrent(){
+		return leftCCE.getCurrentEstimate(leftEncoder.getRate(), leftMotor_1.get());
+	}
+	
+	public double getRightMotorCurrent(){
+		return rightCCE.getCurrentEstimate(rightEncoder.getRate(), rightMotor_1.get());
 	}
 
 }
