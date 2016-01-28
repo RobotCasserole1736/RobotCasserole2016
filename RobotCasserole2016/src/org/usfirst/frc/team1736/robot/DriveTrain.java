@@ -1,6 +1,7 @@
 package org.usfirst.frc.team1736.robot;
 
 import edu.wpi.first.wpilibj.Encoder;
+import edu.wpi.first.wpilibj.PIDController;
 import edu.wpi.first.wpilibj.PowerDistributionPanel;
 import edu.wpi.first.wpilibj.RobotDrive;
 import edu.wpi.first.wpilibj.SpeedController;
@@ -23,10 +24,10 @@ public class DriveTrain extends RobotDrive { //Inherits methods from RobotDrive 
 	//Chris' CIM Current Estimators
 	CIMCurrentEstimator leftCCE;
 	CIMCurrentEstimator rightCCE;
+	
 	//Using Chris' naming convention
 	double motorEncRatio = 0;
 	double controllerVDrop_V = 0;
-	
 	
 	//Encoders
 	protected Encoder leftEncoder;
@@ -37,6 +38,11 @@ public class DriveTrain extends RobotDrive { //Inherits methods from RobotDrive 
 	protected int rightEncoderChannel_1 = 0;
 	protected int rightEncoderChannel_2 = 0;
 	
+	PIDController PIDController;
+	
+	final static double Kp = 0;
+	final static double Ki = 0;
+	final static double Kd = 0;
 	
 	
 	public DriveTrain(SpeedController leftMotor_1, SpeedController leftMotor_2, 
@@ -67,6 +73,9 @@ public class DriveTrain extends RobotDrive { //Inherits methods from RobotDrive 
 		leftEncoder = new Encoder(leftEncoderChannel_1, leftEncoderChannel_2);
 		rightEncoder = new Encoder(rightEncoderChannel_1, rightEncoderChannel_2);
 		
+		//PID
+		//PIDController = new PIDController(Kp, Ki ,Kd, );
+		
 		//Pi Radians per step of encoder rotation.
 		leftEncoder.setDistancePerPulse(Math.PI/512);
 		rightEncoder.setDistancePerPulse(Math.PI/512);
@@ -92,6 +101,16 @@ public class DriveTrain extends RobotDrive { //Inherits methods from RobotDrive 
 			super.setLeftRightMotorOutputs(0, 0);
 			System.out.println("Voltage too low!");
 		}
+	}
+	
+	public double getLeftCurrent(double leftOutput)
+	{
+		return leftCCE.getCurrentEstimate(leftEncoder.getRate(), leftOutput);
+	}
+	
+	public double getRightCurrent(double rightOutput)
+	{
+		return rightCCE.getCurrentEstimate(leftEncoder.getRate(), rightOutput);
 	}
 	
 	public void alignToVisionTarget()
