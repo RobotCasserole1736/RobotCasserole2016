@@ -93,5 +93,10 @@ public class DriveTrain extends RobotDrive { //Inherits methods from RobotDrive 
 			System.out.println("Voltage too low!");
 		}
 	}
+	
+	public void alignToVisionTarget()
+	{
+		
+	}
 
 }
