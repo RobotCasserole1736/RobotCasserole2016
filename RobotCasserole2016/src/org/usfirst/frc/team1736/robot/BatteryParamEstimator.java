@@ -11,17 +11,24 @@ import java.util.Arrays;
  */
 public class BatteryParamEstimator {
 
-	double VocEst = 13;
-	double ESREst = 0.012;
+	static double VocEstInit = 13;
+	static double EsrEstInit = 0.025;
+	
+	double VocEst = VocEstInit;
+	double ESREst = EsrEstInit;
 	boolean confident = false;
 	double min_spread_thresh = 7.0;
 	double prev_best_spread = 0;
-	double prev_best_esr = ESREst;
+	double prev_best_esr = EsrEstInit;
 	
 	int lms_window_length;
 	double[] circ_buf_SysCurDraw_A;
 	double[] circ_buf_SysVoltage_V;
 	int index;
+	
+	AveragingFilter input_V_filt;
+	AveragingFilter input_I_filt;
+	AveragingFilter esr_output_filt;
 	
 	public BatteryParamEstimator(int length){
 		lms_window_length = length;
@@ -30,6 +37,9 @@ public class BatteryParamEstimator {
 		circ_buf_SysVoltage_V = new double[lms_window_length];
 		Arrays.fill(circ_buf_SysCurDraw_A, 3.0);
 		Arrays.fill(circ_buf_SysVoltage_V, 13.0);
+		input_V_filt = new AveragingFilter(5, 13.0);
+		input_I_filt = new AveragingFilter(5, 0.0);
+		esr_output_filt = new AveragingFilter(20,EsrEstInit);
 		
 	}
 	
@@ -45,9 +55,9 @@ public class BatteryParamEstimator {
 	 */
 	public void updateEstimate(double measSysVoltage_V, double measSysCurrent_A){
 		
-		//Update buffers with new inputs
-		circ_buf_SysCurDraw_A[index] = measSysCurrent_A;
-		circ_buf_SysVoltage_V[index] = measSysVoltage_V;
+		//Update buffers with new inputs (filtered)
+		circ_buf_SysCurDraw_A[index] = input_I_filt.filter(measSysCurrent_A);
+		circ_buf_SysVoltage_V[index] = input_V_filt.filter(measSysVoltage_V);
 		index = (index + 1)%lms_window_length;
 		
 		//Perform Least Mean Squares estimation utilizing algorithm
@@ -84,6 +94,9 @@ public class BatteryParamEstimator {
 		if(!confident){
 			ESREst = prev_best_esr;
 		}
+		
+		//Filter the output ESR to prevent drastic spikes
+		ESREst = esr_output_filt.filter(ESREst);
 		
 		//From the ESR, calculate the open-circuit voltage
 		VocEst = meanV + ESREst * meanI;

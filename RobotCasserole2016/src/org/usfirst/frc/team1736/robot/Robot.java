@@ -56,7 +56,7 @@ public class Robot extends IterativeRobot {
 		final static boolean squaredInputs = true;
 		
 		//-BatteryParamEstimator length -- CHRIS MANAGES THIS CONSTANT
-		final static int BPE_length = 20; 
+		final static int BPE_length = 200; 
 		
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	// CLASS OBJECTS
@@ -86,6 +86,8 @@ public class Robot extends IterativeRobot {
 			                               "EstVsys",
 			                               "DriverFwdRevCmd",
 			                               "DriverLftRtCmd",
+			                               "LeftDTVoltage",
+			                               "RightDTVoltage",
 			                               "LeftDTSpeed",
 			                               "RightDTSpeed",
 			                               "AccelX",
@@ -107,6 +109,8 @@ public class Robot extends IterativeRobot {
 			                              "V",
 			                              "cmd",
 			                              "cmd",
+			                              "V",
+			                              "V",
 			                              "RPM",
 			                              "RPM",
 			                              "G",
@@ -137,6 +141,7 @@ public class Robot extends IterativeRobot {
     	ds = DriverStation.getInstance();
     	pdp = new PowerDistributionPanel();
     	bpe = new BatteryParamEstimator(BPE_length);
+    	bpe.setConfidenceThresh(10.0);
     	accel_RIO = new BuiltInAccelerometer();
     	//Motors
     	L_Motor_1 = new VictorSP(L_Motor_ID1);
@@ -260,7 +265,9 @@ public class Robot extends IterativeRobot {
     								  (bpe.getConfidence()?1.0:0.0),
     								  bpe.getEstVsys(driveTrain.getLeftMotorCurrent() + driveTrain.getRightMotorCurrent() + 5),
 			    			          joy1.getRawAxis(XBOX_LSTICK_YAXIS),
-			    			          joy2.getRawAxis(XBOX_RSTICK_YAXIS),
+			    			          joy1.getRawAxis(XBOX_RSTICK_XAXIS),
+			    			          driveTrain.leftMotor_1.get(),
+			    			          -driveTrain.rightMotor_1.get(),
 			    			          driveTrain.leftEncoder.getRate()*9.5492, //report rate in RPM
 			    			          driveTrain.rightEncoder.getRate()*9.5492,
 			    			          accel_RIO.getX(),

@@ -12,6 +12,7 @@ public class CIMCurrentEstimator {
 	double motorEncoderRatio; //Ratio in speeds between encoder measurement and actual motor speed. Numbers bigger than 1 indicate motor rotates faster than encoder 
 	double contVDrop;
 	
+	
 	/**
 	 * init - Sets up the current estimator with the system parameters.
 	 * Input - 

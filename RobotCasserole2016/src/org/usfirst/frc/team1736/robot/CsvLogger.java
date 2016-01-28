@@ -94,8 +94,6 @@ public class CsvLogger {
 		System.out.println("Writing to log file.");
 		try {
 			
-			//write fixed header data
-			log_file.write(Double.toString(log_write_index) + ", ");
 			//Write user-defined data
 			for(double data_val : data_elements){
 				log_file.write(Double.toString(data_val) + ", ");
