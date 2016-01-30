@@ -254,6 +254,10 @@ public class Robot extends IterativeRobot {
     	int ret_val_1 = 0;
     	int ret_val_2 = 0;
     	
+    	//Sorta temp - there's no nice way to expose this yet, so i'll do the calcualtion here.
+    	double dt_leftIest = driveTrain.leftCCE.getCurrentEstimate(driveTrain.leftEncoder.getRate(), driveTrain.leftMotor_1.get());
+    	double dt_rightIest = driveTrain.rightCCE.getCurrentEstimate(driveTrain.rightEncoder.getRate(), driveTrain.rightMotor_1.get());
+    	
     	//Log proper data to file. Order must match that of the variable "logger fields"
     	ret_val_1 = logger.writeData( Timer.getFPGATimestamp(),
     								  ds.getMatchTime(), 
@@ -263,12 +267,12 @@ public class Robot extends IterativeRobot {
 			    				      pdp.getVoltage(),
 			    				      ds.getBatteryVoltage(),
 			    			          pdp.getTotalCurrent(),
-			    			          driveTrain.getLeftMotorCurrent(),
-			    			          driveTrain.getRightMotorCurrent(),
+			    			          dt_leftIest,
+			    			          dt_rightIest,
 			    			          bpe.getEstESR(),
     								  bpe.getEstVoc(),
     								  (bpe.getConfidence()?1.0:0.0),
-    								  bpe.getEstVsys(driveTrain.getLeftMotorCurrent() + driveTrain.getRightMotorCurrent() + 5),
+    								  bpe.getEstVsys(dt_rightIest + dt_leftIest + 5), //total guess at 5A background I draw
 			    			          joy1.getRawAxis(XBOX_LSTICK_YAXIS),
 			    			          joy1.getRawAxis(XBOX_RSTICK_XAXIS),
 			    			          driveTrain.leftMotor_1.get(),
