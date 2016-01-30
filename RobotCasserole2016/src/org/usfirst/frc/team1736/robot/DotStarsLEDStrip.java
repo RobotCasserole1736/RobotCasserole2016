@@ -142,12 +142,13 @@ public class DotStarsLEDStrip {
 		//Constrain the input to the defined [0,1] input range
 		in = Math.min(Math.max(in, 0.0), 1.0);
 		//Scale and round
-		in = Math.round(in * 255.0);
+		in = Math.round(in * ledMaxVal);
 		//Stupid offsetting b/c java doesn't support unsigned operations
 		//This is 2's complement sign conversion. If you don't know what that
 		//means, please don't touch this logic.
-		if(in > 126.0)
+		if(in > (ledMaxVal+1)/2)
 			in = in - (ledMaxVal + 1);
+		
 		return (byte)in;
 	}
 	
