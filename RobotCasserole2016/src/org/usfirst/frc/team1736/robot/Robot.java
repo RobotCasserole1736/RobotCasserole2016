@@ -97,7 +97,8 @@ public class Robot extends IterativeRobot {
 			                               "RightDTSpeed",
 			                               "AccelX",
 			                               "AccelY",
-			                               "AccelZ"};
+			                               "AccelZ",
+			                               "CommandedCameraPos"};
 	static final String[] units_fields = {"sec",
 			                              "sec",
 			                              "bit",
@@ -120,7 +121,8 @@ public class Robot extends IterativeRobot {
 			                              "RPM",
 			                              "G",
 			                              "G",
-			                              "G"};
+			                              "G",
+			                              "Index"};
 	
 	//Joysticks
 	Joystick joy1;
@@ -288,7 +290,8 @@ public class Robot extends IterativeRobot {
 			    			          driveTrain.rightEncoder.getRate()*9.5492,
 			    			          accel_RIO.getX(),
 			    					  accel_RIO.getY(),
-			    					  accel_RIO.getZ()
+			    					  accel_RIO.getZ(),
+			    					  csm.curCamPos.ordinal()
 			    					 );
     	//Check for brownout. If browned out, force write data to log. Just in case we
     	//lose power and nasty things happen, at least we'll know how we died...

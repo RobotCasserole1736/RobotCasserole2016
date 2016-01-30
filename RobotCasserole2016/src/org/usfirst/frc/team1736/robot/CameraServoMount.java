@@ -12,8 +12,9 @@ import edu.wpi.first.wpilibj.Servo;
 public class CameraServoMount {
 	
 	//State variables
-	public double cur_pan_angle = 0;
-	public double cur_tilt_angle = 0;
+	public double cur_pan_angle;
+	public double cur_tilt_angle;
+	public CamPos curCamPos;
 	
 	//Startup conditions
 	private static final CamPos startupPos = CamPos.DRIVE_FWD;
@@ -68,6 +69,7 @@ public class CameraServoMount {
 	 * @param in - position to set the camera to.
 	 */
 	private void resolveCamPos(CamPos in){
+		curCamPos = in;
 		
 		switch(in){
 		case DRIVE_FWD:
