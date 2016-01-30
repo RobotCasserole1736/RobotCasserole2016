@@ -46,6 +46,11 @@ public class Robot extends IterativeRobot {
 		//-Controller D-Pad POV Hat
 		final static int XBOX_DPAD_POV = 0;
 		
+		//-Vision
+		final static String[] GRIPArgs = new String[] {
+		        "/usr/local/frc/JRE/bin/java", "-jar",
+		        "/home/lvuser/grip.jar", "/home/lvuser/project.grip" };
+		
 		//-Motor IDs
 		final static int L_Motor_ID1 = 2;
 		final static int L_Motor_ID2 = 3;
