@@ -19,16 +19,16 @@ public class CameraServoMount {
 	private static final CamPos startupPos = CamPos.DRIVE_FWD;
 	
 	//Position constants (in degrees)
-	private static final double DRIVE_FWD_PAN_ANGLE = 90;
-	private static final double DRIVE_FWD_TILT_ANGLE = 5;
+	private static final double DRIVE_FWD_PAN_ANGLE = 0;
+	private static final double DRIVE_FWD_TILT_ANGLE = 25;
 	
-	private static final double DRIVE_REV_PAN_ANGLE = -90;
-	private static final double DRIVE_REV_TILT_ANGLE = 5;
+	private static final double DRIVE_REV_PAN_ANGLE = 180;
+	private static final double DRIVE_REV_TILT_ANGLE = 25;
 	
-	private static final double SHOOT_PAN_ANGLE = 90;
-	private static final double SHOOT_TILT_ANGLE = 25;
+	private static final double SHOOT_PAN_ANGLE = 0;
+	private static final double SHOOT_TILT_ANGLE = 65;
 	
-	private static final double CLIMB_PAN_ANGLE = 45;
+	private static final double CLIMB_PAN_ANGLE = 25;
 	private static final double CLIMB_TILT_ANGLE = 65;
 	
 	//Hookup constants
@@ -43,9 +43,9 @@ public class CameraServoMount {
 	 * Constructor - initializes all the objects for a camera servo mount. Takes nothing, returns nothing.
 	 */
 	CameraServoMount(){
-		resolveCamPos(startupPos);
 		pan_servo = new Servo(PAN_SERVO_PORT);
 		tilt_servo = new Servo(TILT_SERVO_PORT);
+		setCameraPos(startupPos);
 		
 	}
 	

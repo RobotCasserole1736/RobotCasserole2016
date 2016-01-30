@@ -132,6 +132,8 @@ public class Robot extends IterativeRobot {
 	VictorSP L_Motor_2;
 	VictorSP R_Motor_1;
 	VictorSP R_Motor_2;
+	//Camera servo mount
+	CameraServoMount csm;
 	
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	// PUBLIC METHODS 
@@ -148,6 +150,8 @@ public class Robot extends IterativeRobot {
     	bpe = new BatteryParamEstimator(BPE_length);
     	bpe.setConfidenceThresh(10.0);
     	accel_RIO = new BuiltInAccelerometer();
+    	csm = new CameraServoMount();
+    	
     	//Motors
     	L_Motor_1 = new VictorSP(L_Motor_ID1);
     	L_Motor_2 = new VictorSP(L_Motor_ID2);
@@ -188,7 +192,7 @@ public class Robot extends IterativeRobot {
      */
     public void autonomousPeriodic() {
     	//Add autonomous code here
-    	//Estimate battery Parmaeters
+    	//Estimate battery Parameters
     	bpe.updateEstimate(pdp.getVoltage(), pdp.getTotalCurrent());
     	
     	//Log data from this timestep
@@ -214,6 +218,9 @@ public class Robot extends IterativeRobot {
     	
         //Run Drivetrain
     	driveTrain.arcadeDrive(joy1.getRawAxis(XBOX_LSTICK_YAXIS), joy1.getRawAxis(XBOX_RSTICK_XAXIS), squaredInputs);
+    	
+    	//Update camera position
+    	processCameraAngle();
     	
     	//Log data from this timestep
     	log_data();
@@ -291,6 +298,26 @@ public class Robot extends IterativeRobot {
     	}
     	
     	return Math.min(ret_val_1, ret_val_2);
+    }
+    
+    /**
+     * Sets camera to the right position based on driver inputs
+     */  
+    private void processCameraAngle(){
+    	
+    	if(joy1.getRawButton(XBOX_Y_BUTTON)){
+    		csm.setCameraPos(CamPos.DRIVE_FWD);
+    	}
+    	else if(joy1.getRawButton(XBOX_A_BUTTON)){
+    		csm.setCameraPos(CamPos.DRIVE_REV);
+    	}
+    	else if(joy1.getRawButton(XBOX_B_BUTTON)){
+    		csm.setCameraPos(CamPos.SHOOT);
+    	}
+    	else if(joy1.getRawButton(XBOX_X_BUTTON)){
+    		csm.setCameraPos(CamPos.CLIMB);
+    	}
+    	
     }
     
 }
