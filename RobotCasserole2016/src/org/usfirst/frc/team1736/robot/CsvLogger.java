@@ -1,6 +1,5 @@
 package org.usfirst.frc.team1736.robot;
 
-import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;

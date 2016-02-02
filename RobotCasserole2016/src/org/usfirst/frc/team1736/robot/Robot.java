@@ -20,7 +20,7 @@ public class Robot extends IterativeRobot {
 	
 		final static int JOY1_INT = 0;
 		final static int JOY2_INT = 1;
-		//soon
+		//Soon
 		final static boolean SINGLE_JOYSTICK_IS_BEST_JOYSTICK = false;
 		
 		//-Controller Buttons
