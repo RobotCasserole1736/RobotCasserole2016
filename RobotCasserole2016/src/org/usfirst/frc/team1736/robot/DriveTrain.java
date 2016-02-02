@@ -117,5 +117,10 @@ public class DriveTrain extends RobotDrive { //Inherits methods from RobotDrive 
 	{
 		
 	}
+	
+	public String getMemes()
+	{
+		return "Memes";
+	}
 
 }

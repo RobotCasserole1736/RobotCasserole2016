@@ -217,7 +217,7 @@ public class Robot extends IterativeRobot {
     	
     	//Log data from this timestep
     	log_data();
-    	
+    	System.out.println(driveTrain.getMemes());
     }
     
     /**
