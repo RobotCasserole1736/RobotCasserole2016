@@ -127,6 +127,8 @@ public class Robot extends IterativeRobot {
 	Joystick joy2;
 	//Drive Train
 	DriveTrain driveTrain;
+	//climber mechanism
+	Climb Climber;
 	//Motors
 	VictorSP L_Motor_1;
 	VictorSP L_Motor_2;
@@ -155,7 +157,7 @@ public class Robot extends IterativeRobot {
     	R_Motor_2 = new VictorSP(R_Motor_ID2);
     	//Drivetrain
     	driveTrain = new DriveTrain(L_Motor_1, L_Motor_2, R_Motor_1, R_Motor_2, pdp, bpe);
-    	
+    	Climber=new Climb();
     	//Joysticks
     	joy1 = new Joystick(JOY1_INT);
     	joy2 = new Joystick(JOY2_INT);
@@ -215,6 +217,11 @@ public class Robot extends IterativeRobot {
         //Run Drivetrain
     	driveTrain.arcadeDrive(joy1.getRawAxis(XBOX_LSTICK_YAXIS), joy1.getRawAxis(XBOX_RSTICK_XAXIS), squaredInputs);
     	
+    	
+    	
+    	
+    	
+    	Climber.periodicClimb(joy2.getRawButton(XBOX_START_BUTTON), joy2.getRawAxis(XBOX_LSTICK_YAXIS), joy2.getRawAxis(XBOX_RTRIGGER_AXIS));
     	//Log data from this timestep
     	log_data();
     	
