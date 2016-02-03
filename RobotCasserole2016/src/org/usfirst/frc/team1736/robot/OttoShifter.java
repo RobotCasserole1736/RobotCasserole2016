@@ -41,7 +41,7 @@ public class OttoShifter {
 	 public void OttoShifterPeriodic(
 			 double VelocityValue,
 			 double WheelAceelValue,
-			 double VerAccelValue,
+			 double VertAccelValue,
 			 double CurrentValue,
 			 boolean DriverUpshiftCmd,
 			 boolean DriverDownshiftCmd){
@@ -53,10 +53,26 @@ public class OttoShifter {
 		 case false;
 		 
 		 break;
-	Didn't work- Riperino in Peperino
+	Didn't work- Riperino in Pepperino
 			*/ 
 		 
-		 if (gear == true){
+		 boolean VelDebounceState = VelDebounce.BelowDebounce(VelocityValue); //rinse wash repeat for the other four
+		 boolean WheelAccelDebounceState = WheelAccelDebounce.BelowDebounce(WheelAceelValue);
+		 boolean VertAccelDebounceState = VertAccelDebounce.BelowDebounce(VertAccelValue);
+		 boolean CurrentDebounceState = CurrentDebounce.AboveDebounce(CurrentValue);
+	 		 
+		 if (gear == true){ //Top Gear
+			 if (DriverDownshiftCmd == true|| (VelDebounceState == true && WheelAccelDebounceState == true && VertAccelDebounceState == true && CurrentDebounceState == true)){
+				 gear = false;
+			 }{
+				 gear = true;
+			 }{
+			if (DriverUpshiftCmd == true){
+				gear = true;
+			}
+			 }
+			
+			 
 			 
 		 }
 		 else{ //gear == false
@@ -64,6 +80,5 @@ public class OttoShifter {
 		 }
 		 }
 		 
-	 }
-	}
+}
 	
