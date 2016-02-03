@@ -99,7 +99,11 @@ public class Robot extends IterativeRobot {
 			                               "AccelY",
 			                               "AccelZ",
 			                               "TaskExecTime",
-			                               "CommandedCameraPos"};
+			                               "CommandedCameraPos",
+			                               "ClimbEnable",
+			                               "TapeMeasureCmd",
+			                               "WinchCmd",
+			                               "TapeMeasureLimitSw"};
 	static final String[] units_fields = {"sec",
 			                              "sec",
 			                              "bit",
@@ -124,7 +128,11 @@ public class Robot extends IterativeRobot {
 			                              "G",
 			                              "G",
 			                              "mS",
-			                              "Index"};
+			                              "Index",
+			                              "bit",
+			                              "cmd",
+			                              "cmd",
+			                              "bit"};
 	
 	//Variable for metric logging
 	private double prev_loop_start_timestamp = 0;
@@ -173,6 +181,9 @@ public class Robot extends IterativeRobot {
     	//Joysticks
     	joy1 = new Joystick(JOY1_INT);
     	joy2 = new Joystick(JOY2_INT);
+    	
+    	//Ensure intake starts in proper position
+    	Pneumatics.intakeUp();
     }
     
     /**
@@ -195,10 +206,15 @@ public class Robot extends IterativeRobot {
     	//Initialize the new log file for autonomous
     	logger.init(logger_fields, units_fields);
 
-    	
+    	//Compressor starts automatically
+
     	//init the task timing things
     	prev_loop_start_timestamp = Timer.getFPGATimestamp();
     	loop_time_elapsed = 0;
+    	
+    	//Raise intake to prevent damage in auto.
+    	Pneumatics.intakeUp();
+    	
     }
 
     /**
@@ -227,6 +243,7 @@ public class Robot extends IterativeRobot {
     	//Initialize the new log file for Teleop
     	logger.init(logger_fields, units_fields);
 
+    	//compressor starts automatically
     	
     	//init the task timing things
     	prev_loop_start_timestamp = Timer.getFPGATimestamp();
@@ -249,13 +266,20 @@ public class Robot extends IterativeRobot {
     	//Update camera position
     	processCameraAngle();
     	
-    	
+    	//Run climber
     	Climber.periodicClimb(joy2.getRawButton(XBOX_START_BUTTON), joy2.getRawAxis(XBOX_LSTICK_YAXIS), joy2.getRawAxis(XBOX_RTRIGGER_AXIS));
+    	
+    	//Adjust intake position
+    	if(joy2.getRawButton(XBOX_A_BUTTON))
+    		Pneumatics.intakeDown();
+    	if(joy2.getRawButton(XBOX_Y_BUTTON))
+    		Pneumatics.intakeUp();
+    	
     	//Log data from this timestep
     	log_data();
     	System.out.println(driveTrain.getMemes());
     	
-    	//Execution time metric - this must be last!
+    	//Execution time metric - this must be last! Even after memes!
     	loop_time_elapsed = Timer.getFPGATimestamp() - prev_loop_start_timestamp;
     }
     
@@ -329,7 +353,11 @@ public class Robot extends IterativeRobot {
 			    					  accel_RIO.getY(),
 			    					  accel_RIO.getZ(),
 			    				      loop_time_elapsed*1000.0,
-			    					  csm.curCamPos.ordinal()
+			    					  csm.curCamPos.ordinal(),
+			    					  (joy2.getRawButton(XBOX_START_BUTTON)?1.0:0.0),
+			    					  Climber.tapemotor.get(),
+			    					  Climber.winchmotor1.get(),
+			    					  (Climber.tapetrigger.get()?1.0:0.0)		    					  
 			    					 );
     	//Check for brownout. If browned out, force write data to log. Just in case we
     	//lose power and nasty things happen, at least we'll know how we died...
