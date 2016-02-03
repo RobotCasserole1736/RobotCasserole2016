@@ -3,8 +3,10 @@ package org.usfirst.frc.team1736.robot;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.TimeZone;
 import java.io.BufferedWriter;
 
 /**
@@ -86,6 +88,8 @@ public class CsvLogger {
 	 * @return 0 on write success, -1 on failure.
 	 */	
 	public int writeData(double... data_elements){
+		String line_to_write = "";
+		
 		if(log_open == false){
 			System.out.println("Error - Log is not yet opened, cannot write!");
 			return -1;
@@ -96,11 +100,16 @@ public class CsvLogger {
 			
 			//Write user-defined data
 			for(double data_val : data_elements){
+				line_to_write = line_to_write.concat(Double.toString(data_val) + ", ");
 				log_file.write(Double.toString(data_val) + ", ");
 			}
 			
 			//End of line
-			log_file.write("\n");
+			line_to_write = line_to_write.concat("\n");
+			
+			//write constructed string out to file
+			log_file.write(line_to_write);
+			
 		}
 		//Catch ALL the errors!!!
 		catch(IOException e){
@@ -167,7 +176,9 @@ public class CsvLogger {
 	}
 	
 	private String getDateTimeString() {
-		return new SimpleDateFormat("yyyy-MM-dd_HHmmss").format(new Date());
+		DateFormat df = new SimpleDateFormat("yyyy-MM-dd_HHmmss");
+		df.setTimeZone(TimeZone.getTimeZone("US/Central"));
+		return df.format(new Date());
 	}
 
 }

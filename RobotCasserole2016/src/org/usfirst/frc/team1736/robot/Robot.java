@@ -18,50 +18,50 @@ import edu.wpi.first.wpilibj.VictorSP;
  */
 public class Robot extends IterativeRobot {
 	
-		final static int JOY1_INT = 0;
-		final static int JOY2_INT = 1;
-		//soon
-		final static boolean SINGLE_JOYSTICK_IS_BEST_JOYSTICK = false;
-		
-		//-Controller Buttons
-		final static int XBOX_A_BUTTON = 1;
-		final static int XBOX_B_BUTTON = 2;
-		final static int XBOX_X_BUTTON = 3;
-		final static int XBOX_Y_BUTTON = 4;
-		final static int XBOX_LEFT_BUTTON = 5;
-		final static int XBOX_RIGHT_BUTTON = 6;
-		final static int XBOX_SELECT_BUTTON = 7;
-		final static int XBOX_START_BUTTON = 8;
-		final static int XBOX_LSTICK_BUTTON = 9;
-		final static int XBOX_RSTICK_BUTTON = 10;
-		
-		//-Controller Axes
-		final static int XBOX_LSTICK_XAXIS = 0;
-		final static int XBOX_LSTICK_YAXIS = 1;
-		final static int XBOX_LTRIGGER_AXIS = 2;
-		final static int XBOX_RTRIGGER_AXIS = 3;
-		final static int XBOX_RSTICK_XAXIS = 4;
-		final static int XBOX_RSTICK_YAXIS = 5;
-		
-		//-Controller D-Pad POV Hat
-		final static int XBOX_DPAD_POV = 0;
-		
-		//-Vision
-		final static String[] GRIPArgs = new String[] {
-		        "/usr/local/frc/JRE/bin/java", "-jar",
-		        "/home/lvuser/grip.jar", "/home/lvuser/project.grip" };
-		
-		//-Motor IDs
-		final static int L_Motor_ID1 = 2;
-		final static int L_Motor_ID2 = 3;
-		final static int R_Motor_ID1 = 0;
-		final static int R_Motor_ID2 = 1;
-		
-		//-Square joystick input?
-		final static boolean squaredInputs = true;
-		
-		//-BatteryParamEstimator length -- CHRIS MANAGES THIS CONSTANT
-		final static int BPE_length = 200; 
+	final static int JOY1_INT = 0;
+	final static int JOY2_INT = 1;
+	//soon
+	final static boolean SINGLE_JOYSTICK_IS_BEST_JOYSTICK = false;
+	
+	//-Controller Buttons
+	final static int XBOX_A_BUTTON = 1;
+	final static int XBOX_B_BUTTON = 2;
+	final static int XBOX_X_BUTTON = 3;
+	final static int XBOX_Y_BUTTON = 4;
+	final static int XBOX_LEFT_BUTTON = 5;
+	final static int XBOX_RIGHT_BUTTON = 6;
+	final static int XBOX_SELECT_BUTTON = 7;
+	final static int XBOX_START_BUTTON = 8;
+	final static int XBOX_LSTICK_BUTTON = 9;
+	final static int XBOX_RSTICK_BUTTON = 10;
+	
+	//-Controller Axes
+	final static int XBOX_LSTICK_XAXIS = 0;
+	final static int XBOX_LSTICK_YAXIS = 1;
+	final static int XBOX_LTRIGGER_AXIS = 2;
+	final static int XBOX_RTRIGGER_AXIS = 3;
+	final static int XBOX_RSTICK_XAXIS = 4;
+	final static int XBOX_RSTICK_YAXIS = 5;
+	
+	//-Controller D-Pad POV Hat
+	final static int XBOX_DPAD_POV = 0;
+	
+	//-Vision
+	final static String[] GRIPArgs = new String[] {
+	        "/usr/local/frc/JRE/bin/java", "-jar",
+	        "/home/lvuser/grip.jar", "/home/lvuser/project.grip" };
+	
+	//-Motor IDs
+	final static int L_Motor_ID1 = 2;
+	final static int L_Motor_ID2 = 3;
+	final static int R_Motor_ID1 = 0;
+	final static int R_Motor_ID2 = 1;
+	
+	//-Square joystick input?
+	final static boolean squaredInputs = true;
+	
+	//-BatteryParamEstimator length -- CHRIS MANAGES THIS CONSTANT
+	final static int BPE_length = 200; 
 		
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	// CLASS OBJECTS
@@ -97,7 +97,8 @@ public class Robot extends IterativeRobot {
 			                               "RightDTSpeed",
 			                               "AccelX",
 			                               "AccelY",
-			                               "AccelZ"};
+			                               "AccelZ",
+			                               "TaskExecTime"};
 	static final String[] units_fields = {"sec",
 			                              "sec",
 			                              "bit",
@@ -120,7 +121,12 @@ public class Robot extends IterativeRobot {
 			                              "RPM",
 			                              "G",
 			                              "G",
-			                              "G"};
+			                              "G",
+			                              "mS"};
+	
+	//Variable for metric logging
+	private double prev_loop_start_timestamp = 0;
+	private double loop_time_elapsed = 0;
 	
 	//Joysticks
 	Joystick joy1;
@@ -181,18 +187,28 @@ public class Robot extends IterativeRobot {
     	//Initialize the new log file for autonomous
     	logger.init(logger_fields, units_fields);
 
+    	
+    	//init the task timing things
+    	prev_loop_start_timestamp = Timer.getFPGATimestamp();
+    	loop_time_elapsed = 0;
     }
 
     /**
      * This function is called periodically during autonomous
      */
     public void autonomousPeriodic() {
+    	//Execution time metric - this must be first!
+    	prev_loop_start_timestamp = Timer.getFPGATimestamp();
+    	
     	//Add autonomous code here
     	//Estimate battery Parmaeters
     	bpe.updateEstimate(pdp.getVoltage(), pdp.getTotalCurrent());
     	
     	//Log data from this timestep
     	log_data();
+    	
+    	//Execution time metric - this must be last!
+    	loop_time_elapsed = Timer.getFPGATimestamp() - prev_loop_start_timestamp;
     }
     
     /**
@@ -203,12 +219,19 @@ public class Robot extends IterativeRobot {
     	//Initialize the new log file for Teleop
     	logger.init(logger_fields, units_fields);
 
+    	
+    	//init the task timing things
+    	prev_loop_start_timestamp = Timer.getFPGATimestamp();
+    	loop_time_elapsed = 0;
     }
 
     /**
      * This function is called periodically during operator control (teleop)
      */
     public void teleopPeriodic() {
+    	//Execution time metric - this must be first!
+    	prev_loop_start_timestamp = Timer.getFPGATimestamp();
+    	
     	//Estimate battery Parmaeters
     	bpe.updateEstimate(pdp.getVoltage(), pdp.getTotalCurrent());
     	
@@ -218,6 +241,9 @@ public class Robot extends IterativeRobot {
     	//Log data from this timestep
     	log_data();
     	System.out.println(driveTrain.getMemes());
+    	
+    	//Execution time metric - this must be last!
+    	loop_time_elapsed = Timer.getFPGATimestamp() - prev_loop_start_timestamp;
     }
     
     /**
@@ -227,6 +253,10 @@ public class Robot extends IterativeRobot {
     public void testInit() {
     	//Initialize the new log file for Test
     	logger.init(logger_fields, units_fields);
+    	
+    	//init the task timing things
+    	prev_loop_start_timestamp = Timer.getFPGATimestamp();
+    	loop_time_elapsed = 0;
     
     }
     
@@ -234,11 +264,15 @@ public class Robot extends IterativeRobot {
      * This function is called periodically during test mode
      */
     public void testPeriodic() {
+    	//Execution time metric - this must be first!
+    	prev_loop_start_timestamp = Timer.getFPGATimestamp();
     	//Add test code here
     	
     	
     	//Log data from this timestep
     	log_data();
+    	//Execution time metric - this must be last!
+    	loop_time_elapsed = Timer.getFPGATimestamp() - prev_loop_start_timestamp;
     
     }
     
@@ -281,7 +315,8 @@ public class Robot extends IterativeRobot {
 			    			          driveTrain.rightEncoder.getRate()*9.5492,
 			    			          accel_RIO.getX(),
 			    					  accel_RIO.getY(),
-			    					  accel_RIO.getZ()
+			    					  accel_RIO.getZ(),
+			    				      loop_time_elapsed*1000.0
 			    					 );
     	//Check for brownout. If browned out, force write data to log. Just in case we
     	//lose power and nasty things happen, at least we'll know how we died...
