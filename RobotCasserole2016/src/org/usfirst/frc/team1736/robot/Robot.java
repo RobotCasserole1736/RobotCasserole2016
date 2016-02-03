@@ -98,7 +98,8 @@ public class Robot extends IterativeRobot {
 			                               "AccelX",
 			                               "AccelY",
 			                               "AccelZ",
-			                               "TaskExecTime"};
+			                               "TaskExecTime",
+			                               "CommandedCameraPos"};
 	static final String[] units_fields = {"sec",
 			                              "sec",
 			                              "bit",
@@ -122,7 +123,8 @@ public class Robot extends IterativeRobot {
 			                              "G",
 			                              "G",
 			                              "G",
-			                              "mS"};
+			                              "mS",
+			                              "Index"};
 	
 	//Variable for metric logging
 	private double prev_loop_start_timestamp = 0;
@@ -138,6 +140,8 @@ public class Robot extends IterativeRobot {
 	VictorSP L_Motor_2;
 	VictorSP R_Motor_1;
 	VictorSP R_Motor_2;
+	//Camera servo mount
+	CameraServoMount csm;
 	
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	// PUBLIC METHODS 
@@ -154,6 +158,8 @@ public class Robot extends IterativeRobot {
     	bpe = new BatteryParamEstimator(BPE_length);
     	bpe.setConfidenceThresh(10.0);
     	accel_RIO = new BuiltInAccelerometer();
+    	csm = new CameraServoMount();
+    	
     	//Motors
     	L_Motor_1 = new VictorSP(L_Motor_ID1);
     	L_Motor_2 = new VictorSP(L_Motor_ID2);
@@ -201,7 +207,7 @@ public class Robot extends IterativeRobot {
     	prev_loop_start_timestamp = Timer.getFPGATimestamp();
     	
     	//Add autonomous code here
-    	//Estimate battery Parmaeters
+    	//Estimate battery Parameters
     	bpe.updateEstimate(pdp.getVoltage(), pdp.getTotalCurrent());
     	
     	//Log data from this timestep
@@ -237,6 +243,9 @@ public class Robot extends IterativeRobot {
     	
         //Run Drivetrain
     	driveTrain.arcadeDrive(joy1.getRawAxis(XBOX_LSTICK_YAXIS), joy1.getRawAxis(XBOX_RSTICK_XAXIS), squaredInputs);
+    	
+    	//Update camera position
+    	processCameraAngle();
     	
     	//Log data from this timestep
     	log_data();
@@ -316,7 +325,8 @@ public class Robot extends IterativeRobot {
 			    			          accel_RIO.getX(),
 			    					  accel_RIO.getY(),
 			    					  accel_RIO.getZ(),
-			    				      loop_time_elapsed*1000.0
+			    				      loop_time_elapsed*1000.0,
+			    					  csm.curCamPos.ordinal()
 			    					 );
     	//Check for brownout. If browned out, force write data to log. Just in case we
     	//lose power and nasty things happen, at least we'll know how we died...
@@ -326,6 +336,26 @@ public class Robot extends IterativeRobot {
     	}
     	
     	return Math.min(ret_val_1, ret_val_2);
+    }
+    
+    /**
+     * Sets camera to the right position based on driver inputs
+     */  
+    private void processCameraAngle(){
+    	
+    	if(joy1.getRawButton(XBOX_Y_BUTTON)){
+    		csm.setCameraPos(CamPos.DRIVE_FWD);
+    	}
+    	else if(joy1.getRawButton(XBOX_A_BUTTON)){
+    		csm.setCameraPos(CamPos.DRIVE_REV);
+    	}
+    	else if(joy1.getRawButton(XBOX_B_BUTTON)){
+    		csm.setCameraPos(CamPos.SHOOT);
+    	}
+    	else if(joy1.getRawButton(XBOX_X_BUTTON)){
+    		csm.setCameraPos(CamPos.CLIMB);
+    	}
+    	
     }
     
 }
