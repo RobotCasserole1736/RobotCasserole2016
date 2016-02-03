@@ -52,10 +52,10 @@ public class Robot extends IterativeRobot {
 	        "/home/lvuser/grip.jar", "/home/lvuser/project.grip" };
 	
 	//-Motor IDs
-	final static int L_Motor_ID1 = 2;
-	final static int L_Motor_ID2 = 3;
-	final static int R_Motor_ID1 = 0;
-	final static int R_Motor_ID2 = 1;
+	final static int L_Motor_ID1 = 0; //CMG - Confirmed 2-2-2016
+	final static int L_Motor_ID2 = 1;
+	final static int R_Motor_ID1 = 2;
+	final static int R_Motor_ID2 = 3;
 	
 	//-Square joystick input?
 	final static boolean squaredInputs = true;
@@ -72,6 +72,7 @@ public class Robot extends IterativeRobot {
 	PowerDistributionPanel pdp;
 	BatteryParamEstimator bpe;
 	BuiltInAccelerometer accel_RIO;
+	I2CGyro gyro;
 	
 	//Data Logger
 	CsvLogger logger = new CsvLogger();
@@ -103,7 +104,14 @@ public class Robot extends IterativeRobot {
 			                               "ClimbEnable",
 			                               "TapeMeasureCmd",
 			                               "WinchCmd",
-			                               "TapeMeasureLimitSw"};
+			                               "TapeMeasureLimitSw",
+			                               "GyroMeasAngle",
+			                               "GyroStatus",
+			                               "CompressorCurrent",
+			                               "LaunchWheelCurrent",
+			                               "LaunchWheelActSpeed",
+			                               "LaunchWheelDesSpeed"};
+	
 	static final String[] units_fields = {"sec",
 			                              "sec",
 			                              "bit",
@@ -132,7 +140,13 @@ public class Robot extends IterativeRobot {
 			                              "bit",
 			                              "cmd",
 			                              "cmd",
-			                              "bit"};
+			                              "bit",
+			                              "deg",
+			                              "bit",
+			                              "A",
+			                              "A",
+			                              "RPM",
+			                              "RPM"};
 	
 	//Variable for metric logging
 	private double prev_loop_start_timestamp = 0;
@@ -145,6 +159,8 @@ public class Robot extends IterativeRobot {
 	DriveTrain driveTrain;
 	//climber mechanism
 	Climb Climber;
+	//Launch Motor
+	Shooter launchMotor;
 	//Motors
 	VictorSP L_Motor_1;
 	VictorSP L_Motor_2;
@@ -169,6 +185,7 @@ public class Robot extends IterativeRobot {
     	bpe.setConfidenceThresh(10.0);
     	accel_RIO = new BuiltInAccelerometer();
     	csm = new CameraServoMount();
+    	gyro = new I2CGyro();
     	
     	//Motors
     	L_Motor_1 = new VictorSP(L_Motor_ID1);
@@ -177,7 +194,9 @@ public class Robot extends IterativeRobot {
     	R_Motor_2 = new VictorSP(R_Motor_ID2);
     	//Drivetrain
     	driveTrain = new DriveTrain(L_Motor_1, L_Motor_2, R_Motor_1, R_Motor_2, pdp, bpe);
+    	//Peripherials
     	Climber=new Climb();
+    	launchMotor = new Shooter();
     	//Joysticks
     	joy1 = new Joystick(JOY1_INT);
     	joy2 = new Joystick(JOY2_INT);
@@ -207,6 +226,9 @@ public class Robot extends IterativeRobot {
     	logger.init(logger_fields, units_fields);
 
     	//Compressor starts automatically
+    	
+    	//reset gyro angle to 0
+    	gyro.reset_gyro_angle();
 
     	//init the task timing things
     	prev_loop_start_timestamp = Timer.getFPGATimestamp();
@@ -269,7 +291,7 @@ public class Robot extends IterativeRobot {
     	//Run climber
     	Climber.periodicClimb(joy2.getRawButton(XBOX_START_BUTTON), joy2.getRawAxis(XBOX_LSTICK_YAXIS), joy2.getRawAxis(XBOX_RTRIGGER_AXIS));
     	
-    	//Adjust intake position
+    	//Adjust intake position based on driver commands
     	if(joy2.getRawButton(XBOX_A_BUTTON))
     		Pneumatics.intakeDown();
     	if(joy2.getRawButton(XBOX_Y_BUTTON))
@@ -357,7 +379,13 @@ public class Robot extends IterativeRobot {
 			    					  (joy2.getRawButton(XBOX_START_BUTTON)?1.0:0.0),
 			    					  Climber.tapemotor.get(),
 			    					  Climber.winchmotor1.get(),
-			    					  (Climber.tapetrigger.get()?1.0:0.0)		    					  
+			    					  (Climber.tapetrigger.get()?1.0:0.0),
+			    					  gyro.get_gyro_angle()%360,
+			    					  (gyro.get_gyro_status()?1.0:0.0),
+			    					  Pneumatics.getCurrent(),
+			    					  launchMotor.getCurrent(),
+			    					  launchMotor.getActSpeed(),
+			    					  launchMotor.getDesSpeed()
 			    					 );
     	//Check for brownout. If browned out, force write data to log. Just in case we
     	//lose power and nasty things happen, at least we'll know how we died...

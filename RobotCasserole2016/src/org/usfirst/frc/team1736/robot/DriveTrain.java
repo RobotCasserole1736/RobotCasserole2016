@@ -32,8 +32,8 @@ public class DriveTrain extends RobotDrive { //Inherits methods from RobotDrive 
 	//Encoders
 	protected Encoder leftEncoder;
 	protected Encoder rightEncoder;
-	//Encoder channels
-	protected int leftEncoderChannel_1 = 0;
+	//Encoder channels //CMG - Confirmed 2-2-2016
+	protected int leftEncoderChannel_1 = 0; 
 	protected int leftEncoderChannel_2 = 1;
 	protected int rightEncoderChannel_1 = 2;
 	protected int rightEncoderChannel_2 = 3;

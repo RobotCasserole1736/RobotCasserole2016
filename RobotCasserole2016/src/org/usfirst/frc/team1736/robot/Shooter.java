@@ -7,7 +7,7 @@ public class Shooter {
 	double P = 1;
 	double I = 0;
 	double D = 0;
-	int SHOOTER_CHANNEL = 0;
+	int SHOOTER_CHANNEL = 1; //CMG - confirmed 2/2/2016
 	double MAX_SPEED = 6000;
 	int codesPerRev = 1024;
 	
@@ -27,8 +27,11 @@ public class Shooter {
 	public double getCurrent(){
 		return shooterController.getOutputCurrent();
 	}
-	public double getSpeed(){
+	public double getActSpeed(){
 		return shooterController.getSpeed();
+	}
+	public double getDesSpeed(){
+		return shooterController.getSetpoint();
 	}
 }
 	
