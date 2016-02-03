@@ -5,23 +5,33 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Vector;
 import java.io.BufferedWriter;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
+import java.lang.invoke.MethodHandle;
+
+import static java.lang.invoke.MethodType.*;
 
 /**
  * CSV Logger Class - Provides an API for FRC 1736 Robot Casserole datalogging on the robot during runs
  * Will write lines into a CSV file with a unique name between calls to init() and close(). output_dir is 
  * hardcoded to point to a specific 2016 folder on a flash drive connected to the roboRIO. 
- * @author Chris Gerth
+ * @author Chris Gerth, Nick Dunne
  *
  */
 public class CsvLogger {
 	
-	long log_write_index;
-	String log_name = null;
-	String output_dir = "/U/data_captures_2016/"; // USB drive is mounted to /U on roboRIO
-	BufferedWriter log_file = null;
-	boolean log_open = false;
+	static long log_write_index;
+	static String log_name = null;
+	static String output_dir = "/U/data_captures_2016/"; // USB drive is mounted to /U on roboRIO
+	static BufferedWriter log_file = null;
+	static boolean log_open = false;
 	
+	static Vector<String> dataFieldNames = new Vector<String>();
+	static Vector<MethodHandle> methodHandles = new Vector<MethodHandle>();
+	static Vector<Vector<Object>> mhReferenceObjects = new Vector<Vector<Object>>();
+	static Vector<Boolean> isSimpleMethods = new Vector<Boolean>();
 	
 	
 	/**
@@ -165,6 +175,127 @@ public class CsvLogger {
 	
 	private String getDateTimeString() {
 		return new SimpleDateFormat("yyyy-MM-dd_HHmmss").format(new Date());
+	}
+	
+	/**
+	 * Logs data for all stored method handles.  Methods that are not considered "simple" should be 
+	 * handled accordingly within this method.  This method should be called once per loop.
+	 */
+	public static int logData()
+	{
+		if(!log_open){
+			System.out.println("Error - Log is not yet opened, cannot write!");
+			return -1;
+		}
+		
+		try 
+		{
+			log_file.write(Double.toString(log_write_index) + ", ");
+			for(int i = 0; i < methodHandles.size(); i++)
+			{
+				MethodHandle mh = methodHandles.get(i);
+				String fieldName = dataFieldNames.get(i);
+				Vector<Object> mhArgs = mhReferenceObjects.get(i);
+				boolean isSimple = isSimpleMethods.get(i);
+				if(isSimple)
+				{
+					log_file.write(getStandardLogData(mh, mhArgs) + ", ");
+				}
+				else
+				{
+					if(fieldName.equals(""))
+					{
+						
+					}
+				}
+			}
+			log_file.write("\n");
+		}
+		catch(Exception ex)
+		{
+			System.out.println("Error writing to log file: " + ex.getMessage());
+			return -2;
+		}
+		
+		return 0;
+	}
+	
+	/**
+	 * Add a field to be logged at each loop of the robot code.  A method handle will be created and stored.
+	 * This method is for methods which return a data type of double.
+	 * @param dataFieldName Name of the field/column in the output data.  Also used for determining what to do for "complex" methods
+	 * @param classRef Class where the method is held, such as Joystick.class for getRawButton()
+	 * @param methodName Actual method name to be called for this field, such as "getRawButton"
+	 * @param reference A reference to the object whose method will be called - should typically be instantiated
+	 * @param isSimple True for fields that are just logged as-is, false for when further math/scaling/etc will be done after retrieving the data
+	 * @param args Optional list of arguments that are passed to the method, such as 0 in getRawButton(0)
+	 */
+	public static void addLoggingFieldDouble(String dataFieldName, Class<?> classRef, String methodName, Object reference, 
+			boolean isSimple, Object... args)
+	{
+		MethodType methodType = methodType(double.class);
+		addLoggingField(methodType, dataFieldName, classRef, methodName, isSimple, reference, args);
+	}
+	
+	/**
+	 * Add a field to be logged at each loop of the robot code.  A method handle will be created and stored.
+	 * This method is for methods which return a data type of boolean.
+	 * @param dataFieldName Name of the field/column in the output data.  Also used for determining what to do for "complex" methods
+	 * @param classRef Class where the method is held, such as Joystick.class for getRawButton()
+	 * @param methodName Actual method name to be called for this field, such as "getRawButton"
+	 * @param reference A reference to the object whose method will be called - should typically be instantiated
+	 * @param isSimple True for fields that are just logged as-is, false for when further math/scaling/etc will be done after retrieving the data
+	 * @param args Optional list of arguments that are passed to the method, such as 0 in getRawButton(0)
+	 */
+	public static void addLoggingFieldBoolean(String dataFieldName, Class<?> classRef, String methodName, Object reference,
+			boolean isSimple, Object... args)
+	{
+		MethodType methodType = methodType(boolean.class);
+		addLoggingField(methodType, dataFieldName, classRef, methodName, isSimple, reference, args);
+	}
+	
+	/*
+	 * Implementation of above convenience classes.  Creates method handle and stores relevant information
+	 * in class level Vector objects.
+	 */
+	private static void addLoggingField(MethodType methodType, String dataFieldName, Class<?> classRef, String methodName, 
+			boolean isSimple, Object reference, Object... args)
+	{
+		try {
+			MethodHandle methodHandle = MethodHandles.lookup().findVirtual(classRef, methodName, methodType);
+			dataFieldNames.add(dataFieldName);
+			methodHandles.add(methodHandle);
+			Vector<Object> mhArgs = new Vector<Object>();
+			mhArgs.add(reference);
+			for(Object arg : args)
+				mhArgs.add(arg);
+			mhReferenceObjects.add(mhArgs);
+			isSimpleMethods.add(isSimple);
+		} catch (NoSuchMethodException e) {
+			System.out.println("Error: Could not add logging field " + dataFieldName + " (no such method)");
+		} catch (IllegalAccessException e) {
+			System.out.println("Error: Could not add logging field " + dataFieldName + " (illegal access)");
+		}
+	}
+	
+	/***
+	 * This is used for any non-special logging parameters (those that don't require extra math on the output)
+	 * @param methodHandle A MethodHandle stored in the class level Vector
+	 * @param args Arguments for the given Method Handle
+	 * @return double value for double return types, 1 or 0 for boolean return types 
+	 */
+	private static double getStandardLogData(MethodHandle methodHandle, Vector<Object> args)
+	{
+		try {
+			if(methodHandle.type().returnType() == double.class)
+				return (double)methodHandle.invokeWithArguments(args);
+			else if(methodHandle.type().returnType() == boolean.class)
+				return ((boolean)methodHandle.invokeWithArguments(args))?1.0:0.0;
+		} catch (Throwable e) {
+			System.out.println("Error running method for data logging");
+			e.printStackTrace();
+		}
+		return 0;
 	}
 
 }
