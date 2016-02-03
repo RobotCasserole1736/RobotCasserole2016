@@ -56,7 +56,7 @@ public class Robot extends IterativeRobot {
 		final static boolean squaredInputs = true;
 		
 		//-BatteryParamEstimator length -- CHRIS MANAGES THIS CONSTANT
-		final static int BPE_length = 20; 
+		final static int BPE_length = 200; 
 		
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	// CLASS OBJECTS
@@ -70,27 +70,52 @@ public class Robot extends IterativeRobot {
 	
 	//Data Logger
 	CsvLogger logger = new CsvLogger();
-	static final String[] logger_fields = {"MatchTime_s", 
-			                               "ProcessorTime_s",
+	static final String[] logger_fields = {"TIME",
+			                               "MatchTime", 
 			                               "BrownedOut", 
 			                               "FMSAttached", 
 			                               "SysActive", 
-			                               "MeasuredPDPVoltage_V",
-			                               "MeasuredRIOVoltage_V",
-			                               "MeasuredCurrent_A",
-			                               "EstLeftDTCurrent_A",
-			                               "EstRightDTCurrent_A",
-			                               "EstBattESR_Ohm",
-			                               "EstBatVoc_V",
+			                               "MeasuredPDPVoltage",
+			                               "MeasuredRIOVoltage",
+			                               "MeasuredCurrent",
+			                               "EstLeftDTCurrent",
+			                               "EstRightDTCurrent",
+			                               "EstBattESR",
+			                               "EstBatVoc",
 			                               "EstBatConfidence",
-			                               "EstVsys_V",
+			                               "EstVsys",
 			                               "DriverFwdRevCmd",
 			                               "DriverLftRtCmd",
-			                               "LeftDTSpeed_RPM",
-			                               "RightDTSpeed_RPM",
-			                               "AccelX_g",
-			                               "AccelY_g",
-			                               "AccelZ_g"};
+			                               "LeftDTVoltage",
+			                               "RightDTVoltage",
+			                               "LeftDTSpeed",
+			                               "RightDTSpeed",
+			                               "AccelX",
+			                               "AccelY",
+			                               "AccelZ"};
+	static final String[] units_fields = {"sec",
+			                              "sec",
+			                              "bit",
+			                              "bit",
+			                              "bit",
+			                              "V",
+			                              "V",
+			                              "A",
+			                              "A",
+			                              "A",
+			                              "Ohm",
+			                              "V",
+			                              "bit",
+			                              "V",
+			                              "cmd",
+			                              "cmd",
+			                              "V",
+			                              "V",
+			                              "RPM",
+			                              "RPM",
+			                              "G",
+			                              "G",
+			                              "G"};
 	
 	//Joysticks
 	Joystick joy1;
@@ -116,6 +141,7 @@ public class Robot extends IterativeRobot {
     	ds = DriverStation.getInstance();
     	pdp = new PowerDistributionPanel();
     	bpe = new BatteryParamEstimator(BPE_length);
+    	bpe.setConfidenceThresh(10.0);
     	accel_RIO = new BuiltInAccelerometer();
     	//Motors
     	L_Motor_1 = new VictorSP(L_Motor_ID1);
@@ -148,7 +174,7 @@ public class Robot extends IterativeRobot {
      */
     public void autonomousInit() {
     	//Initialize the new log file for autonomous
-    	logger.init(logger_fields);
+    	logger.init(logger_fields, units_fields);
 
     }
 
@@ -170,7 +196,7 @@ public class Robot extends IterativeRobot {
     
     public void teleopInit() {
     	//Initialize the new log file for Teleop
-    	logger.init(logger_fields);
+    	logger.init(logger_fields, units_fields);
 
     }
 
@@ -195,7 +221,7 @@ public class Robot extends IterativeRobot {
      */
     public void testInit() {
     	//Initialize the new log file for Test
-    	logger.init(logger_fields);
+    	logger.init(logger_fields, units_fields);
     
     }
     
@@ -224,8 +250,8 @@ public class Robot extends IterativeRobot {
     	int ret_val_2 = 0;
     	
     	//Log proper data to file. Order must match that of the variable "logger fields"
-    	ret_val_1 = logger.writeData( ds.getMatchTime(),
-			    					  Timer.getFPGATimestamp(),
+    	ret_val_1 = logger.writeData( Timer.getFPGATimestamp(),
+    								  ds.getMatchTime(), 
 			    				     (ds.isBrownedOut()?1.0:0.0),
 			    				     (ds.isFMSAttached()?1.0:0.0),
 			    				     (ds.isSysActive()?1.0:0.0),
@@ -239,7 +265,9 @@ public class Robot extends IterativeRobot {
     								  (bpe.getConfidence()?1.0:0.0),
     								  bpe.getEstVsys(driveTrain.getLeftMotorCurrent() + driveTrain.getRightMotorCurrent() + 5),
 			    			          joy1.getRawAxis(XBOX_LSTICK_YAXIS),
-			    			          joy1.getRawAxis(XBOX_RSTICK_YAXIS),
+			    			          joy1.getRawAxis(XBOX_RSTICK_XAXIS),
+			    			          driveTrain.leftMotor_1.get(),
+			    			          -driveTrain.rightMotor_1.get(),
 			    			          driveTrain.leftEncoder.getRate()*9.5492, //report rate in RPM
 			    			          driveTrain.rightEncoder.getRate()*9.5492,
 			    			          accel_RIO.getX(),

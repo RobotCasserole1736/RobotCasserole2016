@@ -1,6 +1,6 @@
 @setlocal enableextensions enabledelayedexpansion
 @echo off
-set rioPath=10.17.36.2
+set rioPath=roboRIO-1736-FRC.local
 set rioCaptureFilePath=//media//sda1//data_captures_2016//*.csv
 set output_path_windows=C:\RobotLogs2016\
 set output_path_linux=\RobotLogs2016\
@@ -14,8 +14,7 @@ echo Connecting to roboRIO on !rioPath!...
 
 
 ::Test pinging first to ensure the FTP _should_ proceed
-set state=0
-ping -n 1 !rioPath! >nul: 2>nul:
+::ping -n 1 !rioPath! >nul: 2>nul:
 
 if errorlevel 1 (
 echo ERROR Cannot ping RoboRIO

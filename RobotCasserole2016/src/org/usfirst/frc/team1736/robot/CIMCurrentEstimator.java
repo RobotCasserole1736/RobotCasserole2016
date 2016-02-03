@@ -12,6 +12,7 @@ public class CIMCurrentEstimator {
 	double motorEncoderRatio; //Ratio in speeds between encoder measurement and actual motor speed. Numbers bigger than 1 indicate motor rotates faster than encoder 
 	double contVDrop;
 	
+	
 	/**
 	 * init - Sets up the current estimator with the system parameters.
 	 * Input - 
@@ -34,7 +35,7 @@ public class CIMCurrentEstimator {
      *      motorEncRatio = ratio of motor gear teeth divided by encoder gear teeth. A number smaller than one means the motor spins slower than the encoder.
 	 */
 	public double getCurrentEstimate(double encoderSpeed_radpersec, double motorCommand) {
-		return Math.max(0,(double)numMotorsInSystem*((pdp.getVoltage()-contVDrop)*motorCommand-Ki*encoderSpeed_radpersec*motorEncoderRatio)/ESR);
+		return Math.abs((double)numMotorsInSystem*((pdp.getVoltage()-contVDrop)*motorCommand-Ki*encoderSpeed_radpersec*motorEncoderRatio)/ESR);
 	}
 
 }
