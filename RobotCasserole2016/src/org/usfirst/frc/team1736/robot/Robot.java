@@ -277,7 +277,6 @@ public class Robot extends IterativeRobot {
     	prev_loop_start_timestamp = Timer.getFPGATimestamp();
     	//Add test code here
     	
-    	
     	//Log data from this timestep
     	log_data();
     	//Execution time metric - this must be last!
