@@ -161,6 +161,8 @@ public class Robot extends IterativeRobot {
 	Climb Climber;
 	//Launch Motor
 	Shooter launchMotor;
+	OttoShifter shifter;
+	DerivativeCalculator wheel_speed;
 	//Motors
 	VictorSP L_Motor_1;
 	VictorSP L_Motor_2;
@@ -194,6 +196,8 @@ public class Robot extends IterativeRobot {
     	R_Motor_2 = new VictorSP(R_Motor_ID2);
     	//Drivetrain
     	driveTrain = new DriveTrain(L_Motor_1, L_Motor_2, R_Motor_1, R_Motor_2, pdp, bpe);
+    	shifter = new OttoShifter();
+    	wheel_speed = new DerivativeCalculator();
     	//Peripherials
     	Climber=new Climb();
     	launchMotor = new Shooter();
@@ -284,7 +288,18 @@ public class Robot extends IterativeRobot {
     	
         //Run Drivetrain
     	driveTrain.arcadeDrive(joy1.getRawAxis(XBOX_LSTICK_YAXIS), joy1.getRawAxis(XBOX_RSTICK_XAXIS), squaredInputs);
-    	
+    	double left_speed = Math.abs(driveTrain.leftEncoder.getRate());
+    	double right_speed = Math.abs(driveTrain.rightEncoder.getRate());
+    	double net_speed = Math.max(left_speed,right_speed);
+    	shifter.OttoShifterPeriodic(net_speed, wheel_speed.calcDeriv(net_speed), accel_RIO.getX(), pdp.getTotalCurrent(), joy1.getRawButton(XBOX_LEFT_BUTTON), joy1.getRawButton(XBOX_RIGHT_BUTTON));
+    	if(shifter.gear){
+    		System.out.println("high_gear");
+    		Pneumatics.shiftToHighGear();
+    	}
+    	else{
+    		System.out.println("low_gear");
+    		Pneumatics.shiftToLowGear();
+    	}
     	//Update camera position
     	processCameraAngle();
     	
