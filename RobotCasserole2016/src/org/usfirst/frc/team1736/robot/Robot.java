@@ -105,8 +105,8 @@ public class Robot extends IterativeRobot {
 			                               "TapeMeasureCmd",
 			                               "WinchCmd",
 			                               "TapeMeasureLimitSw",
-			                               "GyroMeasAngle",
-			                               "GyroStatus",
+			                               //"GyroMeasAngle",
+			                               //"GyroStatus",
 			                               "CompressorCurrent",
 			                               "LaunchWheelCurrent",
 			                               "LaunchWheelActSpeed",
@@ -141,8 +141,8 @@ public class Robot extends IterativeRobot {
 			                              "cmd",
 			                              "cmd",
 			                              "bit",
-			                              "deg",
-			                              "bit",
+			                              //"deg",
+			                              //"bit",
 			                              "A",
 			                              "A",
 			                              "RPM",
@@ -187,7 +187,7 @@ public class Robot extends IterativeRobot {
     	bpe.setConfidenceThresh(10.0);
     	accel_RIO = new BuiltInAccelerometer();
     	csm = new CameraServoMount();
-    	gyro = new I2CGyro();
+    	//gyro = new I2CGyro();
     	
     	//Motors
     	L_Motor_1 = new VictorSP(L_Motor_ID1);
@@ -232,7 +232,7 @@ public class Robot extends IterativeRobot {
     	//Compressor starts automatically
     	
     	//reset gyro angle to 0
-    	gyro.reset_gyro_angle();
+    	//gyro.reset_gyro_angle();
 
     	//init the task timing things
     	prev_loop_start_timestamp = Timer.getFPGATimestamp();
@@ -395,8 +395,8 @@ public class Robot extends IterativeRobot {
 			    					  Climber.tapemotor.get(),
 			    					  Climber.winchmotor1.get(),
 			    					  (Climber.tapetrigger.get()?1.0:0.0),
-			    					  gyro.get_gyro_angle()%360,
-			    					  (gyro.get_gyro_status()?1.0:0.0),
+			    					 // gyro.get_gyro_angle()%360,
+			    					 // (gyro.get_gyro_status()?1.0:0.0),
 			    					  Pneumatics.getCurrent(),
 			    					  launchMotor.getCurrent(),
 			    					  launchMotor.getActSpeed(),
