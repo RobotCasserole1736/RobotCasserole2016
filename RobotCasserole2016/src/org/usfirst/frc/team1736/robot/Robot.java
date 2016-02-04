@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.PowerDistributionPanel;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.VictorSP;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -77,7 +78,7 @@ public class Robot extends IterativeRobot {
 	//Data Logger
 	CsvLogger logger = new CsvLogger();
 	static final String[] logger_fields = {"TIME",
-			                               "MatchTime", 
+			  /*                             "MatchTime", 
 			                               "BrownedOut", 
 			                               "FMSAttached", 
 			                               "SysActive", 
@@ -108,12 +109,12 @@ public class Robot extends IterativeRobot {
 			                               //"GyroMeasAngle",
 			                               //"GyroStatus",
 			                               "CompressorCurrent",
-			                               "LaunchWheelCurrent",
+			                               "LaunchWheelCurrent",*/
 			                               "LaunchWheelActSpeed",
 			                               "LaunchWheelDesSpeed"};
 	
 	static final String[] units_fields = {"sec",
-			                              "sec",
+/*			                              "sec",
 			                              "bit",
 			                              "bit",
 			                              "bit",
@@ -143,7 +144,7 @@ public class Robot extends IterativeRobot {
 			                              "bit",
 			                              //"deg",
 			                              //"bit",
-			                              "A",
+			                              "A",*/
 			                              "A",
 			                              "RPM",
 			                              "RPM"};
@@ -196,6 +197,7 @@ public class Robot extends IterativeRobot {
     	R_Motor_2 = new VictorSP(R_Motor_ID2);
     	//Drivetrain
     	driveTrain = new DriveTrain(L_Motor_1, L_Motor_2, R_Motor_1, R_Motor_2, pdp, bpe);
+    	driveTrain.setSafetyEnabled(false);
     	shifter = new OttoShifter();
     	wheel_speed = new DerivativeCalculator();
     	//Peripherials
@@ -252,10 +254,12 @@ public class Robot extends IterativeRobot {
     	
     	//Add autonomous code here
     	//Estimate battery Parameters
-    	bpe.updateEstimate(pdp.getVoltage(), pdp.getTotalCurrent());
+    	//bpe.updateEstimate(pdp.getVoltage(), pdp.getTotalCurrent());
+    	
+    	
     	
     	//Log data from this timestep
-    	log_data();
+    	//log_data();
     	
     	//Execution time metric - this must be last!
     	loop_time_elapsed = Timer.getFPGATimestamp() - prev_loop_start_timestamp;
@@ -282,39 +286,23 @@ public class Robot extends IterativeRobot {
     public void teleopPeriodic() {
     	//Execution time metric - this must be first!
     	prev_loop_start_timestamp = Timer.getFPGATimestamp();
+    
+    	//PID Tune Test Loop:
+    	if(joy1.getRawButton(XBOX_Y_BUTTON))
+    		launchMotor.setSpeed(4900.0);
+    	else if(joy1.getRawButton(XBOX_A_BUTTON))
+    		launchMotor.setSpeed(5800.0);
+    	else if(joy1.getRawButton(XBOX_B_BUTTON))
+    		launchMotor.setSpeed(3200.0);
+    	else if(joy1.getRawButton(XBOX_X_BUTTON))
+    		launchMotor.setSpeed(5300.0);
+    	else
+    		launchMotor.setSpeed(0);
     	
-    	//Estimate battery Parmaeters
-    	bpe.updateEstimate(pdp.getVoltage(), pdp.getTotalCurrent());
+    	System.out.println("Speed des:" + (launchMotor.getDesSpeed()));
     	
-        //Run Drivetrain
-    	driveTrain.arcadeDrive(joy1.getRawAxis(XBOX_LSTICK_YAXIS), joy1.getRawAxis(XBOX_RSTICK_XAXIS), squaredInputs);
-    	double left_speed = Math.abs(driveTrain.leftEncoder.getRate());
-    	double right_speed = Math.abs(driveTrain.rightEncoder.getRate());
-    	double net_speed = Math.max(left_speed,right_speed);
-    	shifter.OttoShifterPeriodic(net_speed, wheel_speed.calcDeriv(net_speed), accel_RIO.getX(), pdp.getTotalCurrent(), joy1.getRawButton(XBOX_LEFT_BUTTON), joy1.getRawButton(XBOX_RIGHT_BUTTON));
-    	if(shifter.gear){
-    		System.out.println("high_gear");
-    		Pneumatics.shiftToHighGear();
-    	}
-    	else{
-    		System.out.println("low_gear");
-    		Pneumatics.shiftToLowGear();
-    	}
-    	//Update camera position
-    	processCameraAngle();
-    	
-    	//Run climber
-    	Climber.periodicClimb(joy2.getRawButton(XBOX_START_BUTTON), joy2.getRawAxis(XBOX_LSTICK_YAXIS), joy2.getRawAxis(XBOX_RTRIGGER_AXIS));
-    	
-    	//Adjust intake position based on driver commands
-    	if(joy2.getRawButton(XBOX_A_BUTTON))
-    		Pneumatics.intakeDown();
-    	if(joy2.getRawButton(XBOX_Y_BUTTON))
-    		Pneumatics.intakeUp();
-    	
-    	//Log data from this timestep
-    	log_data();
-    	System.out.println(driveTrain.getMemes());
+    	SmartDashboard.putNumber("ActSpeed", launchMotor.getActSpeed());
+    	SmartDashboard.putNumber("DesSpeed", launchMotor.getDesSpeed());
     	
     	//Execution time metric - this must be last! Even after memes!
     	loop_time_elapsed = Timer.getFPGATimestamp() - prev_loop_start_timestamp;
@@ -341,21 +329,9 @@ public class Robot extends IterativeRobot {
     	//Execution time metric - this must be first!
     	prev_loop_start_timestamp = Timer.getFPGATimestamp();
     	//Add test code here
-    	
-    	//PID Tune Test Loop:
-    	if(joy1.getRawButton(XBOX_Y_BUTTON))
-    		launchMotor.setSpeed(4900.0);
-    	else if(joy1.getRawButton(XBOX_A_BUTTON))
-    		launchMotor.setSpeed(5800.0);
-    	else if(joy1.getRawButton(XBOX_B_BUTTON))
-    		launchMotor.setSpeed(3200.0);
-    	else if(joy1.getRawButton(XBOX_X_BUTTON))
-    		launchMotor.setSpeed(5300.0);
-    	else
-    		launchMotor.setSpeed(0);
-    	
+
     	//Log data from this timestep
-    	log_data();
+    	//log_data();
     	//Execution time metric - this must be last!
     	loop_time_elapsed = Timer.getFPGATimestamp() - prev_loop_start_timestamp;
     
@@ -379,7 +355,7 @@ public class Robot extends IterativeRobot {
     	
     	//Log proper data to file. Order must match that of the variable "logger fields"
     	ret_val_1 = logger.writeData( Timer.getFPGATimestamp(),
-    								  ds.getMatchTime(), 
+/*    								  ds.getMatchTime(), 
 			    				     (ds.isBrownedOut()?1.0:0.0),
 			    				     (ds.isFMSAttached()?1.0:0.0),
 			    				     (ds.isSysActive()?1.0:0.0),
@@ -406,10 +382,10 @@ public class Robot extends IterativeRobot {
 			    					  (joy2.getRawButton(XBOX_START_BUTTON)?1.0:0.0),
 			    					  Climber.tapemotor.get(),
 			    					  Climber.winchmotor1.get(),
-			    					  (Climber.tapetrigger.get()?1.0:0.0),
+			    					  (Climber.tapetrigger.get()?1.0:0.0),*/
 			    					 // gyro.get_gyro_angle()%360,
 			    					 // (gyro.get_gyro_status()?1.0:0.0),
-			    					  Pneumatics.getCurrent(),
+			    					  //Pneumatics.getCurrent(),
 			    					  launchMotor.getCurrent(),
 			    					  launchMotor.getActSpeed(),
 			    					  launchMotor.getDesSpeed()
