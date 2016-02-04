@@ -64,21 +64,20 @@ public class OttoShifter {
 		 if (gear == true){ //Top Gear
 			 if (DriverDownshiftCmd == true|| (VelDebounceState == true && WheelAccelDebounceState == true && VertAccelDebounceState == true && CurrentDebounceState == true)){
 				 gear = false;
-			 }{
+			 }
+			 else{
 				 gear = true;
-			 }{
+			 }
+			 			 
+		 }
+		 else{ //gear == false (low gear)
+			 
 			if (DriverUpshiftCmd == true){
 				gear = true;
 			}
-			 }
 			
-			 
-			 
 		 }
-		 else{ //gear == false
-		 
-		 }
-		 }
+	 }
 		 
 }
 	
