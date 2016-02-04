@@ -327,6 +327,18 @@ public class Robot extends IterativeRobot {
     	prev_loop_start_timestamp = Timer.getFPGATimestamp();
     	//Add test code here
     	
+    	//PID Tune Test Loop:
+    	if(joy1.getRawButton(XBOX_Y_BUTTON))
+    		launchMotor.setSpeed(4900.0);
+    	else if(joy1.getRawButton(XBOX_A_BUTTON))
+    		launchMotor.setSpeed(5800.0);
+    	else if(joy1.getRawButton(XBOX_B_BUTTON))
+    		launchMotor.setSpeed(3200.0);
+    	else if(joy1.getRawButton(XBOX_X_BUTTON))
+    		launchMotor.setSpeed(5300.0);
+    	else
+    		launchMotor.setSpeed(0);
+    	
     	//Log data from this timestep
     	log_data();
     	//Execution time metric - this must be last!
