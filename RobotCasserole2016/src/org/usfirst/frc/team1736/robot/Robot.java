@@ -3,9 +3,11 @@ package org.usfirst.frc.team1736.robot;
 
 import edu.wpi.first.wpilibj.BuiltInAccelerometer;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.PowerDistributionPanel;
+import edu.wpi.first.wpilibj.SpeedController;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.VictorSP;
 
@@ -68,55 +70,6 @@ public class Robot extends IterativeRobot {
 	BatteryParamEstimator bpe;
 	BuiltInAccelerometer accel_RIO;
 	
-	//Data Logger
-	CsvLogger logger = new CsvLogger();
-	static final String[] logger_fields = {"TIME",
-			                               "MatchTime", 
-			                               "BrownedOut", 
-			                               "FMSAttached", 
-			                               "SysActive", 
-			                               "MeasuredPDPVoltage",
-			                               "MeasuredRIOVoltage",
-			                               "MeasuredCurrent",
-			                               "EstLeftDTCurrent",
-			                               "EstRightDTCurrent",
-			                               "EstBattESR",
-			                               "EstBatVoc",
-			                               "EstBatConfidence",
-			                               "EstVsys",
-			                               "DriverFwdRevCmd",
-			                               "DriverLftRtCmd",
-			                               "LeftDTVoltage",
-			                               "RightDTVoltage",
-			                               "LeftDTSpeed",
-			                               "RightDTSpeed",
-			                               "AccelX",
-			                               "AccelY",
-			                               "AccelZ"};
-	static final String[] units_fields = {"sec",
-			                              "sec",
-			                              "bit",
-			                              "bit",
-			                              "bit",
-			                              "V",
-			                              "V",
-			                              "A",
-			                              "A",
-			                              "A",
-			                              "Ohm",
-			                              "V",
-			                              "bit",
-			                              "V",
-			                              "cmd",
-			                              "cmd",
-			                              "V",
-			                              "V",
-			                              "RPM",
-			                              "RPM",
-			                              "G",
-			                              "G",
-			                              "G"};
-	
 	//Joysticks
 	Joystick joy1;
 	Joystick joy2;
@@ -154,6 +107,31 @@ public class Robot extends IterativeRobot {
     	//Joysticks
     	joy1 = new Joystick(JOY1_INT);
     	joy2 = new Joystick(JOY2_INT);
+    	
+    	//Add logging fields - leave this at the bottom of robotInit
+    	CsvLogger.addLoggingFieldDouble("TIME", "sec", Timer.class, "getFPGATimestamp", null, true);
+    	CsvLogger.addLoggingFieldDouble("MatchTime", "sec", DriverStation.class, "getMatchTime", ds, true);
+    	CsvLogger.addLoggingFieldBoolean("BrownedOut", "bit", DriverStation.class, "isBrownedOut", ds, true);
+    	CsvLogger.addLoggingFieldBoolean("FMSAttached", "bit", DriverStation.class, "isFMSAttached", ds, true);
+    	CsvLogger.addLoggingFieldBoolean("SysActive", "bit", DriverStation.class, "isSysActive", ds, true);
+    	CsvLogger.addLoggingFieldDouble("MeasuredPDPVoltage", "V", PowerDistributionPanel.class, "getVoltage", pdp, true);
+    	CsvLogger.addLoggingFieldDouble("MeasuredRIOVoltage", "V", DriverStation.class, "getBatteryVoltage", ds, true);
+    	CsvLogger.addLoggingFieldDouble("MeasuredCurrent", "A", PowerDistributionPanel.class, "getTotalCurrent", pdp, true);
+    	CsvLogger.addLoggingFieldDouble("EstLeftDTCurrent", "A", DriveTrain.class, "getLeftMotorCurrent", driveTrain, true);
+    	CsvLogger.addLoggingFieldDouble("EstRightDTCurrent", "A", DriveTrain.class, "getRightMotorCurrent", driveTrain, true);
+    	CsvLogger.addLoggingFieldDouble("EstBattESR", "Ohm", BatteryParamEstimator.class, "getEstESR", bpe, true);
+    	CsvLogger.addLoggingFieldDouble("EstBattVoc", "V", BatteryParamEstimator.class, "getEstVoc", bpe, true);
+    	CsvLogger.addLoggingFieldBoolean("EstBatConfidence", "bit", BatteryParamEstimator.class, "getConfidence", bpe, true);
+    	CsvLogger.addLoggingFieldDouble("EstVsys", "V", BatteryParamEstimator.class, "getEstVsys", bpe, false, 0);
+    	CsvLogger.addLoggingFieldDouble("DriverFwdRevCmd", "cmd", Joystick.class, "getRawAxis", joy1, true, XBOX_LSTICK_YAXIS);
+    	CsvLogger.addLoggingFieldDouble("DriverLftRtCmd", "cmd", Joystick.class, "getRawAxis", joy1, true, XBOX_LSTICK_XAXIS);
+    	CsvLogger.addLoggingFieldDouble("LeftDTVoltage", "V", SpeedController.class, "get", driveTrain.leftMotor_1, true);
+    	CsvLogger.addLoggingFieldDouble("RightDTVoltage", "V", SpeedController.class, "get", driveTrain.rightMotor_1, false);
+    	CsvLogger.addLoggingFieldDouble("LeftDTSpeed", "RPM", Encoder.class, "getRate", driveTrain.leftEncoder, false);
+    	CsvLogger.addLoggingFieldDouble("RightDTSpeed", "RPM", Encoder.class, "getRate", driveTrain.rightEncoder, false);
+    	CsvLogger.addLoggingFieldDouble("AccelX", "G", BuiltInAccelerometer.class, "getX", accel_RIO, true);
+    	CsvLogger.addLoggingFieldDouble("AccelY", "G", BuiltInAccelerometer.class, "getY", accel_RIO, true);
+    	CsvLogger.addLoggingFieldDouble("AccelZ", "G", BuiltInAccelerometer.class, "getZ", accel_RIO, true);
     }
     
     /**
@@ -163,7 +141,7 @@ public class Robot extends IterativeRobot {
     public void disabledInit() {
     	
     	//Ensure any open file gets closed
-    	logger.close();
+    	CsvLogger.close();
  
 
     }
@@ -174,7 +152,7 @@ public class Robot extends IterativeRobot {
      */
     public void autonomousInit() {
     	//Initialize the new log file for autonomous
-    	logger.init(logger_fields, units_fields);
+    	CsvLogger.init();
 
     }
 
@@ -187,7 +165,7 @@ public class Robot extends IterativeRobot {
     	bpe.updateEstimate(pdp.getVoltage(), pdp.getTotalCurrent());
     	
     	//Log data from this timestep
-    	log_data();
+    	CsvLogger.logData(ds.isBrownedOut());
     }
     
     /**
@@ -196,7 +174,7 @@ public class Robot extends IterativeRobot {
     
     public void teleopInit() {
     	//Initialize the new log file for Teleop
-    	logger.init(logger_fields, units_fields);
+    	CsvLogger.init();
 
     }
 
@@ -211,7 +189,7 @@ public class Robot extends IterativeRobot {
     	driveTrain.arcadeDrive(joy1.getRawAxis(XBOX_LSTICK_YAXIS), joy1.getRawAxis(XBOX_RSTICK_XAXIS), squaredInputs);
     	
     	//Log data from this timestep
-    	log_data();
+    	CsvLogger.logData(ds.isBrownedOut());
     	
     }
     
@@ -220,8 +198,6 @@ public class Robot extends IterativeRobot {
      * This is a random comment
      */
     public void testInit() {
-    	//Initialize the new log file for Test
-    	logger.init(logger_fields, units_fields);
     
     }
     
@@ -230,58 +206,11 @@ public class Robot extends IterativeRobot {
      */
     public void testPeriodic() {
     	//Add test code here
-    	
-    	
-    	//Log data from this timestep
-    	log_data();
     
     }
     
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	// PRIVATE METHODS 
-    ///////////////////////////////////////////////////////////////////////////////////////////////    
-    
-    /**
-     * log_data - call this to write a new line to the .csv log file, assuming it is open.
-     * Will also force-write the log file to disk if we're browned out.
-     */
-    private int log_data() {
-    	int ret_val_1 = 0;
-    	int ret_val_2 = 0;
-    	
-    	//Log proper data to file. Order must match that of the variable "logger fields"
-    	ret_val_1 = logger.writeData( Timer.getFPGATimestamp(),
-    								  ds.getMatchTime(), 
-			    				     (ds.isBrownedOut()?1.0:0.0),
-			    				     (ds.isFMSAttached()?1.0:0.0),
-			    				     (ds.isSysActive()?1.0:0.0),
-			    				      pdp.getVoltage(),
-			    				      ds.getBatteryVoltage(),
-			    			          pdp.getTotalCurrent(),
-			    			          driveTrain.getLeftMotorCurrent(),
-			    			          driveTrain.getRightMotorCurrent(),
-			    			          bpe.getEstESR(),
-    								  bpe.getEstVoc(),
-    								  (bpe.getConfidence()?1.0:0.0),
-    								  bpe.getEstVsys(driveTrain.getLeftMotorCurrent() + driveTrain.getRightMotorCurrent() + 5),
-			    			          joy1.getRawAxis(XBOX_LSTICK_YAXIS),
-			    			          joy1.getRawAxis(XBOX_RSTICK_XAXIS),
-			    			          driveTrain.leftMotor_1.get(),
-			    			          -driveTrain.rightMotor_1.get(),
-			    			          driveTrain.leftEncoder.getRate()*9.5492, //report rate in RPM
-			    			          driveTrain.rightEncoder.getRate()*9.5492,
-			    			          accel_RIO.getX(),
-			    					  accel_RIO.getY(),
-			    					  accel_RIO.getZ()
-			    					 );
-    	//Check for brownout. If browned out, force write data to log. Just in case we
-    	//lose power and nasty things happen, at least we'll know how we died...
-    	if(ds.isBrownedOut()) {
-    		ret_val_2 = logger.forceSync();
-    		System.out.println("Warning - brownout condition detetcted, flushing log buffers...");
-    	}
-    	
-    	return Math.min(ret_val_1, ret_val_2);
-    }
+    ///////////////////////////////////////////////////////////////////////////////////////////////
     
 }
