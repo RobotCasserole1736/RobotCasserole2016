@@ -100,16 +100,17 @@ public class Robot extends IterativeRobot {
 			                               "AccelX",
 			                               "AccelY",
 			                               "AccelZ",
-			                               "TaskExecTime",
-			                               "CommandedCameraPos",
+			                             */  "TaskExecTime",
+			                             /*  "CommandedCameraPos",
 			                               "ClimbEnable",
 			                               "TapeMeasureCmd",
 			                               "WinchCmd",
 			                               "TapeMeasureLimitSw",
 			                               //"GyroMeasAngle",
 			                               //"GyroStatus",
-			                               "CompressorCurrent",
-			                               "LaunchWheelCurrent",*/
+			                               "CompressorCurrent",*/
+			                               "LaunchWheelCurrent",
+			                               "LaunchWheelCmd",
 			                               "LaunchWheelActSpeed",
 			                               "LaunchWheelDesSpeed"};
 	
@@ -136,8 +137,8 @@ public class Robot extends IterativeRobot {
 			                              "G",
 			                              "G",
 			                              "G",
-			                              "mS",
-			                              "Index",
+			                          */    "mS",
+			                          /*    "Index",
 			                              "bit",
 			                              "cmd",
 			                              "cmd",
@@ -146,6 +147,7 @@ public class Robot extends IterativeRobot {
 			                              //"bit",
 			                              "A",*/
 			                              "A",
+			                              "V",
 			                              "RPM",
 			                              "RPM"};
 	
@@ -289,20 +291,25 @@ public class Robot extends IterativeRobot {
     
     	//PID Tune Test Loop:
     	if(joy1.getRawButton(XBOX_Y_BUTTON))
-    		launchMotor.setSpeed(4900.0);
+    		launchMotor.setSpeed(1000.0);
     	else if(joy1.getRawButton(XBOX_A_BUTTON))
-    		launchMotor.setSpeed(5800.0);
+    		launchMotor.setSpeed(1500.0);
     	else if(joy1.getRawButton(XBOX_B_BUTTON))
-    		launchMotor.setSpeed(3200.0);
+    		launchMotor.setSpeed(500.0);
     	else if(joy1.getRawButton(XBOX_X_BUTTON))
-    		launchMotor.setSpeed(5300.0);
+    		launchMotor.setSpeed(200.0);
     	else
     		launchMotor.setSpeed(0);
     	
     	System.out.println("Speed des:" + (launchMotor.getDesSpeed()));
+    	System.out.println("Speed act" + (launchMotor.getActSpeed()));
+    	System.out.println("MotorCmd:" + (launchMotor.motorCmd));
     	
     	SmartDashboard.putNumber("ActSpeed", launchMotor.getActSpeed());
-    	SmartDashboard.putNumber("DesSpeed", launchMotor.getDesSpeed());
+    	SmartDashboard.putNumber("MotorCmd", launchMotor.motorCmd);
+    	SmartDashboard.putNumber("ClosedLoopError", launchMotor.getActSpeed() - launchMotor.getDesSpeed());
+    	
+    	log_data();
     	
     	//Execution time metric - this must be last! Even after memes!
     	loop_time_elapsed = Timer.getFPGATimestamp() - prev_loop_start_timestamp;
@@ -350,8 +357,8 @@ public class Robot extends IterativeRobot {
     	int ret_val_2 = 0;
     	
     	//Sorta temp - there's no nice way to expose this yet, so i'll do the calcualtion here.
-    	double dt_leftIest = driveTrain.leftCCE.getCurrentEstimate(driveTrain.leftEncoder.getRate(), driveTrain.leftMotor_1.get());
-    	double dt_rightIest = driveTrain.rightCCE.getCurrentEstimate(driveTrain.rightEncoder.getRate(), driveTrain.rightMotor_1.get());
+    	//double dt_leftIest = driveTrain.leftCCE.getCurrentEstimate(driveTrain.leftEncoder.getRate(), driveTrain.leftMotor_1.get());
+    	//double dt_rightIest = driveTrain.rightCCE.getCurrentEstimate(driveTrain.rightEncoder.getRate(), driveTrain.rightMotor_1.get());
     	
     	//Log proper data to file. Order must match that of the variable "logger fields"
     	ret_val_1 = logger.writeData( Timer.getFPGATimestamp(),
@@ -377,8 +384,8 @@ public class Robot extends IterativeRobot {
 			    			          accel_RIO.getX(),
 			    					  accel_RIO.getY(),
 			    					  accel_RIO.getZ(),
-			    				      loop_time_elapsed*1000.0,
-			    					  csm.curCamPos.ordinal(),
+			    				 */   loop_time_elapsed*1000.0, 
+			    				/*	  csm.curCamPos.ordinal(),
 			    					  (joy2.getRawButton(XBOX_START_BUTTON)?1.0:0.0),
 			    					  Climber.tapemotor.get(),
 			    					  Climber.winchmotor1.get(),
@@ -387,6 +394,7 @@ public class Robot extends IterativeRobot {
 			    					 // (gyro.get_gyro_status()?1.0:0.0),
 			    					  //Pneumatics.getCurrent(),
 			    					  launchMotor.getCurrent(),
+			    					  launchMotor.motorCmd,
 			    					  launchMotor.getActSpeed(),
 			    					  launchMotor.getDesSpeed()
 			    					 );
