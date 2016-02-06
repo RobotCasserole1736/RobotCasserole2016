@@ -76,7 +76,9 @@ public class DriveTrain extends RobotDrive { //Inherits methods from RobotDrive 
 		//Return encoder distance in radians
 		leftEncoder.setDistancePerPulse(Math.PI*2/ENCODER_TICKS_PER_REV);
 		rightEncoder.setDistancePerPulse(Math.PI*2/ENCODER_TICKS_PER_REV);
-		rightEncoder.setReverseDirection(true);
+		leftEncoder.setReverseDirection(true);
+		
+		//Disable safety timeout
 		
 	}
 	
@@ -109,9 +111,9 @@ public class DriveTrain extends RobotDrive { //Inherits methods from RobotDrive 
 	
 	public double getRightMotorSpeedRadPerS(){
 		if(Pneumatics.isHighGear())
-			return leftEncoder.getRate()*MOTOR_TO_ENCODER_RATIO_HG;
+			return rightEncoder.getRate()*MOTOR_TO_ENCODER_RATIO_HG;
 		else
-			return leftEncoder.getRate()*MOTOR_TO_ENCODER_RATIO_LG;
+			return rightEncoder.getRate()*MOTOR_TO_ENCODER_RATIO_LG;
 	}
 	
 	public double getRightDistanceFt(){

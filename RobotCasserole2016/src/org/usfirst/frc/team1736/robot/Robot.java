@@ -79,6 +79,9 @@ public class Robot extends IterativeRobot {
 	//Battery Param Est 
 	final static int BPE_length = 200; //Window length
 	
+	
+	//Data Logging
+	static final boolean enable_logging = true; //Set to false to disable logging
 	static final String[] logger_fields = {"TIME",
             "MatchTime", 
             "BrownedOut", 
@@ -227,7 +230,7 @@ public class Robot extends IterativeRobot {
     	bpe.setConfidenceThresh(10.0);
     	accel_RIO = new BuiltInAccelerometer();
     	csm = new CameraServoMount();
-    	//gyro = new I2CGyro();
+    	gyro = new I2CGyro();
     	
     	//Motors
     	L_Motor_1 = new VictorSP(DT_LF_MOTOR_PWM_CH);
@@ -255,8 +258,10 @@ public class Robot extends IterativeRobot {
      */
     public void disabledInit() {
     	
-    	//Ensure any open file gets closed
-    	logger.close();
+    	if(enable_logging){
+	    	//Ensure any open file gets closed
+	    	logger.close();
+    	}
  
 
     }
@@ -266,8 +271,10 @@ public class Robot extends IterativeRobot {
      * This function is called once right before the start of autonomous
      */
     public void autonomousInit() {
-    	//Initialize the new log file for autonomous
-    	logger.init(logger_fields, units_fields);
+    	if(enable_logging){
+	    	//Initialize the new log file for autonomous
+	    	logger.init(logger_fields, units_fields);
+    	}
 
     	//Compressor starts automatically
     	
@@ -306,8 +313,10 @@ public class Robot extends IterativeRobot {
      */
     
     public void teleopInit() {
-    	//Initialize the new log file for Teleop
-    	logger.init(logger_fields, units_fields);
+    	if(enable_logging){
+    		//Initialize the new log file for Teleop
+    		logger.init(logger_fields, units_fields);
+    	}
 
     	//compressor starts automatically
     	
@@ -371,8 +380,10 @@ public class Robot extends IterativeRobot {
      * This is a random comment
      */
     public void testInit() {
-    	//Initialize the new log file for Test
-    	logger.init(logger_fields, units_fields);
+    	if(enable_logging){
+	    	//Initialize the new log file for Test
+	    	logger.init(logger_fields, units_fields);
+    	}
     	
     	//init the task timing things
     	prev_loop_start_timestamp = Timer.getFPGATimestamp();
@@ -404,70 +415,73 @@ public class Robot extends IterativeRobot {
      * Will also force-write the log file to disk if we're browned out.
      */
     private int log_data() {
-    	int ret_val_1 = 0;
-    	int ret_val_2 = 0;
-    	
-    	//Sorta temp - there's no nice way to expose this yet, so i'll do the calculation here.
-    	double dt_leftIest = driveTrain.getLeftCurrent(driveTrain.leftMotor_1.get());
-    	double dt_rightIest = driveTrain.getRightCurrent(driveTrain.rightMotor_1.get());
-    	
-    	//Log proper data to file. Order must match that of the variable "logger fields"
-    	ret_val_1 = logger.writeData( Timer.getFPGATimestamp(),
-    								  ds.getMatchTime(), 
-			    				     (ds.isBrownedOut()?1.0:0.0),
-			    				     (ds.isFMSAttached()?1.0:0.0),
-			    				     (ds.isSysActive()?1.0:0.0),
-			    				      pdp.getVoltage(),
-			    				      ds.getBatteryVoltage(),
-			    			          pdp.getTotalCurrent(),
-			    			          pdp.getCurrent(DT_LF_PDP_CH),
-			    			          pdp.getCurrent(DT_LB_PDP_CH),
-			    			          pdp.getCurrent(DT_RF_PDP_CH),
-			    			          pdp.getCurrent(DT_RB_PDP_CH),
-			    			          pdp.getCurrent(INTAKE_PDP_CH),
-			    			          pdp.getCurrent(SHOOTER_PDP_CH),
-			    			          pdp.getCurrent(TAPE_PDP_CH),
-			    			          pdp.getCurrent(WINCH_1_PDP_CH),
-			    			          pdp.getCurrent(WINCH_2_PDP_CH),
-			    			          pdp.getCurrent(SP_DB_ARM_PDP_CH),
-			    			          pdp.getTemperature(),
-			    			          dt_leftIest,
-			    			          dt_rightIest,
-			    			          bpe.getEstESR(),
-    								  bpe.getEstVoc(),
-    								 (bpe.getConfidence()?1.0:0.0),
-    								  bpe.getEstVsys(dt_rightIest + dt_leftIest + 5), //total guess at 5A background I draw
-			    			          joy1.getRawAxis(XBOX_LSTICK_YAXIS),
-			    			          joy1.getRawAxis(XBOX_RSTICK_XAXIS),
-			    			          driveTrain.leftMotor_1.get(),
-			    			          -driveTrain.rightMotor_1.get(),
-			    			          driveTrain.getLeftMotorSpeedRadPerS()*9.5492, //report rate in RPM
-			    			          driveTrain.getRightMotorSpeedRadPerS()*9.5492,
-			    			          accel_RIO.getX(),
-			    					  accel_RIO.getY(),
-			    					  accel_RIO.getZ(),
-			    				      loop_time_elapsed*1000.0,
-			    					  csm.curCamPos.ordinal(),
-			    					 (joy2.getRawButton(XBOX_START_BUTTON)?1.0:0.0),
-			    					  Climber.tapemotor.get(),
-			    					  Climber.winchmotor1.get(),
-			    					 (Climber.tapetrigger.get()?1.0:0.0),
-			    					  gyro.get_gyro_angle()%360,
-			    					 (gyro.get_gyro_read_status()?1.0:0.0),
-			    					  Pneumatics.getCurrent(),
-			    					  launchMotor.getCurrent(),
-			    					  launchMotor.getMotorCmd(),
-			    					  launchMotor.getActSpeed(),
-			    					  launchMotor.getDesSpeed()
-			    					 );
-    	//Check for brownout. If browned out, force write data to log. Just in case we
-    	//lose power and nasty things happen, at least we'll know how we died...
-    	if(ds.isBrownedOut()) {
-    		ret_val_2 = logger.forceSync();
-    		System.out.println("Warning - brownout condition detetcted, flushing log buffers...");
+    	if(enable_logging){
+	    	int ret_val_1 = 0;
+	    	int ret_val_2 = 0;
+	    	
+	    	//Sorta temp - there's no nice way to expose this yet, so i'll do the calculation here.
+	    	double dt_leftIest = driveTrain.getLeftCurrent(driveTrain.leftMotor_1.get());
+	    	double dt_rightIest = driveTrain.getRightCurrent(driveTrain.rightMotor_1.get());
+	    	
+	    	//Log proper data to file. Order must match that of the variable "logger fields"
+	    	ret_val_1 = logger.writeData( Timer.getFPGATimestamp(),
+	    								  ds.getMatchTime(), 
+				    				     (ds.isBrownedOut()?1.0:0.0),
+				    				     (ds.isFMSAttached()?1.0:0.0),
+				    				     (ds.isSysActive()?1.0:0.0),
+				    				      pdp.getVoltage(),
+				    				      ds.getBatteryVoltage(),
+				    			          pdp.getTotalCurrent(),
+				    			          pdp.getCurrent(DT_LF_PDP_CH),
+				    			          pdp.getCurrent(DT_LB_PDP_CH),
+				    			          pdp.getCurrent(DT_RF_PDP_CH),
+				    			          pdp.getCurrent(DT_RB_PDP_CH),
+				    			          pdp.getCurrent(INTAKE_PDP_CH),
+				    			          pdp.getCurrent(SHOOTER_PDP_CH),
+				    			          pdp.getCurrent(TAPE_PDP_CH),
+				    			          pdp.getCurrent(WINCH_1_PDP_CH),
+				    			          pdp.getCurrent(WINCH_2_PDP_CH),
+				    			          pdp.getCurrent(SP_DB_ARM_PDP_CH),
+				    			          pdp.getTemperature(),
+				    			          dt_leftIest,
+				    			          dt_rightIest,
+				    			          bpe.getEstESR(),
+	    								  bpe.getEstVoc(),
+	    								 (bpe.getConfidence()?1.0:0.0),
+	    								  bpe.getEstVsys(dt_rightIest + dt_leftIest + 5), //total guess at 5A background I draw
+				    			          joy1.getRawAxis(XBOX_LSTICK_YAXIS),
+				    			          joy1.getRawAxis(XBOX_RSTICK_XAXIS),
+				    			          driveTrain.leftMotor_1.get(),
+				    			          -driveTrain.rightMotor_1.get(),
+				    			          driveTrain.getLeftMotorSpeedRadPerS()*9.5492, //report rate in RPM
+				    			          driveTrain.getRightMotorSpeedRadPerS()*9.5492,
+				    			          accel_RIO.getX(),
+				    					  accel_RIO.getY(),
+				    					  accel_RIO.getZ(),
+				    				      loop_time_elapsed*1000.0,
+				    					  csm.curCamPos.ordinal(),
+				    					 (joy2.getRawButton(XBOX_START_BUTTON)?1.0:0.0),
+				    					  Climber.tapemotor.get(),
+				    					  Climber.winchmotor1.get(),
+				    					 (Climber.tapetrigger.get()?1.0:0.0),
+				    					  gyro.get_gyro_angle()%360,
+				    					 (gyro.get_gyro_read_status()?1.0:0.0),
+				    					  Pneumatics.getCurrent(),
+				    					  launchMotor.getCurrent(),
+				    					  launchMotor.getMotorCmd(),
+				    					  launchMotor.getActSpeed(),
+				    					  launchMotor.getDesSpeed()
+				    					 );
+	    	//Check for brownout. If browned out, force write data to log. Just in case we
+	    	//lose power and nasty things happen, at least we'll know how we died...
+	    	if(ds.isBrownedOut()) {
+	    		ret_val_2 = logger.forceSync();
+	    		System.out.println("Warning - brownout condition detetcted, flushing log buffers...");
+	    	}
+	    	
+	    	return Math.min(ret_val_1, ret_val_2);
     	}
-    	
-    	return Math.min(ret_val_1, ret_val_2);
+    	return -1;
     }
     
     /**
