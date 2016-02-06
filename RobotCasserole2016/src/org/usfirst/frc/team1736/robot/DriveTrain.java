@@ -1,7 +1,6 @@
 package org.usfirst.frc.team1736.robot;
 
 import edu.wpi.first.wpilibj.Encoder;
-import edu.wpi.first.wpilibj.PIDController;
 import edu.wpi.first.wpilibj.PowerDistributionPanel;
 import edu.wpi.first.wpilibj.RobotDrive;
 import edu.wpi.first.wpilibj.SpeedController;
@@ -37,12 +36,13 @@ public class DriveTrain extends RobotDrive { //Inherits methods from RobotDrive 
 	protected int leftEncoderChannel_2 = 1;
 	protected int rightEncoderChannel_1 = 2;
 	protected int rightEncoderChannel_2 = 3;
-	
-	PIDController PIDController;
-	
-	final static double Kp = 0;
-	final static double Ki = 0;
-	final static double Kd = 0;
+
+	//Encoder Ratios
+	public static final double WHEEL_RADIUS_IN = 8.75; //kinda, cuz they're pneumatic... 
+	public static final double WHEEL_TO_ENCODER_RATIO = 24/60*12/24*12/36; //encoder is downstream of shifter, so same ratio hg/lg - Third Stage * chain stage * encoder stage 
+	public static final double MOTOR_TO_ENCODER_RATIO_HG = 3/2.8333;
+	public static final double MOTOR_TO_ENCODER_RATIO_LG = 3/6.1275;
+	public static final int ENCODER_TICKS_PER_REV = 128;
 	
 	
 	public DriveTrain(SpeedController leftMotor_1, SpeedController leftMotor_2, 
@@ -72,13 +72,10 @@ public class DriveTrain extends RobotDrive { //Inherits methods from RobotDrive 
 		//Encoders
 		leftEncoder = new Encoder(leftEncoderChannel_1, leftEncoderChannel_2);
 		rightEncoder = new Encoder(rightEncoderChannel_1, rightEncoderChannel_2);
-		
-		//PID
-		//PIDController = new PIDController(Kp, Ki ,Kd, );
-		
-		//Pi Radians per step of encoder rotation.
-		leftEncoder.setDistancePerPulse(Math.PI/512);
-		rightEncoder.setDistancePerPulse(Math.PI/512);
+
+		//Return encoder distance in radians
+		leftEncoder.setDistancePerPulse(Math.PI*2/ENCODER_TICKS_PER_REV);
+		rightEncoder.setDistancePerPulse(Math.PI*2/ENCODER_TICKS_PER_REV);
 		rightEncoder.setReverseDirection(true);
 		
 	}
@@ -103,20 +100,26 @@ public class DriveTrain extends RobotDrive { //Inherits methods from RobotDrive 
 		}
 	}
 	
-	public double getLeftMotorSpeedRPM(){
-		return 0;
+	public double getLeftMotorSpeedRadPerS(){
+		if(Pneumatics.isHighGear())
+			return leftEncoder.getRate()*MOTOR_TO_ENCODER_RATIO_HG;
+		else
+			return leftEncoder.getRate()*MOTOR_TO_ENCODER_RATIO_LG;
 	}
 	
-	public double getRightMotorSpeedRPM(){
-		return 0;
+	public double getRightMotorSpeedRadPerS(){
+		if(Pneumatics.isHighGear())
+			return leftEncoder.getRate()*MOTOR_TO_ENCODER_RATIO_HG;
+		else
+			return leftEncoder.getRate()*MOTOR_TO_ENCODER_RATIO_LG;
 	}
 	
 	public double getRightDistanceFt(){
-		return 0;
+		return rightEncoder.getDistance()*WHEEL_TO_ENCODER_RATIO;
 	}
 	
 	public double getLeftDistanceFt(){
-		return 0;
+		return leftEncoder.getDistance()*WHEEL_TO_ENCODER_RATIO;
 	}
 	
 	public void resetEncoderDistances(){
@@ -124,14 +127,14 @@ public class DriveTrain extends RobotDrive { //Inherits methods from RobotDrive 
 		rightEncoder.reset();
 	}
 	
-	public double getLeftCurrent(double leftOutput)
+	public double getLeftCurrent(double leftMotorCmd)
 	{
-		return leftCCE.getCurrentEstimate(leftEncoder.getRate(), leftOutput);
+		return leftCCE.getCurrentEstimate(getLeftMotorSpeedRadPerS(), leftMotorCmd);
 	}
 	
-	public double getRightCurrent(double rightOutput)
+	public double getRightCurrent(double rightMotorCmd)
 	{
-		return rightCCE.getCurrentEstimate(rightEncoder.getRate(), rightOutput);
+		return rightCCE.getCurrentEstimate(getRightMotorSpeedRadPerS(), rightMotorCmd);
 	}
 	
 	public void alignToVisionTarget()

@@ -326,7 +326,7 @@ public class Robot extends IterativeRobot {
     	//Estimate battery Parmaeters
     	bpe.updateEstimate(pdp.getVoltage(), pdp.getTotalCurrent());
     	
-        //Run Drivetrain
+        //Run Drivetrain with reversing
     	if(joy1.getRawAxis(XBOX_LTRIGGER_AXIS)> 0.5) //reverse control
         	driveTrain.arcadeDrive(-1 * joy1.getRawAxis(XBOX_LSTICK_YAXIS), -1 * joy1.getRawAxis(XBOX_RSTICK_XAXIS), squaredInputs);
     	else //regular control
@@ -408,8 +408,8 @@ public class Robot extends IterativeRobot {
     	int ret_val_2 = 0;
     	
     	//Sorta temp - there's no nice way to expose this yet, so i'll do the calculation here.
-    	double dt_leftIest = driveTrain.leftCCE.getCurrentEstimate(driveTrain.leftEncoder.getRate(), driveTrain.leftMotor_1.get());
-    	double dt_rightIest = driveTrain.rightCCE.getCurrentEstimate(driveTrain.rightEncoder.getRate(), driveTrain.rightMotor_1.get());
+    	double dt_leftIest = driveTrain.getLeftCurrent(driveTrain.leftMotor_1.get());
+    	double dt_rightIest = driveTrain.getRightCurrent(driveTrain.rightMotor_1.get());
     	
     	//Log proper data to file. Order must match that of the variable "logger fields"
     	ret_val_1 = logger.writeData( Timer.getFPGATimestamp(),
@@ -441,8 +441,8 @@ public class Robot extends IterativeRobot {
 			    			          joy1.getRawAxis(XBOX_RSTICK_XAXIS),
 			    			          driveTrain.leftMotor_1.get(),
 			    			          -driveTrain.rightMotor_1.get(),
-			    			          driveTrain.leftEncoder.getRate()*9.5492, //report rate in RPM
-			    			          driveTrain.rightEncoder.getRate()*9.5492,
+			    			          driveTrain.getLeftMotorSpeedRadPerS()*9.5492, //report rate in RPM
+			    			          driveTrain.getRightMotorSpeedRadPerS()*9.5492,
 			    			          accel_RIO.getX(),
 			    					  accel_RIO.getY(),
 			    					  accel_RIO.getZ(),
