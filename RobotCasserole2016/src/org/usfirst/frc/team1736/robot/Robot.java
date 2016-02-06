@@ -327,8 +327,11 @@ public class Robot extends IterativeRobot {
     	bpe.updateEstimate(pdp.getVoltage(), pdp.getTotalCurrent());
     	
         //Run Drivetrain
-    	driveTrain.arcadeDrive(joy1.getRawAxis(XBOX_LSTICK_YAXIS), joy1.getRawAxis(XBOX_RSTICK_XAXIS), squaredInputs);
-    	
+    	if(joy1.getRawAxis(XBOX_LTRIGGER_AXIS)> 0.5) //reverse control
+        	driveTrain.arcadeDrive(-1 * joy1.getRawAxis(XBOX_LSTICK_YAXIS), -1 * joy1.getRawAxis(XBOX_RSTICK_XAXIS), squaredInputs);
+    	else //regular control
+    		driveTrain.arcadeDrive(joy1.getRawAxis(XBOX_LSTICK_YAXIS), joy1.getRawAxis(XBOX_RSTICK_XAXIS), squaredInputs);
+
     	//Evaluate upshift/downshift need
     	double left_speed = Math.abs(driveTrain.leftEncoder.getRate());
     	double right_speed = Math.abs(driveTrain.rightEncoder.getRate());
