@@ -105,8 +105,8 @@ public class Robot extends IterativeRobot {
 			                               "TapeMeasureCmd",
 			                               "WinchCmd",
 			                               "TapeMeasureLimitSw",
-			                               //"GyroMeasAngle",
-			                               //"GyroStatus",
+			                               "GyroMeasAngle",
+			                               "GyroStatus",
 			                               "CompressorCurrent",
 			                               "LaunchWheelCurrent",
 			                               "LaunchWheelActSpeed",
@@ -141,8 +141,8 @@ public class Robot extends IterativeRobot {
 			                              "cmd",
 			                              "cmd",
 			                              "bit",
-			                              //"deg",
-			                              //"bit",
+			                              "deg",
+			                              "bit",
 			                              "A",
 			                              "A",
 			                              "RPM",
@@ -291,7 +291,7 @@ public class Robot extends IterativeRobot {
     	double left_speed = Math.abs(driveTrain.leftEncoder.getRate());
     	double right_speed = Math.abs(driveTrain.rightEncoder.getRate());
     	double net_speed = Math.max(left_speed,right_speed);
-    	shifter.OttoShifterPeriodic(net_speed, wheel_speed.calcDeriv(net_speed), accel_RIO.getX(), pdp.getTotalCurrent(), joy1.getRawButton(XBOX_LEFT_BUTTON), joy1.getRawButton(XBOX_RIGHT_BUTTON));
+    	shifter.OttoShifterPeriodic(net_speed, wheel_speed.calcDeriv(net_speed), Math.abs(accel_RIO.getY()), pdp.getTotalCurrent(), joy1.getRawButton(XBOX_LEFT_BUTTON), joy1.getRawButton(XBOX_RIGHT_BUTTON));
     	if(shifter.gear){
     		System.out.println("high_gear");
     		Pneumatics.shiftToHighGear();
