@@ -56,10 +56,22 @@ public class Robot extends IterativeRobot {
 	        "/home/lvuser/grip.jar", "/home/lvuser/project.grip" };
 	
 	//-Motor IDs
-	final static int L_Motor_ID1 = 0; //CMG - Confirmed 2-2-2016
-	final static int L_Motor_ID2 = 1;
-	final static int R_Motor_ID1 = 2;
-	final static int R_Motor_ID2 = 3;
+	final static int DT_LF_MOTOR_PWM_CH = 0; //CMG - Confirmed 2-2-2016
+	final static int DT_LB_MOTOR_PWM_CH = 1;
+	final static int DT_RF_MOTOR_PWM_CH = 2;
+	final static int DT_RB_MOTOR_PWM_CH = 3;
+	
+	//-Motor PDP channel hookups for measuring current draw
+	final static int DT_RF_PDP_CH = 0;
+	final static int DT_RB_PDP_CH = 1;
+	final static int DT_LF_PDP_CH = 15;
+	final static int DT_LB_PDP_CH = 14;
+	final static int INTAKE_PDP_CH = 2;
+	final static int SHOOTER_PDP_CH = 3;
+	final static int TAPE_PDP_CH = 4;
+	final static int WINCH_1_PDP_CH = 13;
+	final static int WINCH_2_PDP_CH = 12;
+	final static int SP_DB_ARM_PDP_CH = 11;
 	
 	//-Square joystick input?
 	final static boolean squaredInputs = true;
@@ -72,9 +84,20 @@ public class Robot extends IterativeRobot {
             "BrownedOut", 
             "FMSAttached", 
             "SysActive", 
-            "MeasuredPDPVoltage",
-            "MeasuredRIOVoltage",
-            "MeasuredCurrent",
+            "MeasPDPVoltage",
+            "MeasRIOVoltage",
+            "MeasBattDrawCurrent",
+            "MeasDT_LF_PDP_DrawCurrent",
+            "MeasDT_LB_PDP_DrawCurrent",
+            "MeasDT_RF_PDP_DrawCurrent",
+            "MeasDT_RB_PDP_DrawCurrent",
+            "MeasIntakeMotorPDPDrawCurrent",
+            "MeasShooterMotorPDPDrawCurrent",
+            "MeasTapeMotorPDPDrawCurrent",
+            "MeasWinchMotor1PDPDrawCurrent",
+            "MeasWinchMotor2PDPDrawCurrent",
+            "MeasSpDbMotorPDPDrawCurrent",
+            "PDPTemperature",
             "EstLeftDTCurrent",
             "EstRightDTCurrent",
             "EstBattESR",
@@ -100,6 +123,7 @@ public class Robot extends IterativeRobot {
             "GyroStatus",
             "CompressorCurrent",
             "LaunchWheelCurrent",
+            "LaunchWheelMotorCmd",
             "LaunchWheelActSpeed",
             "LaunchWheelDesSpeed"};
 
@@ -110,6 +134,16 @@ public class Robot extends IterativeRobot {
            "bit",
            "V",
            "V",
+           "A",
+           "A",
+           "A",
+           "A",
+           "A",
+           "A",
+           "A",
+           "A",
+           "A",
+           "A",
            "A",
            "A",
            "A",
@@ -135,6 +169,7 @@ public class Robot extends IterativeRobot {
            "deg",
            "bit",
            "A",
+           "cmd",
            "A",
            "RPM",
            "RPM"};
@@ -194,15 +229,15 @@ public class Robot extends IterativeRobot {
     	//gyro = new I2CGyro();
     	
     	//Motors
-    	L_Motor_1 = new VictorSP(L_Motor_ID1);
-    	L_Motor_2 = new VictorSP(L_Motor_ID2);
-    	R_Motor_1 = new VictorSP(R_Motor_ID1);
-    	R_Motor_2 = new VictorSP(R_Motor_ID2);
+    	L_Motor_1 = new VictorSP(DT_LF_MOTOR_PWM_CH);
+    	L_Motor_2 = new VictorSP(DT_LB_MOTOR_PWM_CH);
+    	R_Motor_1 = new VictorSP(DT_RF_MOTOR_PWM_CH);
+    	R_Motor_2 = new VictorSP(DT_RB_MOTOR_PWM_CH);
     	//Drivetrain
     	driveTrain = new DriveTrain(L_Motor_1, L_Motor_2, R_Motor_1, R_Motor_2, pdp, bpe);
     	shifter = new OttoShifter();
     	wheel_speed = new DerivativeCalculator();
-    	//Peripherials
+    	//Peripherals
     	Climber=new Climb();
     	launchMotor = new Shooter();
     	//Joysticks
@@ -381,11 +416,22 @@ public class Robot extends IterativeRobot {
 			    				      pdp.getVoltage(),
 			    				      ds.getBatteryVoltage(),
 			    			          pdp.getTotalCurrent(),
+			    			          pdp.getCurrent(DT_LF_PDP_CH),
+			    			          pdp.getCurrent(DT_LB_PDP_CH),
+			    			          pdp.getCurrent(DT_RF_PDP_CH),
+			    			          pdp.getCurrent(DT_RB_PDP_CH),
+			    			          pdp.getCurrent(INTAKE_PDP_CH),
+			    			          pdp.getCurrent(SHOOTER_PDP_CH),
+			    			          pdp.getCurrent(TAPE_PDP_CH),
+			    			          pdp.getCurrent(WINCH_1_PDP_CH),
+			    			          pdp.getCurrent(WINCH_2_PDP_CH),
+			    			          pdp.getCurrent(SP_DB_ARM_PDP_CH),
+			    			          pdp.getTemperature(),
 			    			          dt_leftIest,
 			    			          dt_rightIest,
 			    			          bpe.getEstESR(),
     								  bpe.getEstVoc(),
-    								  (bpe.getConfidence()?1.0:0.0),
+    								 (bpe.getConfidence()?1.0:0.0),
     								  bpe.getEstVsys(dt_rightIest + dt_leftIest + 5), //total guess at 5A background I draw
 			    			          joy1.getRawAxis(XBOX_LSTICK_YAXIS),
 			    			          joy1.getRawAxis(XBOX_RSTICK_XAXIS),
@@ -398,14 +444,15 @@ public class Robot extends IterativeRobot {
 			    					  accel_RIO.getZ(),
 			    				      loop_time_elapsed*1000.0,
 			    					  csm.curCamPos.ordinal(),
-			    					  (joy2.getRawButton(XBOX_START_BUTTON)?1.0:0.0),
+			    					 (joy2.getRawButton(XBOX_START_BUTTON)?1.0:0.0),
 			    					  Climber.tapemotor.get(),
 			    					  Climber.winchmotor1.get(),
-			    					  (Climber.tapetrigger.get()?1.0:0.0),
+			    					 (Climber.tapetrigger.get()?1.0:0.0),
 			    					  gyro.get_gyro_angle()%360,
 			    					 (gyro.get_gyro_read_status()?1.0:0.0),
 			    					  Pneumatics.getCurrent(),
 			    					  launchMotor.getCurrent(),
+			    					  launchMotor.getMotorCmd(),
 			    					  launchMotor.getActSpeed(),
 			    					  launchMotor.getDesSpeed()
 			    					 );
