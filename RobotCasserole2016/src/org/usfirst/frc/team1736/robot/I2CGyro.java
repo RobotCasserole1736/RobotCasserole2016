@@ -133,7 +133,12 @@ public class I2CGyro {
 	
 	//False when gyro values are not to be considered good
 	//true when gyro values are known to be reasonable. I guess...
-	private boolean gyro_status = false;
+	private boolean gyro_read_status = false;
+	
+	//False when the gyro for sure isn't initalized
+	//True when it is. If gyro not init'd, we won't even attempt to 
+	//get values from it.
+	private boolean gyro_initalized = false;
 	
 	private long system_time_at_last_call = 0;
 	
@@ -335,7 +340,9 @@ public class I2CGyro {
 		//reading the whoami register, and comparing to the expected value
 		gyro.read(WHOAMI_REG_ADDR, 1, rx_byte);
 		if(WHOAMI_EXPECTED != rx_byte[0]){
-			System.out.println("WARNING: WhoAmI register mismatch for Gyro!");
+			System.out.println("ERROR: WhoAmI register mismatch for Gyro! Cannot Initalize!");
+			gyro_initalized = false;
+			return;
 		}
 		
 		//Control register setup
@@ -380,6 +387,8 @@ public class I2CGyro {
         timerThread = new java.util.Timer();
         timerThread.schedule(new GyroTask(this), 0L, (long) (m_sample_period_ms));
 		
+        
+        gyro_initalized = true;
 	}
 	
 	///////////////////////////////////////////////////////////////////////////////
@@ -390,14 +399,20 @@ public class I2CGyro {
 	
 	//Returns the most recent gyro reading in degrees per second
 	public synchronized double get_gyro_z(){
-		return gyro_z_val_deg_per_sec[0];
+		if(gyro_initalized)
+			return gyro_z_val_deg_per_sec[0];
+		else
+			return Double.NaN;
 	}
 	
 	//returns the most recently calculated gyro angle in degrees
 	//Angle can vary between -Infinity and Infinity, you must wrap this
 	// to 0-360 if desired
 	public synchronized double get_gyro_angle(){
-		return angle;
+		if(gyro_initalized)
+			return angle;
+		else
+			return Double.NaN;
 		
 	}
 	
@@ -406,8 +421,12 @@ public class I2CGyro {
 		angle = 0;		
 	}
 	
-	public synchronized boolean get_gyro_status(){
-		return gyro_status;
+	public synchronized boolean get_gyro_read_status(){
+		return gyro_read_status;
+	}
+	
+	public synchronized boolean get_gyro_initalized(){
+		return gyro_initalized;
 	}
 	
 	///////////////////////////////////////////////////////////////////////////////
@@ -426,10 +445,10 @@ public class I2CGyro {
 			//gyro is properly configured
 			//read high and low bytes from I2C
 			gyro.read(OUTZ_L_REG_ADDR|AUTO_INCRIMENT_REG_PTR_MASK, 2, buffer_low_and_high_bytes);
-			gyro_status = true; //a good read has occured. probably.
+			gyro_read_status = true; //a good read has occured. probably.
 		}
 		else {//gyro read was bad. Set buffer to zeros and try to reinitalize
-			gyro_status = false; //gyro value not ok!!!
+			gyro_read_status = false; //gyro value not ok!!!
 			System.out.println("ERROR BAD READ FROM GYRO. Got " + buffer_config_test_vals[0] + " for CtrlReg1, expected " + CTRL_REG1_CONTENTS);
 			System.out.println("attempting full I2C Reset...");
 			gyro.free();
@@ -500,6 +519,7 @@ public class I2CGyro {
 	//Lowpass filter for gyro.
 	//Shifts a new value into the circular buffer
 	//outputs the current filter value (based on current and previous values given as input)
+	@SuppressWarnings("unused")
 	private synchronized double gyro_LP_filter(double input){
 		int circ_buffer_index = 0;
 		double accumulator = 0;

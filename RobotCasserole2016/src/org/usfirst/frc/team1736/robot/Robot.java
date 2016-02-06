@@ -18,6 +18,10 @@ import edu.wpi.first.wpilibj.VictorSP;
  */
 public class Robot extends IterativeRobot {
 	
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	// CONSTANTS AND TUNE
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+	
 	final static int JOY1_INT = 0;
 	final static int JOY2_INT = 1;
 	//soon
@@ -60,8 +64,80 @@ public class Robot extends IterativeRobot {
 	//-Square joystick input?
 	final static boolean squaredInputs = true;
 	
-	//-BatteryParamEstimator length -- CHRIS MANAGES THIS CONSTANT
-	final static int BPE_length = 200; 
+	//Battery Param Est 
+	final static int BPE_length = 200; //Window length
+	
+	static final String[] logger_fields = {"TIME",
+            "MatchTime", 
+            "BrownedOut", 
+            "FMSAttached", 
+            "SysActive", 
+            "MeasuredPDPVoltage",
+            "MeasuredRIOVoltage",
+            "MeasuredCurrent",
+            "EstLeftDTCurrent",
+            "EstRightDTCurrent",
+            "EstBattESR",
+            "EstBatVoc",
+            "EstBatConfidence",
+            "EstVsys",
+            "DriverFwdRevCmd",
+            "DriverLftRtCmd",
+            "LeftDTVoltage",
+            "RightDTVoltage",
+            "LeftDTSpeed",
+            "RightDTSpeed",
+            "AccelX",
+            "AccelY",
+            "AccelZ",
+            "TaskExecTime",
+            "CommandedCameraPos",
+            "ClimbEnable",
+            "TapeMeasureCmd",
+            "WinchCmd",
+            "TapeMeasureLimitSw",
+            "GyroMeasAngle",
+            "GyroStatus",
+            "CompressorCurrent",
+            "LaunchWheelCurrent",
+            "LaunchWheelActSpeed",
+            "LaunchWheelDesSpeed"};
+
+    static final String[] units_fields = {"sec",
+           "sec",
+           "bit",
+           "bit",
+           "bit",
+           "V",
+           "V",
+           "A",
+           "A",
+           "A",
+           "Ohm",
+           "V",
+           "bit",
+           "V",
+           "cmd",
+           "cmd",
+           "V",
+           "V",
+           "RPM",
+           "RPM",
+           "G",
+           "G",
+           "G",
+           "mS",
+           "Index",
+           "bit",
+           "cmd",
+           "cmd",
+           "bit",
+           "deg",
+           "bit",
+           "A",
+           "A",
+           "RPM",
+           "RPM"};
 		
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	// CLASS OBJECTS
@@ -76,78 +152,6 @@ public class Robot extends IterativeRobot {
 	
 	//Data Logger
 	CsvLogger logger = new CsvLogger();
-	static final String[] logger_fields = {"TIME",
-			                               "MatchTime", 
-			                               "BrownedOut", 
-			                               "FMSAttached", 
-			                               "SysActive", 
-			                               "MeasuredPDPVoltage",
-			                               "MeasuredRIOVoltage",
-			                               "MeasuredCurrent",
-			                               "EstLeftDTCurrent",
-			                               "EstRightDTCurrent",
-			                               "EstBattESR",
-			                               "EstBatVoc",
-			                               "EstBatConfidence",
-			                               "EstVsys",
-			                               "DriverFwdRevCmd",
-			                               "DriverLftRtCmd",
-			                               "LeftDTVoltage",
-			                               "RightDTVoltage",
-			                               "LeftDTSpeed",
-			                               "RightDTSpeed",
-			                               "AccelX",
-			                               "AccelY",
-			                               "AccelZ",
-			                               "TaskExecTime",
-			                               "CommandedCameraPos",
-			                               "ClimbEnable",
-			                               "TapeMeasureCmd",
-			                               "WinchCmd",
-			                               "TapeMeasureLimitSw",
-			                               "GyroMeasAngle",
-			                               "GyroStatus",
-			                               "CompressorCurrent",
-			                               "LaunchWheelCurrent",
-			                               "LaunchWheelActSpeed",
-			                               "LaunchWheelDesSpeed"};
-	
-	static final String[] units_fields = {"sec",
-			                              "sec",
-			                              "bit",
-			                              "bit",
-			                              "bit",
-			                              "V",
-			                              "V",
-			                              "A",
-			                              "A",
-			                              "A",
-			                              "Ohm",
-			                              "V",
-			                              "bit",
-			                              "V",
-			                              "cmd",
-			                              "cmd",
-			                              "V",
-			                              "V",
-			                              "RPM",
-			                              "RPM",
-			                              "G",
-			                              "G",
-			                              "G",
-			                              "mS",
-			                              "Index",
-			                              "bit",
-			                              "cmd",
-			                              "cmd",
-			                              "bit",
-			                              "deg",
-			                              "bit",
-			                              "A",
-			                              "A",
-			                              "RPM",
-			                              "RPM"};
-	
 	//Variable for metric logging
 	private double prev_loop_start_timestamp = 0;
 	private double loop_time_elapsed = 0;
@@ -232,7 +236,7 @@ public class Robot extends IterativeRobot {
     	//Compressor starts automatically
     	
     	//reset gyro angle to 0
-    	//gyro.reset_gyro_angle();
+    	gyro.reset_gyro_angle();
 
     	//init the task timing things
     	prev_loop_start_timestamp = Timer.getFPGATimestamp();
@@ -288,6 +292,8 @@ public class Robot extends IterativeRobot {
     	
         //Run Drivetrain
     	driveTrain.arcadeDrive(joy1.getRawAxis(XBOX_LSTICK_YAXIS), joy1.getRawAxis(XBOX_RSTICK_XAXIS), squaredInputs);
+    	
+    	//Evaluate upshift/downshift need
     	double left_speed = Math.abs(driveTrain.leftEncoder.getRate());
     	double right_speed = Math.abs(driveTrain.rightEncoder.getRate());
     	double net_speed = Math.max(left_speed,right_speed);
@@ -300,6 +306,7 @@ public class Robot extends IterativeRobot {
     		System.out.println("low_gear");
     		Pneumatics.shiftToLowGear();
     	}
+    	
     	//Update camera position
     	processCameraAngle();
     	
@@ -361,7 +368,7 @@ public class Robot extends IterativeRobot {
     	int ret_val_1 = 0;
     	int ret_val_2 = 0;
     	
-    	//Sorta temp - there's no nice way to expose this yet, so i'll do the calcualtion here.
+    	//Sorta temp - there's no nice way to expose this yet, so i'll do the calculation here.
     	double dt_leftIest = driveTrain.leftCCE.getCurrentEstimate(driveTrain.leftEncoder.getRate(), driveTrain.leftMotor_1.get());
     	double dt_rightIest = driveTrain.rightCCE.getCurrentEstimate(driveTrain.rightEncoder.getRate(), driveTrain.rightMotor_1.get());
     	
@@ -395,8 +402,8 @@ public class Robot extends IterativeRobot {
 			    					  Climber.tapemotor.get(),
 			    					  Climber.winchmotor1.get(),
 			    					  (Climber.tapetrigger.get()?1.0:0.0),
-			    					 // gyro.get_gyro_angle()%360,
-			    					 // (gyro.get_gyro_status()?1.0:0.0),
+			    					  gyro.get_gyro_angle()%360,
+			    					 (gyro.get_gyro_read_status()?1.0:0.0),
 			    					  Pneumatics.getCurrent(),
 			    					  launchMotor.getCurrent(),
 			    					  launchMotor.getActSpeed(),
