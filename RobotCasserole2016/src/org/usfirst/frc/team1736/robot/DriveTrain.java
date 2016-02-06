@@ -110,7 +110,7 @@ public class DriveTrain extends RobotDrive { //Inherits methods from RobotDrive 
 	
 	public double getRightCurrent(double rightOutput)
 	{
-		return rightCCE.getCurrentEstimate(leftEncoder.getRate(), rightOutput);
+		return rightCCE.getCurrentEstimate(rightEncoder.getRate(), rightOutput);
 	}
 	
 	public void alignToVisionTarget()

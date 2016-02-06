@@ -145,6 +145,7 @@ public class Robot extends IterativeRobot {
            "A",
            "A",
            "A",
+           "degC",
            "A",
            "A",
            "Ohm",
