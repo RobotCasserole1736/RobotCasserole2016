@@ -1,12 +1,12 @@
 package org.usfirst.frc.team1736.robot;
 
 import edu.wpi.first.wpilibj.Compressor;
-import edu.wpi.first.wpilibj.DoubleSolenoid;
+import edu.wpi.first.wpilibj.Solenoid;
 
 public class Pneumatics {
 	private static Compressor compressor = new Compressor();
-	private static DoubleSolenoid shifterSolenoid = new DoubleSolenoid(1,2);
-	private static DoubleSolenoid intakeSolenoid = new DoubleSolenoid(3,4);
+	private static Solenoid shifterSolenoid = new Solenoid(1);
+	private static Solenoid intakeSolenoid = new Solenoid(2);
 	
 	public static void startCompressor(){
 		compressor.start();
@@ -25,19 +25,28 @@ public class Pneumatics {
 	}
 	
 	public static void shiftToLowGear(){
-		shifterSolenoid.set(DoubleSolenoid.Value.kForward);
+		shifterSolenoid.set(true);
 	}
 	
 	public static void shiftToHighGear(){
-		shifterSolenoid.set(DoubleSolenoid.Value.kReverse);
+		shifterSolenoid.set(false);
 	}
 	
 	public static void intakeUp(){
-		intakeSolenoid.set(DoubleSolenoid.Value.kForward);
+		intakeSolenoid.set(true);
 	}
 	
 	public static void intakeDown(){
-		intakeSolenoid.set(DoubleSolenoid.Value.kReverse);
+		intakeSolenoid.set(false);
+	}
+	
+	public static boolean isHighGear()
+	{
+	    return !shifterSolenoid.get();   
+	}
+	
+	public static boolean isIntakeDown(){
+		return !intakeSolenoid.get();
 	}
 }
  
