@@ -103,6 +103,27 @@ public class DriveTrain extends RobotDrive { //Inherits methods from RobotDrive 
 		}
 	}
 	
+	public double getLeftMotorSpeedRPM(){
+		return 0;
+	}
+	
+	public double getRightMotorSpeedRPM(){
+		return 0;
+	}
+	
+	public double getRightDistanceFt(){
+		return 0;
+	}
+	
+	public double getLeftDistanceFt(){
+		return 0;
+	}
+	
+	public void resetEncoderDistances(){
+		leftEncoder.reset();
+		rightEncoder.reset();
+	}
+	
 	public double getLeftCurrent(double leftOutput)
 	{
 		return leftCCE.getCurrentEstimate(leftEncoder.getRate(), leftOutput);
@@ -110,7 +131,7 @@ public class DriveTrain extends RobotDrive { //Inherits methods from RobotDrive 
 	
 	public double getRightCurrent(double rightOutput)
 	{
-		return rightCCE.getCurrentEstimate(leftEncoder.getRate(), rightOutput);
+		return rightCCE.getCurrentEstimate(rightEncoder.getRate(), rightOutput);
 	}
 	
 	public void alignToVisionTarget()
