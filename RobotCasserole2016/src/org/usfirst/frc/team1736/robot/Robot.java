@@ -8,6 +8,8 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.PowerDistributionPanel;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.VictorSP;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -35,6 +37,11 @@ public class Robot extends IterativeRobot {
 	final static int XBOX_LSTICK_BUTTON = 9;
 	final static int XBOX_RSTICK_BUTTON = 10;
 	
+	// I'm a silly boy and Idk what I'm doing so I'm just gonna put these variables here, whoop whoop
+	int autoMode = 0;
+	SendableChooser autoChooser;
+	int currentStep = 0;
+			
 	//-Controller Axes
 	final static int XBOX_LSTICK_XAXIS = 0;
 	final static int XBOX_LSTICK_YAXIS = 1;
@@ -180,6 +187,13 @@ public class Robot extends IterativeRobot {
      * used for any initialization code.
      */
     public void robotInit() {
+    	//Stuff for Autonomous
+    	autoChooser = new SendableChooser();
+    	autoChooser.addObject("Some Mode Name", 0);
+    	autoChooser.addObject("anoter mode name", 1);
+    	autoChooser.addDefault("default mode name",2);
+    	SmartDashboard.putData("Auto Mode Chooser", autoChooser);
+    	
     	//Add overall initialization code here
     	ds = DriverStation.getInstance();
     	pdp = new PowerDistributionPanel();
@@ -228,7 +242,8 @@ public class Robot extends IterativeRobot {
     public void autonomousInit() {
     	//Initialize the new log file for autonomous
     	logger.init(logger_fields, units_fields);
-
+    	SmartDashboard.getNumber("Autonomous Mode:");
+    	autoMode = (int) autoChooser.getSelected();
     	//Compressor starts automatically
     	
     	//reset gyro angle to 0
@@ -241,24 +256,74 @@ public class Robot extends IterativeRobot {
     	//Raise intake to prevent damage in auto.
     	Pneumatics.intakeUp();
     	
+    	
+    	
     }
 
     /**
      * This function is called periodically during autonomous
      */
     public void autonomousPeriodic() {
+    switch(autoMode){
+    case 0: //Just move to in front of the defense
+    	prev_loop_start_timestamp = Timer.getFPGATimestamp();
+    	
+    	driveTrain.drive(0.8, 0);
+    	
+    	bpe.updateEstimate(pdp.getVoltage(), pdp.getTotalCurrent());
+    	log_data();
+    	loop_time_elapsed = Timer.getFPGATimestamp() - prev_loop_start_timestamp;
+    	break;    	
+    case 1: //Case 0 + go over low bar
+    	if (currentStep == 1)
+    	{		
+    		prev_loop_start_timestamp = Timer.getFPGATimestamp();
+    		bpe.updateEstimate(pdp.getVoltage(), pdp.getTotalCurrent());
+    		driveTrain.drive(0.8, 0);
+    		log_data();
+    		loop_time_elapsed = Timer.getFPGATimestamp() - prev_loop_start_timestamp;
+    	}    	
+    	if (currentStep == 2)
+    	{
+    		prev_loop_start_timestamp = Timer.getFPGATimestamp();
+			bpe.updateEstimate(pdp.getVoltage(), pdp.getTotalCurrent());
+			driveTrain.drive(0.8, 0);
+			log_data();
+			loop_time_elapsed = Timer.getFPGATimestamp() - prev_loop_start_timestamp;
+    	}
+    	break;     	
+    case 2: //Case 0 + go over rugged terrain
+    	if (currentStep == 1)
+    	{		
+    		prev_loop_start_timestamp = Timer.getFPGATimestamp();
+    		bpe.updateEstimate(pdp.getVoltage(), pdp.getTotalCurrent());
+    		log_data();
+    		driveTrain.drive(0.8, 0);
+    		loop_time_elapsed = Timer.getFPGATimestamp() - prev_loop_start_timestamp;
+    	}    	
+    	if (currentStep == 2)
+    	{
+    		prev_loop_start_timestamp = Timer.getFPGATimestamp();
+			bpe.updateEstimate(pdp.getVoltage(), pdp.getTotalCurrent());
+			log_data();
+			driveTrain.drive(0.8, 0);
+			loop_time_elapsed = Timer.getFPGATimestamp() - prev_loop_start_timestamp;
+    	}
+    	break; 
+    	
     	//Execution time metric - this must be first!
     	prev_loop_start_timestamp = Timer.getFPGATimestamp();
     	
     	//Add autonomous code here
     	//Estimate battery Parameters
     	bpe.updateEstimate(pdp.getVoltage(), pdp.getTotalCurrent());
+    		
     	
     	//Log data from this timestep
     	log_data();
     	
     	//Execution time metric - this must be last!
-    	loop_time_elapsed = Timer.getFPGATimestamp() - prev_loop_start_timestamp;
+    	loop_time_elapsed = Timer.getFPGATimestamp() - prev_loop_start_timestamp
     }
     
     /**
