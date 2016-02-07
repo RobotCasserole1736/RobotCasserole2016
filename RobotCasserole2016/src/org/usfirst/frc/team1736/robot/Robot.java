@@ -80,6 +80,8 @@ public class Robot extends IterativeRobot {
 	final static int BPE_length = 200; //Window length
 	final static double BPE_confidenceThresh_A = 10.0;
 	
+	//LED Decorations
+	final static int NUM_LEDS = 90;
 	
 	//Data Logging
 	static final boolean enable_logging = true; //Set to false to disable logging
@@ -214,6 +216,8 @@ public class Robot extends IterativeRobot {
 	BatteryParamEstimator bpe;
 	BuiltInAccelerometer accel_RIO;
 	I2CGyro gyro;
+	DotStarsLEDStrip leds;
+	double led_counter;// temp
 	
 	//Data Logger
 	CsvLogger logger = new CsvLogger();
@@ -258,6 +262,8 @@ public class Robot extends IterativeRobot {
     	accel_RIO = new BuiltInAccelerometer();
     	csm = new CameraServoMount();
     	gyro = new I2CGyro(); //this will cal the gyro - don't touch robot which this happens!
+    	leds = new DotStarsLEDStrip(NUM_LEDS);
+    	led_counter = 0;
     	
     	//Motors - Drivetrain
     	L_Motor_1 = new VictorSP(DT_LF_MOTOR_PWM_CH);
@@ -279,6 +285,7 @@ public class Robot extends IterativeRobot {
     	
     	//Ensure intake starts in proper position
     	Pneumatics.intakeUp();
+    	
     }
     
     /**
@@ -291,6 +298,9 @@ public class Robot extends IterativeRobot {
 	    	//Ensure any open file gets closed
 	    	logger.close();
     	}
+    	
+    	//Turn off LEDs to start
+    	leds.clearColorBuffer();
  
 
     }
@@ -360,6 +370,19 @@ public class Robot extends IterativeRobot {
     public void teleopPeriodic() {
     	//Execution time metric - this must be first!
     	prev_loop_start_timestamp = Timer.getFPGATimestamp();
+    	
+    	//LED test code
+    	for(int i = 0; i < NUM_LEDS; i++)
+    	{	
+    		if(i % 10 < 5){
+    			leds.setLEDColor((int)Math.round(led_counter + i)%90, 1.0, 0.95, 1.0);	
+    		}
+    		else{
+    			leds.setLEDColor((int)Math.round(led_counter + i)%90, 1.0, 0.0, 0.0);	
+    		}
+    		
+    	}
+    	led_counter = (led_counter + 0.1);
     	
     	//Estimate battery Parameters
     	bpe.updateEstimate(pdp.getVoltage(), pdp.getTotalCurrent());
