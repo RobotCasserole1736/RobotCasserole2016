@@ -101,6 +101,8 @@ public class Robot extends IterativeRobot {
             "MeasWinchMotor2PDPDrawCurrent",
             "MeasSpDbMotorPDPDrawCurrent",
             "PDPTemperature",
+            "ActLeftDTCurrent",
+            "ActRightDTCurrent",
             "EstLeftDTCurrent",
             "EstRightDTCurrent",
             "EstBattESR",
@@ -111,8 +113,10 @@ public class Robot extends IterativeRobot {
             "DriverLftRtCmd",
             "LeftDTVoltage",
             "RightDTVoltage",
-            "LeftDTSpeed",
-            "RightDTSpeed",
+            "LeftDTMotorSpeed",
+            "RightDTMotorSpeed",
+            "LeftDTWheelSpeed",
+            "RightDTWheelSpeed",
             "AccelX",
             "AccelY",
             "AccelZ",
@@ -151,6 +155,8 @@ public class Robot extends IterativeRobot {
            "degC",
            "A",
            "A",
+           "A",
+           "A",
            "Ohm",
            "V",
            "bit",
@@ -159,6 +165,8 @@ public class Robot extends IterativeRobot {
            "cmd",
            "V",
            "V",
+           "RPM",
+           "RPM",
            "RPM",
            "RPM",
            "G",
@@ -419,9 +427,11 @@ public class Robot extends IterativeRobot {
 	    	int ret_val_1 = 0;
 	    	int ret_val_2 = 0;
 	    	
-	    	//Sorta temp - there's no nice way to expose this yet, so i'll do the calculation here.
-	    	double dt_leftIest = driveTrain.getLeftCurrent(driveTrain.leftMotor_1.get());
-	    	double dt_rightIest = driveTrain.getRightCurrent(driveTrain.rightMotor_1.get());
+	    
+	    	double dt_leftIest = driveTrain.getLeftCurrent();
+	    	double dt_leftIAct = pdp.getCurrent(DT_LF_PDP_CH) + pdp.getCurrent(DT_LB_PDP_CH);
+	    	double dt_rightIest = driveTrain.getRightCurrent();
+	    	double dt_rightIAct = pdp.getCurrent(DT_RF_PDP_CH) + pdp.getCurrent(DT_RB_PDP_CH);
 	    	
 	    	//Log proper data to file. Order must match that of the variable "logger fields"
 	    	ret_val_1 = logger.writeData( Timer.getFPGATimestamp(),
@@ -443,6 +453,8 @@ public class Robot extends IterativeRobot {
 				    			          pdp.getCurrent(WINCH_2_PDP_CH),
 				    			          pdp.getCurrent(SP_DB_ARM_PDP_CH),
 				    			          pdp.getTemperature(),
+				    			          dt_leftIAct,
+				    			          dt_rightIAct,
 				    			          dt_leftIest,
 				    			          dt_rightIest,
 				    			          bpe.getEstESR(),
@@ -455,6 +467,8 @@ public class Robot extends IterativeRobot {
 				    			          -driveTrain.rightMotor_1.get(),
 				    			          driveTrain.getLeftMotorSpeedRadPerS()*9.5492, //report rate in RPM
 				    			          driveTrain.getRightMotorSpeedRadPerS()*9.5492,
+				    			          driveTrain.getLeftWheelSpeedRadPerS()*9.5492,
+				    			          driveTrain.getRightWheelSpeedRadPerS()*9.5492,
 				    			          accel_RIO.getX(),
 				    					  accel_RIO.getY(),
 				    					  accel_RIO.getZ(),

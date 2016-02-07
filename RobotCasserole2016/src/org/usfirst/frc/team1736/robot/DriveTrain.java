@@ -25,7 +25,6 @@ public class DriveTrain extends RobotDrive { //Inherits methods from RobotDrive 
 	public CIMCurrentEstimator rightCCE;
 	
 	//Using Chris' naming convention
-	double motorEncRatio = 0;
 	double controllerVDrop_V = 0;
 	
 	//Encoders
@@ -39,9 +38,9 @@ public class DriveTrain extends RobotDrive { //Inherits methods from RobotDrive 
 
 	//Encoder Ratios
 	public static final double WHEEL_RADIUS_IN = 8.75; //kinda, cuz they're pneumatic... 
-	public static final double WHEEL_TO_ENCODER_RATIO = 24/60*12/24*12/36; //encoder is downstream of shifter, so same ratio hg/lg - Third Stage * chain stage * encoder stage 
-	public static final double MOTOR_TO_ENCODER_RATIO_HG = 3/2.8333;
-	public static final double MOTOR_TO_ENCODER_RATIO_LG = 3/6.1275;
+	public static final double WHEEL_TO_ENCODER_RATIO = 24f/60f*12f/24f*12f/36f; //encoder is downstream of shifter, so same ratio hg/lg - Third Stage * chain stage * encoder stage 
+	public static final double MOTOR_TO_ENCODER_RATIO_HG = (2.8333)/3;
+	public static final double MOTOR_TO_ENCODER_RATIO_LG = (6.1275)/3;
 	public static final int ENCODER_TICKS_PER_REV = 128;
 	
 	
@@ -60,8 +59,8 @@ public class DriveTrain extends RobotDrive { //Inherits methods from RobotDrive 
 		this.rightMotor_2 = rightMotor_2;
 		
 		//CIM Current Estimators
-		leftCCE = new CIMCurrentEstimator(2, motorEncRatio, controllerVDrop_V, pdp);
-		rightCCE = new CIMCurrentEstimator(2, motorEncRatio, controllerVDrop_V, pdp);
+		leftCCE = new CIMCurrentEstimator(2, controllerVDrop_V, pdp);
+		rightCCE = new CIMCurrentEstimator(2, controllerVDrop_V, pdp);
 		
 		//Battery Para Estimator
 		this.bpe = bpe;
@@ -74,8 +73,8 @@ public class DriveTrain extends RobotDrive { //Inherits methods from RobotDrive 
 		rightEncoder = new Encoder(rightEncoderChannel_1, rightEncoderChannel_2);
 
 		//Return encoder distance in radians
-		leftEncoder.setDistancePerPulse(Math.PI*2/ENCODER_TICKS_PER_REV);
-		rightEncoder.setDistancePerPulse(Math.PI*2/ENCODER_TICKS_PER_REV);
+		leftEncoder.setDistancePerPulse(Math.PI*2.0/(double)ENCODER_TICKS_PER_REV);
+		rightEncoder.setDistancePerPulse(Math.PI*2.0/(double)ENCODER_TICKS_PER_REV);
 		leftEncoder.setReverseDirection(true);
 		
 		//Disable safety timeout
@@ -116,12 +115,20 @@ public class DriveTrain extends RobotDrive { //Inherits methods from RobotDrive 
 			return rightEncoder.getRate()*MOTOR_TO_ENCODER_RATIO_LG;
 	}
 	
+	public double getLeftWheelSpeedRadPerS(){
+			return leftEncoder.getRate()*WHEEL_TO_ENCODER_RATIO;
+	}
+	
+	public double getRightWheelSpeedRadPerS(){
+			return rightEncoder.getRate()*WHEEL_TO_ENCODER_RATIO;
+	}
+	
 	public double getRightDistanceFt(){
-		return rightEncoder.getDistance()*WHEEL_TO_ENCODER_RATIO;
+		return rightEncoder.getDistance()*WHEEL_TO_ENCODER_RATIO*WHEEL_RADIUS_IN*1/12;
 	}
 	
 	public double getLeftDistanceFt(){
-		return leftEncoder.getDistance()*WHEEL_TO_ENCODER_RATIO;
+		return leftEncoder.getDistance()*WHEEL_TO_ENCODER_RATIO*WHEEL_RADIUS_IN*1/12;
 	}
 	
 	public void resetEncoderDistances(){
@@ -129,14 +136,14 @@ public class DriveTrain extends RobotDrive { //Inherits methods from RobotDrive 
 		rightEncoder.reset();
 	}
 	
-	public double getLeftCurrent(double leftMotorCmd)
+	public double getLeftCurrent()
 	{
-		return leftCCE.getCurrentEstimate(getLeftMotorSpeedRadPerS(), leftMotorCmd);
+		return leftCCE.getCurrentEstimate(getLeftMotorSpeedRadPerS(), leftMotor_1.get()); //*3 is fudge factor to make it work....
 	}
 	
-	public double getRightCurrent(double rightMotorCmd)
+	public double getRightCurrent()
 	{
-		return rightCCE.getCurrentEstimate(getRightMotorSpeedRadPerS(), rightMotorCmd);
+		return rightCCE.getCurrentEstimate(getRightMotorSpeedRadPerS(), -rightMotor_1.get());
 	}
 	
 	public void alignToVisionTarget()
