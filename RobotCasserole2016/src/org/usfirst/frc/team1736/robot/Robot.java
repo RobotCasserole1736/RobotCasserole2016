@@ -118,14 +118,16 @@ public class Robot extends IterativeRobot {
             "RightDTMotorSpeed",
             "LeftDTWheelSpeed",
             "RightDTWheelSpeed",
+            "LeftDTWheelDistance",
+            "RightDTWheelDistance",
             "AccelX",
             "AccelY",
             "AccelZ",
             "TaskExecTime",
             "CommandedCameraPos",
             "ClimbEnable",
-            "TapeMeasureCmd",
-            "WinchCmd",
+            "TapeMeasureMotorCmd",
+            "WinchMotorCmd",
             "TapeMeasureLimitSw",
             "GyroMeasAngle",
             "GyroStatus",
@@ -138,7 +140,8 @@ public class Robot extends IterativeRobot {
             "AutoDnShftWheelAccelTrigger",
             "AutoDnShftBodyAccelTrigger",
             "AutoDnShftCurrentDrawTrigger",
-            "ActualGear"};
+            "ActualGear",
+            "DriverCmdInvertedControls"};
 
     static final String[] units_fields = {"sec",
            "sec",
@@ -175,6 +178,9 @@ public class Robot extends IterativeRobot {
            "RPM",
            "RPM",
            "RPM",
+           "ft",
+           "ft",
+           "ft",
            "G",
            "G",
            "G",
@@ -195,7 +201,8 @@ public class Robot extends IterativeRobot {
            "bit",
            "bit",
            "bit",
-           "T-High/F-Low"};
+           "T-High/F-Low",
+           "bit"};
 		
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	// CLASS OBJECTS
@@ -219,6 +226,7 @@ public class Robot extends IterativeRobot {
 	Joystick joy2;
 	//Drive Train
 	DriveTrain driveTrain;
+	boolean cmdInvCtrls = false;
 	//climber mechanism
 	Climb Climber;
 	//Launch Motor
@@ -357,10 +365,14 @@ public class Robot extends IterativeRobot {
     	bpe.updateEstimate(pdp.getVoltage(), pdp.getTotalCurrent());
     	
         //Run Drivetrain with reversing
-    	if(joy1.getRawAxis(XBOX_LTRIGGER_AXIS)> 0.5) //reverse control
+    	if(joy1.getRawAxis(XBOX_LTRIGGER_AXIS)> 0.5){ //reverse control
+    		cmdInvCtrls = true;
         	driveTrain.arcadeDrive(-1 * joy1.getRawAxis(XBOX_LSTICK_YAXIS), -1 * joy1.getRawAxis(XBOX_RSTICK_XAXIS), squaredInputs);
-    	else //regular control
+    	}
+    	else{ //regular control
+    		cmdInvCtrls = false;
     		driveTrain.arcadeDrive(joy1.getRawAxis(XBOX_LSTICK_YAXIS), joy1.getRawAxis(XBOX_RSTICK_XAXIS), squaredInputs);
+    	}
 
     	//Evaluate upshift/downshift need
     	double left_speed = Math.abs(driveTrain.getLeftWheelSpeedRPM());
@@ -476,6 +488,8 @@ public class Robot extends IterativeRobot {
 				    			          driveTrain.getRightMotorSpeedRadPerS()*9.5492,
 				    			          driveTrain.getLeftWheelSpeedRPM(),
 				    			          driveTrain.getRightWheelSpeedRPM(),
+				    			          driveTrain.getLeftDistanceFt(),
+				    			          driveTrain.getRightDistanceFt(),
 				    			          accel_RIO.getX(),
 				    					  accel_RIO.getY(),
 				    					  accel_RIO.getZ(),
@@ -496,7 +510,8 @@ public class Robot extends IterativeRobot {
 				    					  shifter.WheelAccelDebounceState?1.0:0.0,
 				    					  shifter.VertAccelDebounceState?1.0:0.0,
 				    					  shifter.CurrentDebounceState?1.0:0.0,
-				    					  Pneumatics.isHighGear()?1.0:0.0
+				    					  Pneumatics.isHighGear()?1.0:0.0,
+		    							  cmdInvCtrls?1.0:0.0
 				    					 );
 	    	//Check for brownout. If browned out, force write data to log. Just in case we
 	    	//lose power and nasty things happen, at least we'll know how we died...
