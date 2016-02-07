@@ -78,6 +78,7 @@ public class Robot extends IterativeRobot {
 	
 	//Battery Param Est 
 	final static int BPE_length = 200; //Window length
+	final static double BPE_confidenceThresh_A = 10.0;
 	
 	
 	//Data Logging
@@ -111,8 +112,8 @@ public class Robot extends IterativeRobot {
             "EstVsys",
             "DriverFwdRevCmd",
             "DriverLftRtCmd",
-            "LeftDTVoltage",
-            "RightDTVoltage",
+            "LeftDTCmd",
+            "RightDTCmd",
             "LeftDTMotorSpeed",
             "RightDTMotorSpeed",
             "LeftDTWheelSpeed",
@@ -132,7 +133,12 @@ public class Robot extends IterativeRobot {
             "LaunchWheelCurrent",
             "LaunchWheelMotorCmd",
             "LaunchWheelActSpeed",
-            "LaunchWheelDesSpeed"};
+            "LaunchWheelDesSpeed",
+            "AutoDnShftWheelSpeedTrigger",
+            "AutoDnShftWheelAccelTrigger",
+            "AutoDnShftBodyAccelTrigger",
+            "AutoDnShftCurrentDrawTrigger",
+            "ActualGear"};
 
     static final String[] units_fields = {"sec",
            "sec",
@@ -184,7 +190,12 @@ public class Robot extends IterativeRobot {
            "cmd",
            "A",
            "RPM",
-           "RPM"};
+           "RPM",
+           "bit",
+           "bit",
+           "bit",
+           "bit",
+           "T-High/F-Low"};
 		
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	// CLASS OBJECTS
@@ -231,24 +242,26 @@ public class Robot extends IterativeRobot {
      * used for any initialization code.
      */
     public void robotInit() {
-    	//Add overall initialization code here
+    	//Initialize each peripheral
     	ds = DriverStation.getInstance();
     	pdp = new PowerDistributionPanel();
     	bpe = new BatteryParamEstimator(BPE_length);
-    	bpe.setConfidenceThresh(10.0);
+    	bpe.setConfidenceThresh(BPE_confidenceThresh_A);
     	accel_RIO = new BuiltInAccelerometer();
     	csm = new CameraServoMount();
-    	gyro = new I2CGyro();
+    	gyro = new I2CGyro(); //this will cal the gyro - don't touch robot which this happens!
     	
-    	//Motors
+    	//Motors - Drivetrain
     	L_Motor_1 = new VictorSP(DT_LF_MOTOR_PWM_CH);
     	L_Motor_2 = new VictorSP(DT_LB_MOTOR_PWM_CH);
     	R_Motor_1 = new VictorSP(DT_RF_MOTOR_PWM_CH);
     	R_Motor_2 = new VictorSP(DT_RB_MOTOR_PWM_CH);
+    	
     	//Drivetrain
     	driveTrain = new DriveTrain(L_Motor_1, L_Motor_2, R_Motor_1, R_Motor_2, pdp, bpe);
     	shifter = new OttoShifter();
     	wheel_speed = new DerivativeCalculator();
+    	
     	//Peripherals
     	Climber=new Climb();
     	launchMotor = new Shooter();
@@ -316,10 +329,10 @@ public class Robot extends IterativeRobot {
     	loop_time_elapsed = Timer.getFPGATimestamp() - prev_loop_start_timestamp;
     }
     
+    
     /**
      * This function is called once right before the start of teleop
      */
-    
     public void teleopInit() {
     	if(enable_logging){
     		//Initialize the new log file for Teleop
@@ -340,7 +353,7 @@ public class Robot extends IterativeRobot {
     	//Execution time metric - this must be first!
     	prev_loop_start_timestamp = Timer.getFPGATimestamp();
     	
-    	//Estimate battery Parmaeters
+    	//Estimate battery Parameters
     	bpe.updateEstimate(pdp.getVoltage(), pdp.getTotalCurrent());
     	
         //Run Drivetrain with reversing
@@ -350,8 +363,8 @@ public class Robot extends IterativeRobot {
     		driveTrain.arcadeDrive(joy1.getRawAxis(XBOX_LSTICK_YAXIS), joy1.getRawAxis(XBOX_RSTICK_XAXIS), squaredInputs);
 
     	//Evaluate upshift/downshift need
-    	double left_speed = Math.abs(driveTrain.leftEncoder.getRate());
-    	double right_speed = Math.abs(driveTrain.rightEncoder.getRate());
+    	double left_speed = Math.abs(driveTrain.getLeftWheelSpeedRPM());
+    	double right_speed = Math.abs(driveTrain.getLeftWheelSpeedRPM());
     	double net_speed = Math.max(left_speed,right_speed);
     	shifter.OttoShifterPeriodic(net_speed, wheel_speed.calcDeriv(net_speed), Math.abs(accel_RIO.getY()), pdp.getTotalCurrent(), joy1.getRawButton(XBOX_LEFT_BUTTON), joy1.getRawButton(XBOX_RIGHT_BUTTON));
     	if(shifter.gear){
@@ -427,12 +440,6 @@ public class Robot extends IterativeRobot {
 	    	int ret_val_1 = 0;
 	    	int ret_val_2 = 0;
 	    	
-	    
-	    	double dt_leftIest = driveTrain.getLeftCurrent();
-	    	double dt_leftIAct = pdp.getCurrent(DT_LF_PDP_CH) + pdp.getCurrent(DT_LB_PDP_CH);
-	    	double dt_rightIest = driveTrain.getRightCurrent();
-	    	double dt_rightIAct = pdp.getCurrent(DT_RF_PDP_CH) + pdp.getCurrent(DT_RB_PDP_CH);
-	    	
 	    	//Log proper data to file. Order must match that of the variable "logger fields"
 	    	ret_val_1 = logger.writeData( Timer.getFPGATimestamp(),
 	    								  ds.getMatchTime(), 
@@ -453,22 +460,22 @@ public class Robot extends IterativeRobot {
 				    			          pdp.getCurrent(WINCH_2_PDP_CH),
 				    			          pdp.getCurrent(SP_DB_ARM_PDP_CH),
 				    			          pdp.getTemperature(),
-				    			          dt_leftIAct,
-				    			          dt_rightIAct,
-				    			          dt_leftIest,
-				    			          dt_rightIest,
+				    			          pdp.getCurrent(DT_LF_PDP_CH) + pdp.getCurrent(DT_LB_PDP_CH),
+				    			          pdp.getCurrent(DT_RF_PDP_CH) + pdp.getCurrent(DT_RB_PDP_CH),
+				    			          driveTrain.getLeftCurrent(),
+				    			          driveTrain.getRightCurrent(),
 				    			          bpe.getEstESR(),
 	    								  bpe.getEstVoc(),
 	    								 (bpe.getConfidence()?1.0:0.0),
-	    								  bpe.getEstVsys(dt_rightIest + dt_leftIest + 5), //total guess at 5A background I draw
+	    								  bpe.getEstVsys(calcEstTotCurrentDraw()),
 				    			          joy1.getRawAxis(XBOX_LSTICK_YAXIS),
 				    			          joy1.getRawAxis(XBOX_RSTICK_XAXIS),
 				    			          driveTrain.leftMotor_1.get(),
-				    			          -driveTrain.rightMotor_1.get(),
+				    			         -driveTrain.rightMotor_1.get(),
 				    			          driveTrain.getLeftMotorSpeedRadPerS()*9.5492, //report rate in RPM
 				    			          driveTrain.getRightMotorSpeedRadPerS()*9.5492,
-				    			          driveTrain.getLeftWheelSpeedRadPerS()*9.5492,
-				    			          driveTrain.getRightWheelSpeedRadPerS()*9.5492,
+				    			          driveTrain.getLeftWheelSpeedRPM(),
+				    			          driveTrain.getRightWheelSpeedRPM(),
 				    			          accel_RIO.getX(),
 				    					  accel_RIO.getY(),
 				    					  accel_RIO.getZ(),
@@ -484,7 +491,12 @@ public class Robot extends IterativeRobot {
 				    					  launchMotor.getCurrent(),
 				    					  launchMotor.getMotorCmd(),
 				    					  launchMotor.getActSpeed(),
-				    					  launchMotor.getDesSpeed()
+				    					  launchMotor.getDesSpeed(),
+				    					  shifter.VelDebounceState?1.0:0.0,
+				    					  shifter.WheelAccelDebounceState?1.0:0.0,
+				    					  shifter.VertAccelDebounceState?1.0:0.0,
+				    					  shifter.CurrentDebounceState?1.0:0.0,
+				    					  Pneumatics.isHighGear()?1.0:0.0
 				    					 );
 	    	//Check for brownout. If browned out, force write data to log. Just in case we
 	    	//lose power and nasty things happen, at least we'll know how we died...
@@ -516,6 +528,24 @@ public class Robot extends IterativeRobot {
     		csm.setCameraPos(CamPos.CLIMB);
     	}
     	
+    }
+    
+    /**
+     * Gets the best-guess at present current draw based on some measured, some estimated values.
+     * @return
+     */
+    private double calcEstTotCurrentDraw(){
+    	double totalCurrent = driveTrain.getRightCurrent() +  // Estimated DT current
+    			              driveTrain.getLeftCurrent()  + 
+    			              Pneumatics.getCurrent() +       // Compressor current draw
+    			              launchMotor.getCurrent() +      // Launch motor current (at SRX)
+	    			          pdp.getCurrent(TAPE_PDP_CH) +   // Other Peripheral currents (at PDP)
+	    			          pdp.getCurrent(WINCH_1_PDP_CH) +
+	    			          pdp.getCurrent(WINCH_2_PDP_CH) +
+	    			          pdp.getCurrent(SP_DB_ARM_PDP_CH) +
+	    			          pdp.getCurrent(INTAKE_PDP_CH) +
+    			              2;                              // Fudge-factor 2A draw from un-instrumented devices
+    	return totalCurrent;
     }
     
 }

@@ -11,7 +11,10 @@ public class OttoShifter {
 	public static final double CURRENT_DEBOUNCE_THRESH_A = 1000; //Shift when the current draw from the battery is above this Amperage
 	public static final int CURRENT_DEBOUNCE_TIME_LOOPS = 1000; //for this many loops
 
-
+	boolean VelDebounceState;
+	boolean WheelAccelDebounceState;
+	boolean VertAccelDebounceState;
+	boolean CurrentDebounceState;
 
 	
 	public boolean gear; //True is high and false is low
@@ -56,10 +59,10 @@ public class OttoShifter {
 	Didn't work- Riperino in Pepperino
 			*/ 
 		 
-		 boolean VelDebounceState = VelDebounce.BelowDebounce(VelocityValue_RPM); //rinse wash repeat for the other four
-		 boolean WheelAccelDebounceState = WheelAccelDebounce.BelowDebounce(WheelAceelValue_RPMperS);
-		 boolean VertAccelDebounceState = VertAccelDebounce.AboveDebounce(VertAccelValue_G);
-		 boolean CurrentDebounceState = CurrentDebounce.AboveDebounce(CurrentValue_A);
+		 VelDebounceState = VelDebounce.BelowDebounce(VelocityValue_RPM); //rinse wash repeat for the other four
+		 WheelAccelDebounceState = WheelAccelDebounce.BelowDebounce(WheelAceelValue_RPMperS);
+		 VertAccelDebounceState = VertAccelDebounce.AboveDebounce(VertAccelValue_G);
+		 CurrentDebounceState = CurrentDebounce.AboveDebounce(CurrentValue_A);
 	 		 
 		 if (gear == true){ //Top Gear
 			 if (DriverDownshiftCmd == true|| (VelDebounceState == true && WheelAccelDebounceState == true && VertAccelDebounceState == true && CurrentDebounceState == true)){

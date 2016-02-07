@@ -115,12 +115,12 @@ public class DriveTrain extends RobotDrive { //Inherits methods from RobotDrive 
 			return rightEncoder.getRate()*MOTOR_TO_ENCODER_RATIO_LG;
 	}
 	
-	public double getLeftWheelSpeedRadPerS(){
-			return leftEncoder.getRate()*WHEEL_TO_ENCODER_RATIO;
+	public double getLeftWheelSpeedRPM(){
+			return leftEncoder.getRate()*WHEEL_TO_ENCODER_RATIO*9.5492;
 	}
 	
-	public double getRightWheelSpeedRadPerS(){
-			return rightEncoder.getRate()*WHEEL_TO_ENCODER_RATIO;
+	public double getRightWheelSpeedRPM(){
+			return rightEncoder.getRate()*WHEEL_TO_ENCODER_RATIO*9.5492;
 	}
 	
 	public double getRightDistanceFt(){
