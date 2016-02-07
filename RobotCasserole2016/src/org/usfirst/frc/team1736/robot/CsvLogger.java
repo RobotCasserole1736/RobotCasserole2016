@@ -230,7 +230,16 @@ public class CsvLogger {
 	public static void addLoggingFieldDouble(String dataFieldName, String unitName, Class<?> classRef, String methodName, 
 			Object reference, boolean isSimple, Object... args)
 	{
-		MethodType methodType = methodType(double.class);
+		MethodType methodType = null;
+		if(args.length == 0)
+			methodType = methodType(double.class);
+		else
+		{
+			Vector<Class<?>> argClasses = new Vector<Class<?>>();
+			for(Object arg : args)
+				argClasses.add(arg.getClass());
+			methodType = methodType(double.class, argClasses);
+		}
 		addLoggingField(methodType, dataFieldName, unitName, classRef, methodName, isSimple, reference, args);
 	}
 	
@@ -248,7 +257,28 @@ public class CsvLogger {
 	public static void addLoggingFieldBoolean(String dataFieldName, String unitName, Class<?> classRef, String methodName, 
 			Object reference, boolean isSimple, Object... args)
 	{
-		MethodType methodType = methodType(boolean.class);
+		MethodType methodType = null;
+		if(args.length == 0)
+			methodType = methodType(boolean.class);
+		else
+		{
+			Vector<Class<?>> argClasses = new Vector<Class<?>>();
+			for(Object arg : args)
+			{
+				//This part assumes we're always using primitives. Will need to do something different if that's wrong
+				if(arg.getClass() == Integer.class)
+					argClasses.add(int.class);
+				else if(arg.getClass() == Double.class)
+					argClasses.add(double.class);
+				else if(arg.getClass() == Float.class)
+					argClasses.add(float.class);
+				else if(arg.getClass() == Boolean.class)
+					argClasses.add(boolean.class);
+				else
+					argClasses.add(arg.getClass());
+			}
+			methodType = methodType(boolean.class, argClasses);
+		}
 		addLoggingField(methodType, dataFieldName, unitName, classRef, methodName, isSimple, reference, args);
 	}
 	
@@ -278,23 +308,32 @@ public class CsvLogger {
 				return;
 			}
 		}
+		MethodHandle methodHandle = null;
 		try {
-			MethodHandle methodHandle = MethodHandles.lookup().findVirtual(classRef, methodName, methodType);
-			dataFieldNames.add(dataFieldName);
-			unitNames.add(unitName);
-			methodHandles.add(methodHandle);
-			Vector<Object> mhArgs = new Vector<Object>();
-			if(reference != null) //will be null for static methods
-				mhArgs.add(reference);
-			for(Object arg : args)
-				mhArgs.add(arg);
-			mhReferenceObjects.add(mhArgs);
-			isSimpleMethods.add(isSimple);
+			methodHandle = MethodHandles.lookup().findVirtual(classRef, methodName, methodType);
 		} catch (NoSuchMethodException e) {
 			System.out.println("Error: Could not add logging field " + dataFieldName + " (no such method)");
+			e.printStackTrace();
 		} catch (IllegalAccessException e) {
-			System.out.println("Error: Could not add logging field " + dataFieldName + " (illegal access)");
+			try{
+				methodHandle = MethodHandles.lookup().findStatic(classRef, methodName, methodType);
+			}
+			catch (Exception ex)
+			{
+				System.out.println("Error: Could not add logging field " + dataFieldName);
+				ex.printStackTrace();
+			}
 		}
+		dataFieldNames.add(dataFieldName);
+		unitNames.add(unitName);
+		methodHandles.add(methodHandle);
+		Vector<Object> mhArgs = new Vector<Object>();
+		if(reference != null) //will be null for static methods
+			mhArgs.add(reference);
+		for(Object arg : args)
+			mhArgs.add(arg);
+		mhReferenceObjects.add(mhArgs);
+		isSimpleMethods.add(isSimple);
 	}
 	
 	/***

@@ -122,9 +122,9 @@ public class Robot extends IterativeRobot {
     	CsvLogger.addLoggingFieldDouble("EstBattESR", "Ohm", BatteryParamEstimator.class, "getEstESR", bpe, true);
     	CsvLogger.addLoggingFieldDouble("EstBattVoc", "V", BatteryParamEstimator.class, "getEstVoc", bpe, true);
     	CsvLogger.addLoggingFieldBoolean("EstBatConfidence", "bit", BatteryParamEstimator.class, "getConfidence", bpe, true);
-    	CsvLogger.addLoggingFieldDouble("EstVsys", "V", BatteryParamEstimator.class, "getEstVsys", bpe, false, 0);
+    	CsvLogger.addLoggingFieldDouble("EstVsys", "V", BatteryParamEstimator.class, "getEstVsys", bpe, false, 0.0);
     	CsvLogger.addLoggingFieldDouble("DriverFwdRevCmd", "cmd", Joystick.class, "getRawAxis", joy1, true, XBOX_LSTICK_YAXIS);
-    	CsvLogger.addLoggingFieldDouble("DriverLftRtCmd", "cmd", Joystick.class, "getRawAxis", joy1, true, XBOX_LSTICK_XAXIS);
+    	CsvLogger.addLoggingFieldDouble("DriverLftRtCmd", "cmd", Joystick.class, "getRawAxis", joy1, true, XBOX_RSTICK_XAXIS);
     	CsvLogger.addLoggingFieldDouble("LeftDTVoltage", "V", SpeedController.class, "get", driveTrain.leftMotor_1, true);
     	CsvLogger.addLoggingFieldDouble("RightDTVoltage", "V", SpeedController.class, "get", driveTrain.rightMotor_1, false);
     	CsvLogger.addLoggingFieldDouble("LeftDTSpeed", "RPM", Encoder.class, "getRate", driveTrain.leftEncoder, false);
