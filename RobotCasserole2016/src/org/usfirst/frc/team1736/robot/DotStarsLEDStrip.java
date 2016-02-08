@@ -20,8 +20,8 @@ public class DotStarsLEDStrip {
 	static byte globalBrighness = (byte)0xFF;
 	
 	//Offsets within the stream
-	static int blueOffset = 1;
-	static int greenOffset = 2;
+	static int greenOffset = 1;
+	static int blueOffset = 2;
 	static int redOffset = 3;	
 	static int bytesPerLED = 4;
 	static int led0Offset = startFrame.length;

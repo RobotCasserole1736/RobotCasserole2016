@@ -180,7 +180,6 @@ public class Robot extends IterativeRobot {
            "RPM",
            "ft",
            "ft",
-           "ft",
            "G",
            "G",
            "G",
