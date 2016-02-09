@@ -101,7 +101,6 @@ public class CsvLogger {
 			//Write user-defined data
 			for(double data_val : data_elements){
 				line_to_write = line_to_write.concat(Double.toString(data_val) + ", ");
-				log_file.write(Double.toString(data_val) + ", ");
 			}
 			
 			//End of line

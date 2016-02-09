@@ -13,6 +13,7 @@ public class BatteryParamEstimator {
 
 	static double VocEstInit = 13;
 	static double EsrEstInit = 0.025;
+	static double IdrawInit = 0.025;
 	
 	double VocEst = VocEstInit;
 	double ESREst = EsrEstInit;
@@ -35,9 +36,9 @@ public class BatteryParamEstimator {
 		index = 0;
 		circ_buf_SysCurDraw_A = new double[lms_window_length];
 		circ_buf_SysVoltage_V = new double[lms_window_length];
-		Arrays.fill(circ_buf_SysCurDraw_A, 3.0);
-		Arrays.fill(circ_buf_SysVoltage_V, 13.0);
-		input_V_filt = new AveragingFilter(5, 13.0);
+		Arrays.fill(circ_buf_SysCurDraw_A, IdrawInit);
+		Arrays.fill(circ_buf_SysVoltage_V, VocEstInit);
+		input_V_filt = new AveragingFilter(5, VocEstInit);
 		input_I_filt = new AveragingFilter(5, 0.0);
 		esr_output_filt = new AveragingFilter(20,EsrEstInit);
 		

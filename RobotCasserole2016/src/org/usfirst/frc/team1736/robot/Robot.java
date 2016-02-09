@@ -18,6 +18,10 @@ import edu.wpi.first.wpilibj.VictorSP;
  */
 public class Robot extends IterativeRobot {
 	
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	// CONSTANTS AND TUNE
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+	
 	final static int JOY1_INT = 0;
 	final static int JOY2_INT = 1;
 	//soon
@@ -52,16 +56,152 @@ public class Robot extends IterativeRobot {
 	        "/home/lvuser/grip.jar", "/home/lvuser/project.grip" };
 	
 	//-Motor IDs
-	final static int L_Motor_ID1 = 0; //CMG - Confirmed 2-2-2016
-	final static int L_Motor_ID2 = 1;
-	final static int R_Motor_ID1 = 2;
-	final static int R_Motor_ID2 = 3;
+	final static int DT_LF_MOTOR_PWM_CH = 0; //CMG - Confirmed 2-2-2016
+	final static int DT_LB_MOTOR_PWM_CH = 1;
+	final static int DT_RF_MOTOR_PWM_CH = 2;
+	final static int DT_RB_MOTOR_PWM_CH = 3;
+	
+	//-Motor PDP channel hookups for measuring current draw
+	final static int DT_RF_PDP_CH = 0;
+	final static int DT_RB_PDP_CH = 1;
+	final static int DT_LF_PDP_CH = 15;
+	final static int DT_LB_PDP_CH = 14;
+	final static int INTAKE_PDP_CH = 2;
+	final static int SHOOTER_PDP_CH = 3;
+	final static int TAPE_PDP_CH = 4;
+	final static int WINCH_1_PDP_CH = 13;
+	final static int WINCH_2_PDP_CH = 12;
+	final static int SP_DB_ARM_PDP_CH = 11;
 	
 	//-Square joystick input?
 	final static boolean squaredInputs = true;
 	
-	//-BatteryParamEstimator length -- CHRIS MANAGES THIS CONSTANT
-	final static int BPE_length = 200; 
+	//Battery Param Est 
+	final static int BPE_length = 200; //Window length
+	final static double BPE_confidenceThresh_A = 10.0;
+	
+	
+	//Data Logging
+	static final boolean enable_logging = true; //Set to false to disable logging
+	static final String[] logger_fields = {"TIME",
+            "MatchTime", 
+            "BrownedOut", 
+            "FMSAttached", 
+            "SysActive", 
+            "MeasPDPVoltage",
+            "MeasRIOVoltage",
+            "MeasBattDrawCurrent",
+            "MeasDT_LF_PDP_DrawCurrent",
+            "MeasDT_LB_PDP_DrawCurrent",
+            "MeasDT_RF_PDP_DrawCurrent",
+            "MeasDT_RB_PDP_DrawCurrent",
+            "MeasIntakeMotorPDPDrawCurrent",
+            "MeasShooterMotorPDPDrawCurrent",
+            "MeasTapeMotorPDPDrawCurrent",
+            "MeasWinchMotor1PDPDrawCurrent",
+            "MeasWinchMotor2PDPDrawCurrent",
+            "MeasSpDbMotorPDPDrawCurrent",
+            "PDPTemperature",
+            "ActLeftDTCurrent",
+            "ActRightDTCurrent",
+            "EstLeftDTCurrent",
+            "EstRightDTCurrent",
+            "EstBattESR",
+            "EstBatVoc",
+            "EstBatConfidence",
+            "EstVsys",
+            "DriverFwdRevCmd",
+            "DriverLftRtCmd",
+            "LeftDTCmd",
+            "RightDTCmd",
+            "LeftDTMotorSpeed",
+            "RightDTMotorSpeed",
+            "LeftDTWheelSpeed",
+            "RightDTWheelSpeed",
+            "LeftDTWheelDistance",
+            "RightDTWheelDistance",
+            "AccelX",
+            "AccelY",
+            "AccelZ",
+            "TaskExecTime",
+            "CommandedCameraPos",
+            "ClimbEnable",
+            "TapeMeasureMotorCmd",
+            "WinchMotorCmd",
+            "TapeMeasureLimitSw",
+            "GyroMeasAngle",
+            "GyroStatus",
+            "CompressorCurrent",
+            "LaunchWheelCurrent",
+            "LaunchWheelMotorCmd",
+            "LaunchWheelActSpeed",
+            "LaunchWheelDesSpeed",
+            "AutoDnShftWheelSpeedTrigger",
+            "AutoDnShftWheelAccelTrigger",
+            "AutoDnShftBodyAccelTrigger",
+            "AutoDnShftCurrentDrawTrigger",
+            "ActualGear",
+            "DriverCmdInvertedControls"};
+
+    static final String[] units_fields = {"sec",
+           "sec",
+           "bit",
+           "bit",
+           "bit",
+           "V",
+           "V",
+           "A",
+           "A",
+           "A",
+           "A",
+           "A",
+           "A",
+           "A",
+           "A",
+           "A",
+           "A",
+           "A",
+           "degC",
+           "A",
+           "A",
+           "A",
+           "A",
+           "Ohm",
+           "V",
+           "bit",
+           "V",
+           "cmd",
+           "cmd",
+           "V",
+           "V",
+           "RPM",
+           "RPM",
+           "RPM",
+           "RPM",
+           "ft",
+           "ft",
+           "G",
+           "G",
+           "G",
+           "mS",
+           "Index",
+           "bit",
+           "cmd",
+           "cmd",
+           "bit",
+           "deg",
+           "bit",
+           "A",
+           "cmd",
+           "A",
+           "RPM",
+           "RPM",
+           "bit",
+           "bit",
+           "bit",
+           "bit",
+           "T-High/F-Low",
+           "bit"};
 		
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	// CLASS OBJECTS
@@ -76,78 +216,6 @@ public class Robot extends IterativeRobot {
 	
 	//Data Logger
 	CsvLogger logger = new CsvLogger();
-	static final String[] logger_fields = {"TIME",
-			                               "MatchTime", 
-			                               "BrownedOut", 
-			                               "FMSAttached", 
-			                               "SysActive", 
-			                               "MeasuredPDPVoltage",
-			                               "MeasuredRIOVoltage",
-			                               "MeasuredCurrent",
-			                               "EstLeftDTCurrent",
-			                               "EstRightDTCurrent",
-			                               "EstBattESR",
-			                               "EstBatVoc",
-			                               "EstBatConfidence",
-			                               "EstVsys",
-			                               "DriverFwdRevCmd",
-			                               "DriverLftRtCmd",
-			                               "LeftDTVoltage",
-			                               "RightDTVoltage",
-			                               "LeftDTSpeed",
-			                               "RightDTSpeed",
-			                               "AccelX",
-			                               "AccelY",
-			                               "AccelZ",
-			                               "TaskExecTime",
-			                               "CommandedCameraPos",
-			                               "ClimbEnable",
-			                               "TapeMeasureCmd",
-			                               "WinchCmd",
-			                               "TapeMeasureLimitSw",
-			                               //"GyroMeasAngle",
-			                               //"GyroStatus",
-			                               "CompressorCurrent",
-			                               "LaunchWheelCurrent",
-			                               "LaunchWheelActSpeed",
-			                               "LaunchWheelDesSpeed"};
-	
-	static final String[] units_fields = {"sec",
-			                              "sec",
-			                              "bit",
-			                              "bit",
-			                              "bit",
-			                              "V",
-			                              "V",
-			                              "A",
-			                              "A",
-			                              "A",
-			                              "Ohm",
-			                              "V",
-			                              "bit",
-			                              "V",
-			                              "cmd",
-			                              "cmd",
-			                              "V",
-			                              "V",
-			                              "RPM",
-			                              "RPM",
-			                              "G",
-			                              "G",
-			                              "G",
-			                              "mS",
-			                              "Index",
-			                              "bit",
-			                              "cmd",
-			                              "cmd",
-			                              "bit",
-			                              //"deg",
-			                              //"bit",
-			                              "A",
-			                              "A",
-			                              "RPM",
-			                              "RPM"};
-	
 	//Variable for metric logging
 	private double prev_loop_start_timestamp = 0;
 	private double loop_time_elapsed = 0;
@@ -157,6 +225,7 @@ public class Robot extends IterativeRobot {
 	Joystick joy2;
 	//Drive Train
 	DriveTrain driveTrain;
+	boolean cmdInvCtrls = false;
 	//climber mechanism
 	Climb Climber;
 	//Launch Motor
@@ -180,25 +249,27 @@ public class Robot extends IterativeRobot {
      * used for any initialization code.
      */
     public void robotInit() {
-    	//Add overall initialization code here
+    	//Initialize each peripheral
     	ds = DriverStation.getInstance();
     	pdp = new PowerDistributionPanel();
     	bpe = new BatteryParamEstimator(BPE_length);
-    	bpe.setConfidenceThresh(10.0);
+    	bpe.setConfidenceThresh(BPE_confidenceThresh_A);
     	accel_RIO = new BuiltInAccelerometer();
     	csm = new CameraServoMount();
-    	//gyro = new I2CGyro();
+    	gyro = new I2CGyro(); //this will cal the gyro - don't touch robot which this happens!
     	
-    	//Motors
-    	L_Motor_1 = new VictorSP(L_Motor_ID1);
-    	L_Motor_2 = new VictorSP(L_Motor_ID2);
-    	R_Motor_1 = new VictorSP(R_Motor_ID1);
-    	R_Motor_2 = new VictorSP(R_Motor_ID2);
+    	//Motors - Drivetrain
+    	L_Motor_1 = new VictorSP(DT_LF_MOTOR_PWM_CH);
+    	L_Motor_2 = new VictorSP(DT_LB_MOTOR_PWM_CH);
+    	R_Motor_1 = new VictorSP(DT_RF_MOTOR_PWM_CH);
+    	R_Motor_2 = new VictorSP(DT_RB_MOTOR_PWM_CH);
+    	
     	//Drivetrain
     	driveTrain = new DriveTrain(L_Motor_1, L_Motor_2, R_Motor_1, R_Motor_2, pdp, bpe);
     	shifter = new OttoShifter();
     	wheel_speed = new DerivativeCalculator();
-    	//Peripherials
+    	
+    	//Peripherals
     	Climber=new Climb();
     	launchMotor = new Shooter();
     	//Joysticks
@@ -215,8 +286,10 @@ public class Robot extends IterativeRobot {
      */
     public void disabledInit() {
     	
-    	//Ensure any open file gets closed
-    	logger.close();
+    	if(enable_logging){
+	    	//Ensure any open file gets closed
+	    	logger.close();
+    	}
  
 
     }
@@ -226,13 +299,15 @@ public class Robot extends IterativeRobot {
      * This function is called once right before the start of autonomous
      */
     public void autonomousInit() {
-    	//Initialize the new log file for autonomous
-    	logger.init(logger_fields, units_fields);
+    	if(enable_logging){
+	    	//Initialize the new log file for autonomous
+	    	logger.init(logger_fields, units_fields);
+    	}
 
     	//Compressor starts automatically
     	
     	//reset gyro angle to 0
-    	//gyro.reset_gyro_angle();
+    	gyro.reset_gyro_angle();
 
     	//init the task timing things
     	prev_loop_start_timestamp = Timer.getFPGATimestamp();
@@ -261,13 +336,15 @@ public class Robot extends IterativeRobot {
     	loop_time_elapsed = Timer.getFPGATimestamp() - prev_loop_start_timestamp;
     }
     
+    
     /**
      * This function is called once right before the start of teleop
      */
-    
     public void teleopInit() {
-    	//Initialize the new log file for Teleop
-    	logger.init(logger_fields, units_fields);
+    	if(enable_logging){
+    		//Initialize the new log file for Teleop
+    		logger.init(logger_fields, units_fields);
+    	}
 
     	//compressor starts automatically
     	
@@ -283,15 +360,24 @@ public class Robot extends IterativeRobot {
     	//Execution time metric - this must be first!
     	prev_loop_start_timestamp = Timer.getFPGATimestamp();
     	
-    	//Estimate battery Parmaeters
+    	//Estimate battery Parameters
     	bpe.updateEstimate(pdp.getVoltage(), pdp.getTotalCurrent());
     	
-        //Run Drivetrain
-    	driveTrain.arcadeDrive(joy1.getRawAxis(XBOX_LSTICK_YAXIS), joy1.getRawAxis(XBOX_RSTICK_XAXIS), squaredInputs);
-    	double left_speed = Math.abs(driveTrain.leftEncoder.getRate());
-    	double right_speed = Math.abs(driveTrain.rightEncoder.getRate());
+        //Run Drivetrain with reversing
+    	if(joy1.getRawAxis(XBOX_LTRIGGER_AXIS)> 0.5){ //reverse control
+    		cmdInvCtrls = true;
+        	driveTrain.arcadeDrive(-1 * joy1.getRawAxis(XBOX_LSTICK_YAXIS), -1 * joy1.getRawAxis(XBOX_RSTICK_XAXIS), squaredInputs);
+    	}
+    	else{ //regular control
+    		cmdInvCtrls = false;
+    		driveTrain.arcadeDrive(joy1.getRawAxis(XBOX_LSTICK_YAXIS), joy1.getRawAxis(XBOX_RSTICK_XAXIS), squaredInputs);
+    	}
+
+    	//Evaluate upshift/downshift need
+    	double left_speed = Math.abs(driveTrain.getLeftWheelSpeedRPM());
+    	double right_speed = Math.abs(driveTrain.getLeftWheelSpeedRPM());
     	double net_speed = Math.max(left_speed,right_speed);
-    	shifter.OttoShifterPeriodic(net_speed, wheel_speed.calcDeriv(net_speed), accel_RIO.getX(), pdp.getTotalCurrent(), joy1.getRawButton(XBOX_LEFT_BUTTON), joy1.getRawButton(XBOX_RIGHT_BUTTON));
+    	shifter.OttoShifterPeriodic(net_speed, wheel_speed.calcDeriv(net_speed), Math.abs(accel_RIO.getY()), pdp.getTotalCurrent(), joy1.getRawButton(XBOX_LEFT_BUTTON), joy1.getRawButton(XBOX_RIGHT_BUTTON));
     	if(shifter.gear){
     		System.out.println("high_gear");
     		Pneumatics.shiftToHighGear();
@@ -300,6 +386,7 @@ public class Robot extends IterativeRobot {
     		System.out.println("low_gear");
     		Pneumatics.shiftToLowGear();
     	}
+    	
     	//Update camera position
     	processCameraAngle();
     	
@@ -325,8 +412,10 @@ public class Robot extends IterativeRobot {
      * This is a random comment
      */
     public void testInit() {
-    	//Initialize the new log file for Test
-    	logger.init(logger_fields, units_fields);
+    	if(enable_logging){
+	    	//Initialize the new log file for Test
+	    	logger.init(logger_fields, units_fields);
+    	}
     	
     	//init the task timing things
     	prev_loop_start_timestamp = Timer.getFPGATimestamp();
@@ -358,58 +447,81 @@ public class Robot extends IterativeRobot {
      * Will also force-write the log file to disk if we're browned out.
      */
     private int log_data() {
-    	int ret_val_1 = 0;
-    	int ret_val_2 = 0;
-    	
-    	//Sorta temp - there's no nice way to expose this yet, so i'll do the calcualtion here.
-    	double dt_leftIest = driveTrain.leftCCE.getCurrentEstimate(driveTrain.leftEncoder.getRate(), driveTrain.leftMotor_1.get());
-    	double dt_rightIest = driveTrain.rightCCE.getCurrentEstimate(driveTrain.rightEncoder.getRate(), driveTrain.rightMotor_1.get());
-    	
-    	//Log proper data to file. Order must match that of the variable "logger fields"
-    	ret_val_1 = logger.writeData( Timer.getFPGATimestamp(),
-    								  ds.getMatchTime(), 
-			    				     (ds.isBrownedOut()?1.0:0.0),
-			    				     (ds.isFMSAttached()?1.0:0.0),
-			    				     (ds.isSysActive()?1.0:0.0),
-			    				      pdp.getVoltage(),
-			    				      ds.getBatteryVoltage(),
-			    			          pdp.getTotalCurrent(),
-			    			          dt_leftIest,
-			    			          dt_rightIest,
-			    			          bpe.getEstESR(),
-    								  bpe.getEstVoc(),
-    								  (bpe.getConfidence()?1.0:0.0),
-    								  bpe.getEstVsys(dt_rightIest + dt_leftIest + 5), //total guess at 5A background I draw
-			    			          joy1.getRawAxis(XBOX_LSTICK_YAXIS),
-			    			          joy1.getRawAxis(XBOX_RSTICK_XAXIS),
-			    			          driveTrain.leftMotor_1.get(),
-			    			          -driveTrain.rightMotor_1.get(),
-			    			          driveTrain.leftEncoder.getRate()*9.5492, //report rate in RPM
-			    			          driveTrain.rightEncoder.getRate()*9.5492,
-			    			          accel_RIO.getX(),
-			    					  accel_RIO.getY(),
-			    					  accel_RIO.getZ(),
-			    				      loop_time_elapsed*1000.0,
-			    					  csm.curCamPos.ordinal(),
-			    					  (joy2.getRawButton(XBOX_START_BUTTON)?1.0:0.0),
-			    					  Climber.tapemotor.get(),
-			    					  Climber.winchmotor1.get(),
-			    					  (Climber.tapetrigger.get()?1.0:0.0),
-			    					 // gyro.get_gyro_angle()%360,
-			    					 // (gyro.get_gyro_status()?1.0:0.0),
-			    					  Pneumatics.getCurrent(),
-			    					  launchMotor.getCurrent(),
-			    					  launchMotor.getActSpeed(),
-			    					  launchMotor.getDesSpeed()
-			    					 );
-    	//Check for brownout. If browned out, force write data to log. Just in case we
-    	//lose power and nasty things happen, at least we'll know how we died...
-    	if(ds.isBrownedOut()) {
-    		ret_val_2 = logger.forceSync();
-    		System.out.println("Warning - brownout condition detetcted, flushing log buffers...");
+    	if(enable_logging){
+	    	int ret_val_1 = 0;
+	    	int ret_val_2 = 0;
+	    	
+	    	//Log proper data to file. Order must match that of the variable "logger fields"
+	    	ret_val_1 = logger.writeData( Timer.getFPGATimestamp(),
+	    								  ds.getMatchTime(), 
+				    				     (ds.isBrownedOut()?1.0:0.0),
+				    				     (ds.isFMSAttached()?1.0:0.0),
+				    				     (ds.isSysActive()?1.0:0.0),
+				    				      pdp.getVoltage(),
+				    				      ds.getBatteryVoltage(),
+				    			          pdp.getTotalCurrent(),
+				    			          pdp.getCurrent(DT_LF_PDP_CH),
+				    			          pdp.getCurrent(DT_LB_PDP_CH),
+				    			          pdp.getCurrent(DT_RF_PDP_CH),
+				    			          pdp.getCurrent(DT_RB_PDP_CH),
+				    			          pdp.getCurrent(INTAKE_PDP_CH),
+				    			          pdp.getCurrent(SHOOTER_PDP_CH),
+				    			          pdp.getCurrent(TAPE_PDP_CH),
+				    			          pdp.getCurrent(WINCH_1_PDP_CH),
+				    			          pdp.getCurrent(WINCH_2_PDP_CH),
+				    			          pdp.getCurrent(SP_DB_ARM_PDP_CH),
+				    			          pdp.getTemperature(),
+				    			          pdp.getCurrent(DT_LF_PDP_CH) + pdp.getCurrent(DT_LB_PDP_CH),
+				    			          pdp.getCurrent(DT_RF_PDP_CH) + pdp.getCurrent(DT_RB_PDP_CH),
+				    			          driveTrain.getLeftCurrent(),
+				    			          driveTrain.getRightCurrent(),
+				    			          bpe.getEstESR(),
+	    								  bpe.getEstVoc(),
+	    								 (bpe.getConfidence()?1.0:0.0),
+	    								  bpe.getEstVsys(calcEstTotCurrentDraw()),
+				    			          joy1.getRawAxis(XBOX_LSTICK_YAXIS),
+				    			          joy1.getRawAxis(XBOX_RSTICK_XAXIS),
+				    			          driveTrain.leftMotor_1.get(),
+				    			         -driveTrain.rightMotor_1.get(),
+				    			          driveTrain.getLeftMotorSpeedRadPerS()*9.5492, //report rate in RPM
+				    			          driveTrain.getRightMotorSpeedRadPerS()*9.5492,
+				    			          driveTrain.getLeftWheelSpeedRPM(),
+				    			          driveTrain.getRightWheelSpeedRPM(),
+				    			          driveTrain.getLeftDistanceFt(),
+				    			          driveTrain.getRightDistanceFt(),
+				    			          accel_RIO.getX(),
+				    					  accel_RIO.getY(),
+				    					  accel_RIO.getZ(),
+				    				      loop_time_elapsed*1000.0,
+				    					  csm.curCamPos.ordinal(),
+				    					 (joy2.getRawButton(XBOX_START_BUTTON)?1.0:0.0),
+				    					  Climber.tapemotor.get(),
+				    					  Climber.winchmotor1.get(),
+				    					 (Climber.tapetrigger.get()?1.0:0.0),
+				    					  gyro.get_gyro_angle()%360,
+				    					 (gyro.get_gyro_read_status()?1.0:0.0),
+				    					  Pneumatics.getCurrent(),
+				    					  launchMotor.getCurrent(),
+				    					  launchMotor.getMotorCmd(),
+				    					  launchMotor.getActSpeed(),
+				    					  launchMotor.getDesSpeed(),
+				    					  shifter.VelDebounceState?1.0:0.0,
+				    					  shifter.WheelAccelDebounceState?1.0:0.0,
+				    					  shifter.VertAccelDebounceState?1.0:0.0,
+				    					  shifter.CurrentDebounceState?1.0:0.0,
+				    					  Pneumatics.isHighGear()?1.0:0.0,
+		    							  cmdInvCtrls?1.0:0.0
+				    					 );
+	    	//Check for brownout. If browned out, force write data to log. Just in case we
+	    	//lose power and nasty things happen, at least we'll know how we died...
+	    	if(ds.isBrownedOut()) {
+	    		ret_val_2 = logger.forceSync();
+	    		System.out.println("Warning - brownout condition detetcted, flushing log buffers...");
+	    	}
+	    	
+	    	return Math.min(ret_val_1, ret_val_2);
     	}
-    	
-    	return Math.min(ret_val_1, ret_val_2);
+    	return -1;
     }
     
     /**
@@ -430,6 +542,24 @@ public class Robot extends IterativeRobot {
     		csm.setCameraPos(CamPos.CLIMB);
     	}
     	
+    }
+    
+    /**
+     * Gets the best-guess at present current draw based on some measured, some estimated values.
+     * @return
+     */
+    private double calcEstTotCurrentDraw(){
+    	double totalCurrent = driveTrain.getRightCurrent() +  // Estimated DT current
+    			              driveTrain.getLeftCurrent()  + 
+    			              Pneumatics.getCurrent() +       // Compressor current draw
+    			              launchMotor.getCurrent() +      // Launch motor current (at SRX)
+	    			          pdp.getCurrent(TAPE_PDP_CH) +   // Other Peripheral currents (at PDP)
+	    			          pdp.getCurrent(WINCH_1_PDP_CH) +
+	    			          pdp.getCurrent(WINCH_2_PDP_CH) +
+	    			          pdp.getCurrent(SP_DB_ARM_PDP_CH) +
+	    			          pdp.getCurrent(INTAKE_PDP_CH) +
+    			              2;                              // Fudge-factor 2A draw from un-instrumented devices
+    	return totalCurrent;
     }
     
 }
