@@ -337,17 +337,27 @@ public class Robot extends IterativeRobot {
     	prev_loop_start_timestamp = Timer.getFPGATimestamp();
     	
     	//LED test code
-    	for(int i = 0; i < NUM_LEDS; i++)
+    	//Tom's most recent work
+    	/*for(int i = 0; i < NUM_LEDS; i++)
     	{	
     		if(i % 10 < 5){
-    			leds.setLEDColor((int)Math.round(led_counter + i)%90, 1.0, 0.95, 1.0);	
+    			leds.setLEDColor((int)Math.round(led_counter + i)%90, 1.0, 1.0, 0.0);	
     		}
+    		else if(i % 10 < 8){
+    			leds.setLEDColor((int)Math.round(led_counter + i)%90, 0.0, 1.0, 0.0);
+    		}
+    		
     		else{
-    			leds.setLEDColor((int)Math.round(led_counter + i)%90, 1.0, 0.0, 0.0);	
+    			leds.setLEDColor((int)Math.round(led_counter + i)%90, 0.0, 0.0, 1.0);	
     		}
     		
     	}
-    	led_counter = (led_counter + 0.1);
+    	led_counter = (led_counter + 0.0);*/
+    	
+    	for(int i = 0; i < NUM_LEDS; i++)
+    		leds.setLEDColor(i, Math.random(), Math.random(), Math.random());
+    	
+    	
     	
     	//Add autonomous code here
     	//Estimate battery Parameters
