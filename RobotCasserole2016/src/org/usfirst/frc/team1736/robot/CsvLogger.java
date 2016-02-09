@@ -230,16 +230,10 @@ public class CsvLogger {
 	public static void addLoggingFieldDouble(String dataFieldName, String unitName, Class<?> classRef, String methodName, 
 			Object reference, boolean isSimple, Object... args)
 	{
-		MethodType methodType = null;
-		if(args.length == 0)
-			methodType = methodType(double.class);
-		else
-		{
-			Vector<Class<?>> argClasses = new Vector<Class<?>>();
-			for(Object arg : args)
-				argClasses.add(arg.getClass());
-			methodType = methodType(double.class, argClasses);
-		}
+		MethodType methodType = methodType(double.class);
+		for(Object arg : args)
+			methodType = methodType.appendParameterTypes(arg.getClass());
+		methodType = methodType.unwrap(); //assumes primitive wrappers should be primitives
 		addLoggingField(methodType, dataFieldName, unitName, classRef, methodName, isSimple, reference, args);
 	}
 	
@@ -257,28 +251,10 @@ public class CsvLogger {
 	public static void addLoggingFieldBoolean(String dataFieldName, String unitName, Class<?> classRef, String methodName, 
 			Object reference, boolean isSimple, Object... args)
 	{
-		MethodType methodType = null;
-		if(args.length == 0)
-			methodType = methodType(boolean.class);
-		else
-		{
-			Vector<Class<?>> argClasses = new Vector<Class<?>>();
-			for(Object arg : args)
-			{
-				//This part assumes we're always using primitives. Will need to do something different if that's wrong
-				if(arg.getClass() == Integer.class)
-					argClasses.add(int.class);
-				else if(arg.getClass() == Double.class)
-					argClasses.add(double.class);
-				else if(arg.getClass() == Float.class)
-					argClasses.add(float.class);
-				else if(arg.getClass() == Boolean.class)
-					argClasses.add(boolean.class);
-				else
-					argClasses.add(arg.getClass());
-			}
-			methodType = methodType(boolean.class, argClasses);
-		}
+		MethodType methodType = methodType(boolean.class);
+		for(Object arg : args)
+			methodType = methodType.appendParameterTypes(arg.getClass());
+		methodType = methodType.unwrap(); //assumes primitive wrappers should be primitives
 		addLoggingField(methodType, dataFieldName, unitName, classRef, methodName, isSimple, reference, args);
 	}
 	
