@@ -255,36 +255,36 @@ public class Robot extends IterativeRobot {
      */
     public void robotInit() {
     	//Initialize each peripheral
-    	ds = DriverStation.getInstance();
-    	pdp = new PowerDistributionPanel();
-    	bpe = new BatteryParamEstimator(BPE_length);
-    	bpe.setConfidenceThresh(BPE_confidenceThresh_A);
-    	accel_RIO = new BuiltInAccelerometer();
-    	csm = new CameraServoMount();
-    	gyro = new I2CGyro(); //this will cal the gyro - don't touch robot which this happens!
+    	//ds = DriverStation.getInstance();
+    	//pdp = new PowerDistributionPanel();
+    	//bpe = new BatteryParamEstimator(BPE_length);
+    	//bpe.setConfidenceThresh(BPE_confidenceThresh_A);
+    	//accel_RIO = new BuiltInAccelerometer();
+    	//csm = new CameraServoMount();
+    	//gyro = new I2CGyro(); //this will cal the gyro - don't touch robot which this happens!
     	leds = new DotStarsLEDStrip(NUM_LEDS);
     	led_counter = 0;
     	
     	//Motors - Drivetrain
-    	L_Motor_1 = new VictorSP(DT_LF_MOTOR_PWM_CH);
-    	L_Motor_2 = new VictorSP(DT_LB_MOTOR_PWM_CH);
-    	R_Motor_1 = new VictorSP(DT_RF_MOTOR_PWM_CH);
-    	R_Motor_2 = new VictorSP(DT_RB_MOTOR_PWM_CH);
+    	//L_Motor_1 = new VictorSP(DT_LF_MOTOR_PWM_CH);
+    	//L_Motor_2 = new VictorSP(DT_LB_MOTOR_PWM_CH);
+    	//R_Motor_1 = new VictorSP(DT_RF_MOTOR_PWM_CH);
+    	//R_Motor_2 = new VictorSP(DT_RB_MOTOR_PWM_CH);
     	
     	//Drivetrain
-    	driveTrain = new DriveTrain(L_Motor_1, L_Motor_2, R_Motor_1, R_Motor_2, pdp, bpe);
-    	shifter = new OttoShifter();
-    	wheel_speed = new DerivativeCalculator();
+    	//driveTrain = new DriveTrain(L_Motor_1, L_Motor_2, R_Motor_1, R_Motor_2, pdp, bpe);
+    	//shifter = new OttoShifter();
+    	//wheel_speed = new DerivativeCalculator();
     	
     	//Peripherals
-    	Climber=new Climb();
-    	launchMotor = new Shooter();
+    	//Climber=new Climb();
+    	//launchMotor = new Shooter();
     	//Joysticks
-    	joy1 = new Joystick(JOY1_INT);
-    	joy2 = new Joystick(JOY2_INT);
+    	//joy1 = new Joystick(JOY1_INT);
+    	//joy2 = new Joystick(JOY2_INT);
     	
     	//Ensure intake starts in proper position
-    	Pneumatics.intakeUp();
+    	//Pneumatics.intakeUp();
     	
     }
     
@@ -312,20 +312,20 @@ public class Robot extends IterativeRobot {
     public void autonomousInit() {
     	if(enable_logging){
 	    	//Initialize the new log file for autonomous
-	    	logger.init(logger_fields, units_fields);
+	    	//logger.init(logger_fields, units_fields);
     	}
 
     	//Compressor starts automatically
     	
     	//reset gyro angle to 0
-    	gyro.reset_gyro_angle();
+    	//gyro.reset_gyro_angle();
 
     	//init the task timing things
     	prev_loop_start_timestamp = Timer.getFPGATimestamp();
     	loop_time_elapsed = 0;
     	
     	//Raise intake to prevent damage in auto.
-    	Pneumatics.intakeUp();
+    	//Pneumatics.intakeUp();
     	
     }
 
@@ -336,12 +336,25 @@ public class Robot extends IterativeRobot {
     	//Execution time metric - this must be first!
     	prev_loop_start_timestamp = Timer.getFPGATimestamp();
     	
+    	//LED test code
+    	for(int i = 0; i < NUM_LEDS; i++)
+    	{	
+    		if(i % 10 < 5){
+    			leds.setLEDColor((int)Math.round(led_counter + i)%90, 1.0, 0.95, 1.0);	
+    		}
+    		else{
+    			leds.setLEDColor((int)Math.round(led_counter + i)%90, 1.0, 0.0, 0.0);	
+    		}
+    		
+    	}
+    	led_counter = (led_counter + 0.1);
+    	
     	//Add autonomous code here
     	//Estimate battery Parameters
-    	bpe.updateEstimate(pdp.getVoltage(), pdp.getTotalCurrent());
+    	//bpe.updateEstimate(pdp.getVoltage(), pdp.getTotalCurrent());
     	
     	//Log data from this timestep
-    	log_data();
+    	//log_data();
     	
     	//Execution time metric - this must be last!
     	loop_time_elapsed = Timer.getFPGATimestamp() - prev_loop_start_timestamp;
@@ -370,20 +383,7 @@ public class Robot extends IterativeRobot {
     public void teleopPeriodic() {
     	//Execution time metric - this must be first!
     	prev_loop_start_timestamp = Timer.getFPGATimestamp();
-    	
-    	//LED test code
-    	for(int i = 0; i < NUM_LEDS; i++)
-    	{	
-    		if(i % 10 < 5){
-    			leds.setLEDColor((int)Math.round(led_counter + i)%90, 1.0, 0.95, 1.0);	
-    		}
-    		else{
-    			leds.setLEDColor((int)Math.round(led_counter + i)%90, 1.0, 0.0, 0.0);	
-    		}
-    		
-    	}
-    	led_counter = (led_counter + 0.1);
-    	
+    	    	
     	//Estimate battery Parameters
     	bpe.updateEstimate(pdp.getVoltage(), pdp.getTotalCurrent());
     	
