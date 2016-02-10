@@ -5,6 +5,7 @@ import edu.wpi.first.wpilibj.BuiltInAccelerometer;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.Joystick.RumbleType;
 import edu.wpi.first.wpilibj.PowerDistributionPanel;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.VictorSP;
@@ -34,7 +35,7 @@ public class Robot extends IterativeRobot {
 	final static int XBOX_Y_BUTTON = 4;
 	final static int XBOX_LEFT_BUTTON = 5;
 	final static int XBOX_RIGHT_BUTTON = 6;
-	final static int XBOX_SELECT_BUTTON = 7;
+	final static int XBOX_BACK_BUTTON = 7;
 	final static int XBOX_START_BUTTON = 8;
 	final static int XBOX_LSTICK_BUTTON = 9;
 	final static int XBOX_RSTICK_BUTTON = 10;
@@ -304,7 +305,8 @@ public class Robot extends IterativeRobot {
 	    	logger.init(logger_fields, units_fields);
     	}
 
-    	//Compressor starts automatically
+    	//compressor starts automatically, but just in case...
+    	Pneumatics.startCompressor();
     	
     	//reset gyro angle to 0
     	gyro.reset_gyro_angle();
@@ -346,7 +348,8 @@ public class Robot extends IterativeRobot {
     		logger.init(logger_fields, units_fields);
     	}
 
-    	//compressor starts automatically
+    	//compressor starts automatically, but just in case...
+    	Pneumatics.startCompressor();
     	
     	//init the task timing things
     	prev_loop_start_timestamp = Timer.getFPGATimestamp();
@@ -378,13 +381,16 @@ public class Robot extends IterativeRobot {
     	double right_speed = Math.abs(driveTrain.getLeftWheelSpeedRPM());
     	double net_speed = Math.max(left_speed,right_speed);
     	shifter.OttoShifterPeriodic(net_speed, wheel_speed.calcDeriv(net_speed), Math.abs(accel_RIO.getY()), pdp.getTotalCurrent(), joy1.getRawButton(XBOX_LEFT_BUTTON), joy1.getRawButton(XBOX_RIGHT_BUTTON));
+    	//Set pneumatics to select gear and activate driver 1 rumble if needed
     	if(shifter.gear){
     		System.out.println("high_gear");
     		Pneumatics.shiftToHighGear();
+    		joy1.setRumble(RumbleType.kLeftRumble, 0f);
     	}
     	else{
     		System.out.println("low_gear");
     		Pneumatics.shiftToLowGear();
+    		joy1.setRumble(RumbleType.kLeftRumble, 0.25f);
     	}
     	
     	//Update camera position
@@ -398,6 +404,16 @@ public class Robot extends IterativeRobot {
     		Pneumatics.intakeDown();
     	if(joy2.getRawButton(XBOX_Y_BUTTON))
     		Pneumatics.intakeUp();
+    	
+    	//Enable/Disable compressor based on driver commands
+    	if(joy1.getRawButton(XBOX_BACK_BUTTON))
+    	{
+    		Pneumatics.startCompressor();
+    	}
+    	if(joy1.getRawButton(XBOX_START_BUTTON))
+    	{
+    		Pneumatics.stopCompressor();
+    	}
     	
     	//Log data from this timestep
     	log_data();
@@ -529,17 +545,21 @@ public class Robot extends IterativeRobot {
      */  
     private void processCameraAngle(){
     	
-    	if(joy1.getRawButton(XBOX_Y_BUTTON)){
+    	if(joy1.getPOV(XBOX_DPAD_POV) == 0 || joy2.getPOV(XBOX_DPAD_POV) == 0){
     		csm.setCameraPos(CamPos.DRIVE_FWD);
+    		System.out.println("Set Cam Fwd");
     	}
-    	else if(joy1.getRawButton(XBOX_A_BUTTON)){
+    	else if(joy1.getPOV(XBOX_DPAD_POV) == 180 || joy2.getPOV(XBOX_DPAD_POV) == 180){
     		csm.setCameraPos(CamPos.DRIVE_REV);
+    		System.out.println("Set Cam Rev");
     	}
-    	else if(joy1.getRawButton(XBOX_B_BUTTON)){
+    	else if(joy1.getPOV(XBOX_DPAD_POV) == 90 || joy2.getPOV(XBOX_DPAD_POV) == 90){
     		csm.setCameraPos(CamPos.SHOOT);
+    		System.out.println("Set Cam Shoot");
     	}
-    	else if(joy1.getRawButton(XBOX_X_BUTTON)){
+    	else if(joy1.getPOV(XBOX_DPAD_POV) == 270 || joy2.getPOV(XBOX_DPAD_POV) == 270){
     		csm.setCameraPos(CamPos.CLIMB);
+    		System.out.println("Set Cam Climb");
     	}
     	
     }
