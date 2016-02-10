@@ -84,7 +84,7 @@ public class Robot extends IterativeRobot {
 	
 	//Data Logging
 	static final boolean enable_logging = true; //Set to false to disable logging
-	static final String[] logger_fields = {"TIME",
+	static final String[] logger_fields = {"TIME", //First field must always be "TIME"
             "MatchTime", 
             "BrownedOut", 
             "FMSAttached", 
@@ -144,7 +144,7 @@ public class Robot extends IterativeRobot {
             "ActualGear",
             "DriverCmdInvertedControls"};
 
-    static final String[] units_fields = {"sec",
+    static final String[] units_fields = {"sec", //TIME must always be in sec
            "sec",
            "bit",
            "bit",
