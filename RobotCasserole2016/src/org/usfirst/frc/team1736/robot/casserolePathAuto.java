@@ -1,7 +1,13 @@
 package org.usfirst.frc.team1736.robot;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
+import org.usfirst.frc.team1736.robot.I2CGyro.GyroTask;
+
 public class casserolePathAuto {
 
+	//Path Planner Constants
 	double[][] waypoints_mode0 = new double[][]{ // go up to defense
 		{0,0},
 		{2,0}		
@@ -29,16 +35,23 @@ public class casserolePathAuto {
 	double timeStep = 0.02; //20ms update rate 
 	double robotTrackWidth = 1.9; //1.9ft wide tracks
 	
+	int timestep = 0;
+	
 	FalconPathPlanner path;
+	
+	//Output Device - the drivetrain
+	DriveTrain dt;
+	
+	//Playback thread
+	Timer timerThread;
+	
 	
 	/**
 	 * Constructor
 	 * 
 	 */
-	casserolePathAuto(){
-
-		
-		
+	casserolePathAuto(DriveTrain dt_in){
+		dt = dt_in;
 	}
 	
 	
@@ -66,5 +79,61 @@ public class casserolePathAuto {
 		}
 	}
 	
+	/**
+	 * begins background thread commanding motor values through
+	 * the determined path 
+	 * @return
+	 */
+	public int startPlayback(){
+		timestep = 0;
+		timerThread = new java.util.Timer();
+		timerThread.schedule(new PathPlanningPlayback(this), 0L, (long) (timeStep));
+		return 0;
+	}
 	
+	/**
+	 * Forcibly stops any background playback ocurring
+	 * @return
+	 */
+	public int stopPlatback(){
+		timerThread.cancel();
+		timestep = 0;
+		return 0;
+	}
+	
+	/**
+	 * Returns true if playback is currently running, false if not.
+	 * @return
+	 */
+	public boolean isPlaybackActive(){
+		
+		return false;
+	}
+
+	public void plannerStep(){
+		
+	}
+	
+	//Java multithreading magic. Do not touch.
+	//Touching will incour the wrath of Cthulhu, god of java and path planning.
+	//May the oceans of 1's and 0's rise to praise him.
+    private class PathPlanningPlayback extends TimerTask 
+    {
+        private casserolePathAuto m_planner;
+
+        public PathPlanningPlayback(casserolePathAuto planner) 
+        {
+            if (planner == null) 
+            {
+                throw new NullPointerException("Given PathPlanner was null");
+            }
+            m_planner = planner;
+        }
+
+        @Override
+        public void run() 
+        {
+        	m_planner.plannerStep();
+        }
+    }
 }
