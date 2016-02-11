@@ -1,5 +1,6 @@
 package org.usfirst.frc.team1736.robot;
 
+import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.Solenoid;
 
@@ -7,6 +8,7 @@ public class Pneumatics {
 	private static Compressor compressor = new Compressor();
 	private static Solenoid shifterSolenoid = new Solenoid(1);
 	private static Solenoid intakeSolenoid = new Solenoid(2);
+	private static AnalogInput psensor = new AnalogInput(1);
 	
 	public static void startCompressor(){
 		compressor.start();
@@ -14,6 +16,10 @@ public class Pneumatics {
 	
 	public static void stopCompressor(){
 		compressor.stop();
+	}
+	
+	public static double getPressurePsi(){ //per datasheet at http://www.meas-spec.com/downloads/U7100.pdf
+		return ((psensor.getVoltage()/5.0)-0.1)*150.0/0.8;
 	}
 	
 	public static boolean getPressureSwitchValue(){

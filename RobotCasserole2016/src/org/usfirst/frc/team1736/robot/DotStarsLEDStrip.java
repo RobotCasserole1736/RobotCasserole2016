@@ -6,6 +6,7 @@ package org.usfirst.frc.team1736.robot;
 import java.util.Arrays;
 import java.util.TimerTask;
 
+import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.SPI;
 
 /**
@@ -51,11 +52,18 @@ public class DotStarsLEDStrip {
 	//State variables
 	boolean newBuffer; //true when the ledBuffer has been updated since the last time it was written to the LEDs
 	
+	//Audio Input
+	AnalogInput audioIn;
+	private static final int AUDIO_IN_PORT = 2;
+	
 	/**
 	 * Constructor for led strip class
 	 * @param numLEDs - number of LED's in the total strip.
 	 */
 	DotStarsLEDStrip(int numLEDs){
+		//Initalize the audio input
+		audioIn = new AnalogInput(AUDIO_IN_PORT);
+		
 		//Number of bytes in color buffer needed - each LED has 4 bytes (1 brightness, then 1 for RGB each),
 		// plus the start and end frame.
 		num_leds = numLEDs;
@@ -155,6 +163,15 @@ public class DotStarsLEDStrip {
 		return;
 	}
 	
+	/**
+	 * Returns the current volume of sound outside the robot in a range of 0 to 1
+	 * where 0 is the quietest and 1 is the loudest
+	 * @return
+	 */
+	
+	public double getAudioLevel(){
+		return audioIn.getVoltage()/5.0;
+	}
 	
 	/**
 	 * convert a double in the range 0-1 to a byte of value 0x00 to 0xFF. This normalizes the full range of 

@@ -33,8 +33,8 @@ public class CameraServoMount {
 	private static final double CLIMB_TILT_ANGLE = 65;
 	
 	//Hookup constants
-	private static final int PAN_SERVO_PORT = 9;
-	private static final int TILT_SERVO_PORT = 8;
+	private static final int PAN_SERVO_PORT = 8; //CMG - confirmed 2/10/2016
+	private static final int TILT_SERVO_PORT = 9; //CMG - confirmed 2/10/2016
 	
 	//Servo objects for mount servos
 	private Servo pan_servo;

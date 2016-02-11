@@ -6,6 +6,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Joystick.RumbleType;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.PowerDistributionPanel;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.VictorSP;
@@ -142,7 +143,9 @@ public class Robot extends IterativeRobot {
             "AutoDnShftBodyAccelTrigger",
             "AutoDnShftCurrentDrawTrigger",
             "ActualGear",
-            "DriverCmdInvertedControls"};
+            "DriverCmdInvertedControls",
+            "PneumaticPress",
+            "SquishSensorReading"};
 
     static final String[] units_fields = {"sec", //TIME must always be in sec
            "sec",
@@ -202,7 +205,9 @@ public class Robot extends IterativeRobot {
            "bit",
            "bit",
            "T-High/F-Low",
-           "bit"};
+           "bit",
+           "PSI",
+           "val"};
 		
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	// CLASS OBJECTS
@@ -367,7 +372,7 @@ public class Robot extends IterativeRobot {
     	bpe.updateEstimate(pdp.getVoltage(), pdp.getTotalCurrent());
     	
         //Run Drivetrain with reversing
-    	if(joy1.getRawAxis(XBOX_LTRIGGER_AXIS)> 0.5){ //reverse control
+    	if(joy1.getRawAxis(XBOX_LTRIGGER_AXIS) > 0.5){ //reverse control
     		cmdInvCtrls = true;
         	driveTrain.arcadeDrive(-1 * joy1.getRawAxis(XBOX_LSTICK_YAXIS), -1 * joy1.getRawAxis(XBOX_RSTICK_XAXIS), squaredInputs);
     	}
@@ -417,6 +422,7 @@ public class Robot extends IterativeRobot {
     	
     	//Log data from this timestep
     	log_data();
+    	updateSmartDashboard();
     	System.out.println(driveTrain.getMemes());
     	
     	//Execution time metric - this must be last! Even after memes!
@@ -526,7 +532,9 @@ public class Robot extends IterativeRobot {
 				    					  shifter.VertAccelDebounceState?1.0:0.0,
 				    					  shifter.CurrentDebounceState?1.0:0.0,
 				    					  Pneumatics.isHighGear()?1.0:0.0,
-		    							  cmdInvCtrls?1.0:0.0
+		    							  cmdInvCtrls?1.0:0.0,
+    									  Pneumatics.getPressurePsi(),
+    									  launchMotor.getSquishSensorVal()
 				    					 );
 	    	//Check for brownout. If browned out, force write data to log. Just in case we
 	    	//lose power and nasty things happen, at least we'll know how we died...
@@ -582,4 +590,19 @@ public class Robot extends IterativeRobot {
     	return totalCurrent;
     }
     
+    /**
+     * Send things to smart dashboard which ought to be snet
+     * 
+     */
+    private void updateSmartDashboard(){
+    	SmartDashboard.putNumber("Pneumatic System Pressure (PSI)", Math.round(Pneumatics.getPressurePsi()));
+    	if(shifter.gear)
+    		SmartDashboard.putString("Gear", "HIGH GEAR");
+    	else
+    		SmartDashboard.putString("Gear", "low gear");
+    	SmartDashboard.putNumber("Match Time", ds.getMatchTime());
+    	SmartDashboard.putNumber("Total Current Draw", calcEstTotCurrentDraw());
+    	SmartDashboard.putNumber("Launch Motor Speed (RPM)", launchMotor.getActSpeed());
+    	
+    }
 }

@@ -5,10 +5,10 @@ import edu.wpi.first.wpilibj.Talon;
 public class Climb {
 	
 	
-	public static final int WINCHMOTOR1_CHANNEL = 6; //CMG - still unknown!
-	public static final int WINCHMOTOR2_CHANNEL = 7; //CMG - still unknown!
+	public static final int WINCHMOTOR1_CHANNEL = 6; //CMG - confirmed 2/10/2016
+	public static final int WINCHMOTOR2_CHANNEL = 5; //CMG - confirmed 2/10/2016
 	public static final int TAPEMOTOR_CHANNEL = 4; //CMG - confirmed 2/2/2016
-	public static final int TAPETRIGGER_CHANNEL=5; //CMG - still unknown!
+	public static final int TAPETRIGGER_CHANNEL=5; //CMG - still unknown if used!
 	Talon winchmotor1;
 	Talon winchmotor2;
 	VictorSP tapemotor;

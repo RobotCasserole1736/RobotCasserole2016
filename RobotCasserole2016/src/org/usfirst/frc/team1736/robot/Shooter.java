@@ -1,5 +1,6 @@
 package org.usfirst.frc.team1736.robot;
 
+import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.CANTalon;
 import edu.wpi.first.wpilibj.CANTalon.StatusFrameRate;
 import edu.wpi.first.wpilibj.command.PIDSubsystem;
@@ -12,8 +13,15 @@ public class Shooter extends PIDSubsystem {
 	int SHOOTER_CHANNEL = 1; //CMG - confirmed 2/2/2016
 	double MAX_SPEED = 6000;
 	int codesPerRev = 1024;
+	double decodeMultiplier = 4; //counts each encoder tick as 4 ticks
 	MedianFilter speedFilt;
 	private final static int SPEED_FILT_LEN = 3;
+	
+	//Squish sensor cal
+	AnalogInput squishSensor;
+	private static final int SQUISH_SENSOR_PORT = 0;
+	private double squishSensorZeroOffsetPoint = 0;
+	private double squishSensorOffsetGain = 0;
 	
 	double filtered_act_speed = 0;
 	double motorCmd = 0;
@@ -30,6 +38,8 @@ public class Shooter extends PIDSubsystem {
 		setInputRange(0,MAX_SPEED);
 		setOutputRange(0,1); //Must not command the motor in reverse since the input speed taken as unsigned (negative motor commands cause instability)
 		enable();
+		
+		squishSensor = new AnalogInput(SQUISH_SENSOR_PORT);
 	}
 	
 	/**
@@ -37,7 +47,7 @@ public class Shooter extends PIDSubsystem {
 	 * @param speed - setpoint to command the motor to in RPM
 	 */
 	public void setSpeed(double speed){
-		setSetpoint(speed);
+		setSetpoint(speed/decodeMultiplier);
 	}
 	
 	/**
@@ -62,7 +72,7 @@ public class Shooter extends PIDSubsystem {
 	 * @return
 	 */
 	public double getDesSpeed(){
-		return getSetpoint();
+		return getSetpoint()*decodeMultiplier;
 	}
 	
 	/**
@@ -70,7 +80,7 @@ public class Shooter extends PIDSubsystem {
 	 * @return
 	 */
 	public double getError(){
-		return getActSpeed() - getDesSpeed();
+		return (getActSpeed() - getDesSpeed());
 	}
 	
 	/**
@@ -81,13 +91,22 @@ public class Shooter extends PIDSubsystem {
 		return motorCmd;
 	}
 
+	/**
+	 * returns the value of the ball compression sensor
+	 * where 1 is something and 0 is the opposite
+	 * @return
+	 */
+	public double getSquishSensorVal(){
+		return squishSensor.getVoltage()/5.0;
+	}
+	
 	@Override
 	protected double returnPIDInput() {
 		//convert raw encoder ticks to RPM and filter
 		//Median filter to reject single-pulse encoder failures
 		//Abs to reject sign flips occurring from an unfortunate encoder tick miss
-		filtered_act_speed = speedFilt.filter(Math.abs(shooterController.getEncVelocity()/(double)codesPerRev*60.0));
-		return filtered_act_speed;
+		filtered_act_speed = speedFilt.filter(Math.abs(shooterController.getEncVelocity()/(double)codesPerRev*60.0))*decodeMultiplier;
+		return filtered_act_speed + (getSquishSensorVal() - squishSensorZeroOffsetPoint) * squishSensorOffsetGain;
 	}
 
 	@Override
