@@ -3,8 +3,6 @@ package org.usfirst.frc.team1736.robot;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import org.usfirst.frc.team1736.robot.I2CGyro.GyroTask;
-
 public class casserolePathAuto {
 
 	//Path Planner Constants
@@ -41,9 +39,11 @@ public class casserolePathAuto {
 	
 	//Output Device - the drivetrain
 	DriveTrain dt;
+	DriveMotorsPIDVelocity motors;
 	
 	//Playback thread
 	Timer timerThread;
+	boolean playbackActive = false;
 	
 	
 	/**
@@ -52,6 +52,7 @@ public class casserolePathAuto {
 	 */
 	casserolePathAuto(DriveTrain dt_in){
 		dt = dt_in;
+		motors = new DriveMotorsPIDVelocity(dt);
 	}
 	
 	
@@ -87,17 +88,21 @@ public class casserolePathAuto {
 	public int startPlayback(){
 		timestep = 0;
 		timerThread = new java.util.Timer();
+		playbackActive = true;
 		timerThread.schedule(new PathPlanningPlayback(this), 0L, (long) (timeStep));
 		return 0;
 	}
 	
 	/**
-	 * Forcibly stops any background playback ocurring
+	 * Forcibly stops any background playback occurring
 	 * @return
 	 */
-	public int stopPlatback(){
-		timerThread.cancel();
-		timestep = 0;
+	public int stopPlayback(){
+		timerThread.cancel(); //kill thread
+		playbackActive = false; //set status to not running
+		motors.lmpid.setSetpoint(0); //zero out motor controllers
+		motors.rmpid.setSetpoint(0);
+		timestep = 0; //reset time (just in case)
 		return 0;
 	}
 	
@@ -106,18 +111,30 @@ public class casserolePathAuto {
 	 * @return
 	 */
 	public boolean isPlaybackActive(){
-		
-		return false;
+		return playbackActive;
 	}
 
+	/**
+	 * Playback function = should 
+	 */
 	public void plannerStep(){
-		
+		//detect end condition
+		if(timestep > path.numFinalPoints){
+			stopPlayback();
+		}
+		else{ //otherwise continue playback
+			motors.lmpid.setSetpoint(path.smoothLeftVelocity[timestep][1]);
+			motors.rmpid.setSetpoint(path.smoothRightVelocity[timestep][1]);
+			timestep++;
+		}
+
+			
 	}
 	
 	//Java multithreading magic. Do not touch.
 	//Touching will incour the wrath of Cthulhu, god of java and path planning.
 	//May the oceans of 1's and 0's rise to praise him.
-    private class PathPlanningPlayback extends TimerTask 
+    public class PathPlanningPlayback extends TimerTask 
     {
         private casserolePathAuto m_planner;
 
