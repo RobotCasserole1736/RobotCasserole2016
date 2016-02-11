@@ -17,6 +17,13 @@ public class DriveMotorsPIDVelocity {
 
 }
 
+/**
+ * PID controller for left wheels
+ * where the setpoint is in ft/s
+ * @author gerthcm
+ *
+ */
+
 class LeftMotorPID extends PIDSubsystem{
 	
 	static double P = 0.0001; 
@@ -32,7 +39,6 @@ class LeftMotorPID extends PIDSubsystem{
 
 	@Override
 	protected double returnPIDInput() {
-		// TODO Auto-generated method stub
 		return dt.getLeftSpdFtPerSec();
 	}
 
@@ -51,6 +57,12 @@ class LeftMotorPID extends PIDSubsystem{
 	
 }
 
+/**
+ * PID controller for right wheels
+ * where the setpoint is in ft/s
+ * @author gerthcm
+ *
+ */
 class RightMotorPID extends PIDSubsystem{
 	
 	static double P = 0.0001; 
@@ -66,7 +78,6 @@ class RightMotorPID extends PIDSubsystem{
 
 	@Override
 	protected double returnPIDInput() {
-		// TODO Auto-generated method stub
 		return dt.getRightSpdFtPerSec();
 	}
 

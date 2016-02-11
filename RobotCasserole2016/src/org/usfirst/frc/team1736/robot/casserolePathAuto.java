@@ -21,16 +21,16 @@ public class casserolePathAuto {
 		{5,0},
 		{0,0}
 	};
-	double[][] waypoints_mode3 = new double[][]{ // do nothing
+	double[][] waypoints_modeNothing = new double[][]{ // do nothing
 		{0,0}
 	};
 	
 	double totalTime_mode0 = 2;
 	double totalTime_mode1 = 5;
 	double totalTime_mode2 = 10;
-	double totalTime_mode3 = 1;
+	double totalTime_modeNothing = 1;
 	
-	double timeStep = 0.02; //20ms update rate 
+	double timeStep = 0.1; //100ms update rate 
 	double robotTrackWidth = 1.9; //1.9ft wide tracks
 	
 	int timestep = 0;
@@ -75,8 +75,8 @@ public class casserolePathAuto {
 			path.calculate(totalTime_mode2, timeStep, robotTrackWidth);
 		}
 		else{
-			path = new FalconPathPlanner(waypoints_mode3);
-			path.calculate(totalTime_mode3, timeStep, robotTrackWidth);
+			path = new FalconPathPlanner(waypoints_modeNothing);
+			path.calculate(totalTime_modeNothing, timeStep, robotTrackWidth);
 		}
 	}
 	
