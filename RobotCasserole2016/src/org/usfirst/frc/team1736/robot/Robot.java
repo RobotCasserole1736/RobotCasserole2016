@@ -338,13 +338,13 @@ public class Robot extends IterativeRobot {
     	
     	//LED test code
     	//Tom's most recent work
-    	/*for(int i = 0; i < NUM_LEDS; i++)
+    	/**for(int i = 0; i < NUM_LEDS; i++)
     	{	
     		if(i % 10 < 5){
-    			leds.setLEDColor((int)Math.round(led_counter + i)%90, 1.0, 1.0, 0.0);	
+    			leds.setLEDColor((int)Math.round(led_counter + i)%90, 0.9518387305, 0.0, 0.0);	
     		}
     		else if(i % 10 < 8){
-    			leds.setLEDColor((int)Math.round(led_counter + i)%90, 0.0, 1.0, 0.0);
+    			leds.setLEDColor((int)Math.round(led_counter + i)%90, 1.0, 1.0, 1.0);
     		}
     		
     		else{
@@ -352,10 +352,62 @@ public class Robot extends IterativeRobot {
     		}
     		
     	}
-    	led_counter = (led_counter + 0.0);*/
+    	led_counter = (led_counter + 0.25); */
+    	//red alliance and robot casserole colors
+    	/**for(int i = 0; i < NUM_LEDS; i++)
+    	{	
+    		if(i % 10 < 5){
+    			leds.setLEDColor((int)Math.round(led_counter + i)%90, 0.9518387305, 0.0, 0.0);	
+    		}
+    		
+    		else{
+    			leds.setLEDColor((int)Math.round(led_counter + i)%90, 0.75, 0.75, 0.75);	
+    		}
+    		
+    	}
+    	led_counter = (led_counter + 0.234); 
+    	*/
+    	//blue alliance colors
+    	/**for(int i = 0; i < NUM_LEDS; i++)
+    	{	
+    		if(i % 10 < 5){
+    			leds.setLEDColor((int)Math.round(led_counter + i)%90, 0.0, 0.9324289523, 0.0);	
+    		}
+    		
+    		else{
+    			leds.setLEDColor((int)Math.round(led_counter + i)%90, 0.69, 0.69, 0.69);	
+    		}
+    		
+    	}
+    	led_counter = (led_counter + 0.234);
+    	*/
     	
     	for(int i = 0; i < NUM_LEDS; i++)
-    		leds.setLEDColor(i, Math.random(), Math.random(), Math.random());
+    	{	
+    		if(i % 10 < 5){
+    			leds.setLEDColor((int)Math.round(led_counter + i)%90, 0.0, 0.9324289523, 0.0);	
+    		}
+    		
+    		else if(i % 10 < 6){
+    			leds.setLEDColor((int)Math.round(led_counter + i)%90, 0.4, 0.6, 0.4);	
+    		}
+    		else if(i % 10 < 7){
+    			leds.setLEDColor((int)Math.round(led_counter + i)%90, 0.32, 0.58, 0.32);	
+    		}
+    		else if(i % 10 < 8){
+    			leds.setLEDColor((int)Math.round(led_counter + i)%90, 0.26, 0.56, 0.26);	
+    		}
+    		else if(i % 10 < 9){
+    			leds.setLEDColor((int)Math.round(led_counter + i)%90, 0.2, 0.54, 0.2);	
+    		}
+    		else if(i % 10 < 10){
+    			leds.setLEDColor((int)Math.round(led_counter + i)%90, 0.14, 0.52, 0.14);	
+    		}
+    		
+    	}
+    	led_counter = (led_counter + 0.234);
+    	//for(int i = 0; i < NUM_LEDS; i++)
+    		//leds.setLEDColor(i, Math.random(), Math.random(), Math.random());
     	
     	
     	
