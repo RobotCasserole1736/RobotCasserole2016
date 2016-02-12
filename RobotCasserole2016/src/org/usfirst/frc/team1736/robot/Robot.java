@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.PowerDistributionPanel;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.VictorSP;
+import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -359,6 +360,7 @@ public class Robot extends IterativeRobot {
     	//init the task timing things
     	prev_loop_start_timestamp = Timer.getFPGATimestamp();
     	loop_time_elapsed = 0;
+    	SmartDashboard.putNumber("ShooterSetpoint", 0);
     }
 
     /**
@@ -368,22 +370,26 @@ public class Robot extends IterativeRobot {
     	//Execution time metric - this must be first!
     	prev_loop_start_timestamp = Timer.getFPGATimestamp();
     	
+    	
+    	double temp_setpoint = SmartDashboard.getNumber("ShooterSetpoint");
+    	
     	//Temp - override shooter command for tuning
     	if(joy1.getRawButton(XBOX_X_BUTTON))
-    		launchMotor.setSetpoint(1400);
+    		launchMotor.setSpeed(temp_setpoint);
     	else if(joy1.getRawButton(XBOX_Y_BUTTON))
-    		launchMotor.setSetpoint(3600);
+    		launchMotor.setSpeed(3000);
     	else if(joy1.getRawButton(XBOX_B_BUTTON))
-    		launchMotor.setSetpoint(4800);
+    		launchMotor.setSpeed(4000);
     	else if(joy1.getRawButton(XBOX_A_BUTTON))
-    		launchMotor.setSetpoint(5600);
+    		launchMotor.setSpeed(5000);
     	else
-    		launchMotor.setSetpoint(0);
+    		launchMotor.setSpeed(0);
     	
     	SmartDashboard.putNumber("DesiredSpeed", launchMotor.getDesSpeed());
     	SmartDashboard.putNumber("ActualSpeed", launchMotor.getActSpeed());
     	SmartDashboard.putNumber("MotorCommand", launchMotor.getMotorCmd());
     	SmartDashboard.putNumber("MotorCurrent", launchMotor.getCurrent());
+    	SmartDashboard.putNumber("Error", launchMotor.getError());
     	//Estimate battery Parameters
     	bpe.updateEstimate(pdp.getVoltage(), pdp.getTotalCurrent());
     	
@@ -468,6 +474,8 @@ public class Robot extends IterativeRobot {
     	//Execution time metric - this must be first!
     	prev_loop_start_timestamp = Timer.getFPGATimestamp();
     	//Add test code here
+    	
+    	LiveWindow.run();
     	
     	//Log data from this timestep
     	log_data();

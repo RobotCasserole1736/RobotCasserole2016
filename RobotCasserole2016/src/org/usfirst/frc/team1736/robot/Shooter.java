@@ -2,18 +2,19 @@ package org.usfirst.frc.team1736.robot;
 
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.CANTalon;
+import edu.wpi.first.wpilibj.CANTalon.FeedbackDevice;
 import edu.wpi.first.wpilibj.CANTalon.StatusFrameRate;
 import edu.wpi.first.wpilibj.command.PIDSubsystem;
 
 public class Shooter extends PIDSubsystem {
 	CANTalon shooterController;
-	static double P = 0.0001; //CMG - these were poorly tuned with just the gearbox - will need to be adjusted to be better
-	static double I = 0.0001; //I is definitely needed to overcome friction, otherwise there is a noticeable steady-state error
-	static double D = 0.00001; 
+	static double F = 0.0001737;
+	static double P = 0.0003; //CMG - these were poorly tuned with just the gearbox - will need to be adjusted to be better
+	static double I = 0.000024; //I is definitely needed to overcome friction, otherwise there is a noticeable steady-state error
+	static double D = 0.00002; 
 	int SHOOTER_CHANNEL = 1; //CMG - confirmed 2/2/2016
-	double MAX_SPEED = 6000;
 	int codesPerRev = 1024;
-	double decodeMultiplier = 4; //counts each encoder tick as 4 ticks
+	double decodeMultiplier = 1; //counts each encoder tick as 4 ticks
 	MedianFilter speedFilt;
 	private final static int SPEED_FILT_LEN = 3;
 	
@@ -27,16 +28,16 @@ public class Shooter extends PIDSubsystem {
 	double motorCmd = 0;
 	
 	public Shooter() {
-		super("ShooterPID", P, I, D);
+		super("ShooterPID", P, I, D); //we don't need to WPILIB feed forward. we do feed fowrard ourselfs.
 		shooterController = new CANTalon(SHOOTER_CHANNEL);
 		shooterController.changeControlMode(CANTalon.TalonControlMode.PercentVbus);
+		shooterController.setFeedbackDevice(FeedbackDevice.CtreMagEncoder_Relative);
 		shooterController.enableBrakeMode(true); //when 0 RPM is commanded, rely upon speed controller to quickly stop the rotation of the launch wheel.
 		shooterController.configEncoderCodesPerRev(codesPerRev);
 		shooterController.setStatusFrameRateMs(StatusFrameRate.Feedback, 20); //Bump up the sample rates to get better response time (at the impact of higher CAN bus load)
 		shooterController.setStatusFrameRateMs(StatusFrameRate.General, 20);
 		speedFilt = new MedianFilter(SPEED_FILT_LEN, 0);
-		setInputRange(0,MAX_SPEED);
-		setOutputRange(0,1); //Must not command the motor in reverse since the input speed taken as unsigned (negative motor commands cause instability)
+		setOutputRange(-0.5,1); //Must not command the motor in reverse since the input speed taken as unsigned (negative motor commands cause instability)
 		enable();
 		
 		squishSensor = new AnalogInput(SQUISH_SENSOR_PORT);
@@ -105,14 +106,17 @@ public class Shooter extends PIDSubsystem {
 		//convert raw encoder ticks to RPM and filter
 		//Median filter to reject single-pulse encoder failures
 		//Abs to reject sign flips occurring from an unfortunate encoder tick miss
-		filtered_act_speed = speedFilt.filter(Math.abs(shooterController.getEncVelocity()/(double)codesPerRev*60.0))*decodeMultiplier;
+		//filtered_act_speed = -shooterController.getEncVelocity()/(double)codesPerRev*60.0*decodeMultiplier;
+		//filtered_act_speed = speedFilt.filter(Math.abs(shooterController.getEncVelocity()/(double)codesPerRev*60.0))*decodeMultiplier;
+		filtered_act_speed = -shooterController.getSpeed();
 		return filtered_act_speed + (getSquishSensorVal() - squishSensorZeroOffsetPoint) * squishSensorOffsetGain;
 	}
 
 	@Override
 	protected void usePIDOutput(double arg0) {
-		shooterController.set(arg0);	
-		motorCmd = arg0;
+		double cmd = Math.max(Math.min(arg0 + F*getDesSpeed(), 1), 0);
+		shooterController.set(cmd);	
+		motorCmd = cmd;
 	}
 
 	@Override
