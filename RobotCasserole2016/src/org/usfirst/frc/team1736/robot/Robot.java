@@ -368,6 +368,22 @@ public class Robot extends IterativeRobot {
     	//Execution time metric - this must be first!
     	prev_loop_start_timestamp = Timer.getFPGATimestamp();
     	
+    	//Temp - override shooter command for tuning
+    	if(joy1.getRawButton(XBOX_X_BUTTON))
+    		launchMotor.setSetpoint(1400);
+    	else if(joy1.getRawButton(XBOX_Y_BUTTON))
+    		launchMotor.setSetpoint(3600);
+    	else if(joy1.getRawButton(XBOX_B_BUTTON))
+    		launchMotor.setSetpoint(4800);
+    	else if(joy1.getRawButton(XBOX_A_BUTTON))
+    		launchMotor.setSetpoint(5600);
+    	else
+    		launchMotor.setSetpoint(0);
+    	
+    	SmartDashboard.putNumber("DesiredSpeed", launchMotor.getDesSpeed());
+    	SmartDashboard.putNumber("ActualSpeed", launchMotor.getActSpeed());
+    	SmartDashboard.putNumber("MotorCommand", launchMotor.getMotorCmd());
+    	SmartDashboard.putNumber("MotorCurrent", launchMotor.getCurrent());
     	//Estimate battery Parameters
     	bpe.updateEstimate(pdp.getVoltage(), pdp.getTotalCurrent());
     	
