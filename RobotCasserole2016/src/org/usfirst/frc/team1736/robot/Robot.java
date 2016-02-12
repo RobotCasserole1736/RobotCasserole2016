@@ -254,8 +254,7 @@ public class Robot extends IterativeRobot {
     	pdp = new PowerDistributionPanel();
     	bpe = new BatteryParamEstimator(BPE_length);
     	bpe.setConfidenceThresh(BPE_confidenceThresh_A);
-    	accel_RIO = new BuiltInAccelerometer();
-    	csm = new CameraServoMount();
+    	accel_RIO = new BuiltInAccelerometer();    	csm = new CameraServoMount();
     	gyro = new I2CGyro(); //this will cal the gyro - don't touch robot which this happens!
     	
     	//Motors - Drivetrain

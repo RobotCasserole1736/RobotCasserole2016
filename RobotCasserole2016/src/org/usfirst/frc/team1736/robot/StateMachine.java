@@ -14,7 +14,11 @@ public class StateMachine {
 	//PrepMotor Intake Motor Rotation Time
 	final static double prepEjectTime = 0.5; //Seconds
 	
-	final static int shooterSpeedTolerance = 200; //RPM
+	//Shooter spooled down tolerance for ability for intake to run
+	final static int spooledDownTolerance = 50; //RPM
+	
+	//Shooter spooled up tolerance for validity of shot
+	final static int spooledUpTolerance = 50; //RPM
 
 	//Main Components of shooting mechanism
 	protected Shooter shooter;
@@ -29,6 +33,9 @@ public class StateMachine {
 	
 	//Initial State
 	String state = "Inactive";
+	
+	//Override boolean -- throw if override is pressed
+	Boolean overridden = false;
 	
 	public StateMachine(Shooter shooter) {
 		
@@ -53,43 +60,63 @@ public class StateMachine {
 			case "Carry Ball":
 				
 				break;
+			case "Prep Launch":
+				prepMotor();
+				break;
 			case "Spooldown":
-				
+				setIntake(0);
+				if(spooledDown())
+				{
+					setState("Inactive");
+				}
+				else
+				{
+					stopLaunchMotor();
+				}
 				break;
 		}
 	}
 	
 	public void processInputs(Joystick operator)
 	{
-		if(!operator.getRawButton(Robot.XBOX_SELECT_BUTTON))
+		if(operator.getRawButton(Robot.XBOX_LEFT_BUTTON) && 
+		  ((!getBallSensor() && getState() != "Preplaunch") || overridden))
 		{
-			if(operator.getRawButton(Robot.XBOX_LEFT_BUTTON) && !getBallSensor())
-			{
-				setState("Intake");
-			}
-			else if(operator.getRawButton(Robot.XBOX_RIGHT_BUTTON))
-			{
-				setState("Eject");
-			}
-			else
-			{
-				setState("Inactive");
-			}
+			setState("Intake");
+		}
+		else if(getBallSensor())
+		{
+			setState("Carry Ball");
+		}
+		else if(operator.getRawButton(Robot.XBOX_RIGHT_BUTTON))
+		{
+			setState("Eject");
 		}
 		else
 		{
-			setState("Intake");		
+			setState("Spooldown");
 		}
 		
+		if(getBallSensor() && operator.getRawButton(Robot.XBOX_X_BUTTON) && getState() != "Prep Launch")
+		{
+			setState("Prep Launch");
+		}
+		else if(getBallSensor() && operator.getRawButton(Robot.XBOX_X_BUTTON) && getState() == "PrepLaunch")
+		{
+			setState("Spooldown");
+		}
 		
+		if(operator.getRawButton(Robot.XBOX_START_BUTTON))
+		{
+			override();
+		}
 		
 		processState();
-		
 		
 	}
 	
 	public void prepMotor()
-	{
+	{	
 		
 		
 		
@@ -98,6 +125,11 @@ public class StateMachine {
 	public void setState(String newState)
 	{
 		state = newState;
+	}
+	
+	public String getState()
+	{
+		return state;
 	}
 	
 	//Intake Motor Methods
@@ -133,9 +165,21 @@ public class StateMachine {
 		setLaunchMotor(0);
 	}
 	
+	public boolean spooledUp()
+	{
+		if(shooter.getSetpoint() == shooter.SHOT_RPM && shooter.getAbsError() < spooledUpTolerance)
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+	
 	public boolean spooledDown()
 	{
-		if(Math.abs(shooter.getActSpeed()) < shooterSpeedTolerance)
+		if(shooter.getSetpoint() == 0 && shooter.getAbsError() < spooledDownTolerance)
 		{
 			return true;
 		}
@@ -150,4 +194,8 @@ public class StateMachine {
 		return ballSensor.get();
 	}
 	
+	public void override()
+	{
+		overridden = true;
+	}
 }

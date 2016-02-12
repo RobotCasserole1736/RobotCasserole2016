@@ -11,6 +11,7 @@ public class Shooter extends PIDSubsystem {
 	static double D = 0.00001; 
 	int SHOOTER_CHANNEL = 1; //CMG - confirmed 2/2/2016
 	double MAX_SPEED = 6000;
+	double SHOT_RPM = 1000;
 	int codesPerRev = 1024;
 	MedianFilter speedFilt;
 	private final static int SPEED_FILT_LEN = 3;
@@ -71,6 +72,14 @@ public class Shooter extends PIDSubsystem {
 	 */
 	public double getError(){
 		return getActSpeed() - getDesSpeed();
+	}
+	
+	/**
+	 * Get absolute value of present error in RPM
+	 * @return
+	 */
+	public double getAbsError() {
+		return Math.abs(getError());
 	}
 	
 	/**
