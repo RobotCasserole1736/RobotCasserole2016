@@ -30,8 +30,8 @@ public class StateMachine {
 	protected DigitalInput ballSensor;
 	
 	//IDs
-	final static int intake_ID = 0;
-	final static int ballSensor_ID = 0;
+	final static int intake_ID = 5;
+	final static int ballSensor_ID = 4;
 	
 	//Initial State
 	String state = "Inactive";

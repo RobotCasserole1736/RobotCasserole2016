@@ -464,7 +464,7 @@ public class Robot extends IterativeRobot {
     	loop_time_elapsed = 0;
     }
 
-    /**
+    /** 
      * This function is called periodically during operator control (teleop)
      */
     public void teleopPeriodic() {
@@ -486,8 +486,8 @@ public class Robot extends IterativeRobot {
 
     	//Evaluate upshift/downshift need
     	double left_speed = Math.abs(driveTrain.getLeftWheelSpeedRPM());
-    	double right_speed = Math.abs(driveTrain.getLeftWheelSpeedRPM());
-    	double net_speed = Math.max(left_speed,right_speed);
+    	double right_speed = Math.abs(driveTrain.getRightWheelSpeedRPM());
+    	double net_speed = Math.min(left_speed,right_speed);
     	shifter.OttoShifterPeriodic(net_speed, wheel_speed.calcDeriv(net_speed), Math.abs(accel_RIO.getY()), pdp.getTotalCurrent(), joy1.getRawButton(XBOX_LEFT_BUTTON), joy1.getRawButton(XBOX_RIGHT_BUTTON));
     	//Set pneumatics to select gear and activate driver 1 rumble if needed
     	if(shifter.gear){
