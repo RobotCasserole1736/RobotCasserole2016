@@ -13,19 +13,20 @@ public class Climb {
 	Talon winchmotor2;
 	VictorSP tapemotor;
 	DigitalInput tapetrigger;
+	boolean tapeTriggerState;
 	
 	Climb(){
 		winchmotor1 = new Talon(WINCHMOTOR1_CHANNEL);
 		winchmotor2 = new Talon(WINCHMOTOR2_CHANNEL);
 		tapemotor = new VictorSP(TAPEMOTOR_CHANNEL);
 		//tapetrigger = new DigitalInput(TAPETRIGGER_CHANNEL);
+		tapeTriggerState = false;
 		
 	}
 
 	void periodicClimb(boolean climbEnable, double tapeExtend, double winch){
 		float cEn;
 		boolean sign;
-		boolean tapeTriggerState = false;
 		//boolean tapeTriggerState = tapetrigger.get(); //Use this one if we actually use the tapeTrigger sensor
 		
 		if(tapeExtend<0){
