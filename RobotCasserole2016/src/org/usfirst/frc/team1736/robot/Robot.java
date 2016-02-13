@@ -566,14 +566,6 @@ public class Robot extends IterativeRobot {
      * This is a random comment
      */
     public void testInit() {
-    	if(enable_logging){
-	    	//Initialize the new log file for Test
-	    	logger.init(logger_fields, units_fields);
-    	}
-    	
-    	//init the task timing things
-    	prev_loop_start_timestamp = Timer.getFPGATimestamp();
-    	loop_time_elapsed = 0;
     
     }
     
@@ -581,15 +573,7 @@ public class Robot extends IterativeRobot {
      * This function is called periodically during test mode
      */
     public void testPeriodic() {
-    	//Execution time metric - this must be first!
-    	prev_loop_start_timestamp = Timer.getFPGATimestamp();
-    	//Add test code here
-    	
-    	//Log data from this timestep
-    	log_data();
-    	//Execution time metric - this must be last!
-    	loop_time_elapsed = Timer.getFPGATimestamp() - prev_loop_start_timestamp;
-    
+
     }
     
 	///////////////////////////////////////////////////////////////////////////////////////////////
@@ -652,7 +636,7 @@ public class Robot extends IterativeRobot {
 				    					 (joy2.getRawButton(XBOX_START_BUTTON)?1.0:0.0),
 				    					  Climber.tapemotor.get(),
 				    					  Climber.winchmotor1.get(),
-				    					 (Climber.tapetrigger.get()?1.0:0.0),
+				    					 (Climber.tapeTriggerState?1.0:0.0),
 				    					  gyro.get_gyro_angle()%360,
 				    					 (gyro.get_gyro_read_status()?1.0:0.0),
 				    					  Pneumatics.getCurrent(),
