@@ -725,6 +725,9 @@ public class Robot extends IterativeRobot {
     	SmartDashboard.putNumber("Launch Motor Speed (RPM)", launchMotor.getActSpeed());
     	SmartDashboard.putBoolean("Launch Motor Stalled", shooterDiagnostics.motorStalled);
     	SmartDashboard.putString("IntakeShooter State", intakeLauncherSM.getState());
+    	SmartDashboard.putNumber("Right Encoder Distance Ft.", driveTrain.getRightDistanceFt());
+    	SmartDashboard.putNumber("Left Encoder Distance Ft.", driveTrain.getLeftDistanceFt());
+
     	
     }
 }
