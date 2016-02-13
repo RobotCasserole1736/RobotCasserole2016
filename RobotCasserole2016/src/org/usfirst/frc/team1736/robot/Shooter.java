@@ -23,6 +23,9 @@ public class Shooter extends PIDSubsystem {
 	double filtered_act_speed = 0;
 	double motorCmd = 0;
 	
+	//Tune Constants
+    public static final double SHOT_RPM = 4500;
+	
 	public Shooter() {
 		super("ShooterPID", P, I, D); //we don't need to WPILIB feed forward. we do feed fowrard ourselfs cuz they were silly with their implementation.
 		shooterController = new CANTalon(SHOOTER_CHANNEL);

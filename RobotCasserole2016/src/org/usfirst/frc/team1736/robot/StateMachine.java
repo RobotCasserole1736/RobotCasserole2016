@@ -130,7 +130,7 @@ public class StateMachine {
 		if(Timer.getFPGATimestamp() - launchEjectTimer > prepEjectTime)
 		{
 			setIntake(0);
-			setLaunchMotor(shooter.SHOT_RPM);
+			setLaunchMotor(Shooter.SHOT_RPM);
 		}
 	}
 	
@@ -179,7 +179,7 @@ public class StateMachine {
 	
 	public boolean spooledUp()
 	{
-		if(shooter.getSetpoint() == shooter.SHOT_RPM && shooter.getAbsError() < spooledUpTolerance)
+		if(shooter.getSetpoint() == Shooter.SHOT_RPM && shooter.getAbsError() < spooledUpTolerance)
 		{
 			return true;
 		}

@@ -10,6 +10,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.PowerDistributionPanel;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.VictorSP;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -41,6 +43,12 @@ public class Robot extends IterativeRobot {
 	final static int XBOX_LSTICK_BUTTON = 9;
 	final static int XBOX_RSTICK_BUTTON = 10;
 	
+	// I'm a silly boy and Idk what I'm doing so I'm just gonna put these variables here, whoop whoop
+	int autoMode = 0;
+	SendableChooser autoChooser;
+	Timer autoTimer = new Timer();
+	int currentStep = 0;
+			
 	//-Controller Axes
 	final static int XBOX_LSTICK_XAXIS = 0;
 	final static int XBOX_LSTICK_YAXIS = 1;
@@ -261,6 +269,15 @@ public class Robot extends IterativeRobot {
      */
     public void robotInit() {
     	//Initialize each peripheral
+
+    	//Stuff for Autonomous
+    	autoChooser = new SendableChooser();
+    	autoChooser.addObject("Some Mode Name", 0);
+    	autoChooser.addObject("anoter mode name", 1);
+    	autoChooser.addDefault("default mode name",2);
+    	SmartDashboard.putData("Auto Mode Chooser", autoChooser);
+    	
+    	//Other Peripherials
     	ds = DriverStation.getInstance();
     	pdp = new PowerDistributionPanel();
     	bpe = new BatteryParamEstimator(BPE_length);
@@ -318,29 +335,95 @@ public class Robot extends IterativeRobot {
 
     	//compressor starts automatically, but just in case...
     	Pneumatics.startCompressor();
+
+    	SmartDashboard.getNumber("Autonomous Mode:");
+    	autoMode = (int) autoChooser.getSelected();
     	
     	//reset gyro angle to 0
     	gyro.reset_gyro_angle();
+    	
+    	//reset encoders to 0
+    	driveTrain.leftEncoder.reset();
+		driveTrain.rightEncoder.reset();
 
     	//init the task timing things
     	prev_loop_start_timestamp = Timer.getFPGATimestamp();
     	loop_time_elapsed = 0;
     	
     	//Raise intake to prevent damage in auto.
-    	Pneumatics.intakeUp();
+    	Pneumatics.intakeUp();   	
     	
     }
 
+    
     /**
      * This function is called periodically during autonomous
      */
     public void autonomousPeriodic() {
+    	
     	//Execution time metric - this must be first!
     	prev_loop_start_timestamp = Timer.getFPGATimestamp();
+    	
+    
+	    switch(autoMode){
+	    case 0: //Just move to in front of the defense
+	    	driveTrain.drive(0.8, 0);
+	    	if (driveTrain.getRightDistanceFt() > 1.5 && driveTrain.getRightDistanceFt() < 1.9) {
+	    		driveTrain.drive(.2, 0);    		
+	    	}
+	    	if (driveTrain.getRightDistanceFt() >= 1.9) {
+	    		driveTrain.drive(0, 0);
+	    	}   	
+	    	break;    	
+	    case 1: //Case 0 + go over low bar
+	    	{		
+	        	driveTrain.drive(0.8, 0);
+	        	if (driveTrain.getRightDistanceFt() > 14.5 && driveTrain.getRightDistanceFt() < 14.9) {
+	        		driveTrain.drive(.2, 0);    		
+	        	}
+	        	if (driveTrain.getRightDistanceFt() >= 14.9) {
+	        		driveTrain.drive(0, 0);
+	        	}   	
+	    	}    	
+	    	break;     	
+	    case 2: //Case 0 + go over rugged terrain
+	    	if (currentStep == 1)
+	    	{
+	        	driveTrain.drive(0.8, 0);
+	        	if (driveTrain.getRightDistanceFt() > 1.5 && driveTrain.getRightDistanceFt() < 1.9) {
+	        		driveTrain.drive(.2, 0);    		
+	        	}
+	        	if (driveTrain.getRightDistanceFt() >= 1.9) {
+	        		driveTrain.drive(0, 0);
+	        	} 
+	        	currentStep = 2;
+	    	}    	
+	    	if (currentStep == 2)
+	    	{
+				autoTimer.reset();
+				autoTimer.start();
+				currentStep = 3;
+	    	}
+	    	if (currentStep == 3)
+	    	{
+	    		driveTrain.drive(0.8, 0);
+	    		if (autoTimer.get() >= 10) {
+	    			driveTrain.drive(0, 0);
+	    		}
+	    
+	    		
+	    		
+	    		
+	    		//FINISH IMPLEMENTING TIME+GYROSCOPE
+	    		
+	    	}
+	    	break; 
+	    }	
     	
     	//Add autonomous code here
     	//Estimate battery Parameters
     	bpe.updateEstimate(pdp.getVoltage(), pdp.getTotalCurrent());
+    		
     	
     	//Log data from this timestep
     	log_data();
@@ -348,6 +431,7 @@ public class Robot extends IterativeRobot {
     	//Execution time metric - this must be last!
     	loop_time_elapsed = Timer.getFPGATimestamp() - prev_loop_start_timestamp;
     }
+
     
     
     /**
