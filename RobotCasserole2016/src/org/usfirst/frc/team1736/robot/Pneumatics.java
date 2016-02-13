@@ -9,6 +9,8 @@ public class Pneumatics {
 	private static Solenoid shifterSolenoid = new Solenoid(1);
 	private static Solenoid intakeSolenoid = new Solenoid(2);
 	private static AnalogInput psensor = new AnalogInput(1);
+	private static Solenoid DrawbridgeArmSolenoid = new Solenoid(3);
+
 	
 	public static void startCompressor(){
 		compressor.start();
@@ -53,6 +55,14 @@ public class Pneumatics {
 	
 	public static boolean isIntakeDown(){
 		return !intakeSolenoid.get();
+	}
+	
+	public static void extendDrawbridgeArmCylinder(){
+		DrawbridgeArmSolenoid.set(true);
+	}
+	
+	public static void retractDrawbridgeArmCylinder(){
+		DrawbridgeArmSolenoid.set(false);
 	}
 }
  
