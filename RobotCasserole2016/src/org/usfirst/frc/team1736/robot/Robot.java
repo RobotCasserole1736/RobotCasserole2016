@@ -414,7 +414,7 @@ public class Robot extends IterativeRobot {
     	DBAC.periodUptade(joy2.getRawAxis(XBOX_RSTICK_XAXIS), (joy2.getRawAxis(XBOX_LTRIGGER_AXIS)> 0.5));
     	
     	//Intake/shooter controls
-    	intakeLauncherSM.processInputs(joy2);;
+    	intakeLauncherSM.processInputs(joy2);
     	
     	//Adjust intake position based on driver commands
     	if(joy2.getRawButton(XBOX_A_BUTTON))
