@@ -153,7 +153,8 @@ public class Robot extends IterativeRobot {
             "ActualGear",
             "DriverCmdInvertedControls",
             "PneumaticPress",
-            "SquishSensorReading"};
+            "SquishSensorReading",
+            "AutonomousStep"};
 
     static final String[] units_fields = {"sec", //TIME must always be in sec
            "sec",
@@ -215,6 +216,7 @@ public class Robot extends IterativeRobot {
            "T-High/F-Low",
            "bit",
            "PSI",
+           "val",
            "val"};
 		
 	///////////////////////////////////////////////////////////////////////////////////////////////
@@ -272,9 +274,10 @@ public class Robot extends IterativeRobot {
 
     	//Stuff for Autonomous
     	autoChooser = new SendableChooser();
-    	autoChooser.addObject("Some Mode Name", 0);
-    	autoChooser.addObject("anoter mode name", 1);
-    	autoChooser.addDefault("default mode name",2);
+    	autoChooser.addObject("Drive Up To Defense (no cross)", 0);
+    	autoChooser.addObject("Cross Low Bar (encoders)", 1);
+    	autoChooser.addDefault("Cross Uneven Defense (timer+gyro)",2);
+    	autoChooser.addDefault("Do Nothing",-1);
     	SmartDashboard.putData("Auto Mode Chooser", autoChooser);
     	
     	//Other Peripherials
@@ -366,6 +369,9 @@ public class Robot extends IterativeRobot {
     	
     
 	    switch(autoMode){
+	    case -1: //Do squat
+	    	//nobody here but us chickens
+	    	break;
 	    case 0: //Just move to in front of the defense
 	    	driveTrain.drive(0.8, 0);
 	    	if (driveTrain.getRightDistanceFt() > 1.5 && driveTrain.getRightDistanceFt() < 1.9) {
@@ -630,7 +636,8 @@ public class Robot extends IterativeRobot {
 				    					  Pneumatics.isHighGear()?1.0:0.0,
 		    							  cmdInvCtrls?1.0:0.0,
     									  Pneumatics.getPressurePsi(),
-    									  launchMotor.getSquishSensorVal()
+    									  launchMotor.getSquishSensorVal(),
+    									  currentStep
 				    					 );
 	    	//Check for brownout. If browned out, force write data to log. Just in case we
 	    	//lose power and nasty things happen, at least we'll know how we died...
@@ -682,7 +689,7 @@ public class Robot extends IterativeRobot {
 	    			          pdp.getCurrent(WINCH_2_PDP_CH) +
 	    			          pdp.getCurrent(SP_DB_ARM_PDP_CH) +
 	    			          pdp.getCurrent(INTAKE_PDP_CH) +
-    			              2;                              // Fudge-factor 2A draw from un-instrumented devices
+    			              4;                              // Fudge-factor 4A draw from un-instrumented devices
     	return totalCurrent;
     }
     
