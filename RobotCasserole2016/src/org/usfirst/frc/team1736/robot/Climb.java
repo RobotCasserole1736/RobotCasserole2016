@@ -27,7 +27,7 @@ public class Climb {
 	void periodicClimb(boolean climbEnable, double tapeExtend, double winch){
 		float cEn;
 		boolean sign;
-		//boolean tapeTriggerState = tapetrigger.get(); //Use this one if we actually use the tapeTrigger sensor
+		//tapeTriggerState = tapetrigger.get(); //Use this one if we actually use the tapeTrigger sensor
 		
 		if(tapeExtend<0){
 			sign=true;

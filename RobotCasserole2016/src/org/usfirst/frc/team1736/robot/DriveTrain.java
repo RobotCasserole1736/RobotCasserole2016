@@ -89,6 +89,11 @@ public class DriveTrain extends RobotDrive { //Inherits methods from RobotDrive 
 	
 	public boolean isAcceptableVoltage(double leftOutput, double rightOutput)
 	{
+		//handle when this is called without proper initialization
+		if(leftCCE == null || rightCCE == null || bpe == null){
+			return true;
+		}
+		
 		double leftCurEst = leftCCE.getCurrentEstimate(getLeftMotorSpeedRadPerS(), leftOutput);
 		double rightCurEst = rightCCE.getCurrentEstimate(getRightMotorSpeedRadPerS(), rightOutput);
 		
