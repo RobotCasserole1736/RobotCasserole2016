@@ -8,8 +8,9 @@ import edu.wpi.first.wpilibj.Timer;
 public class StateMachine {
 	
 	//IntakeMotorSpeeds
-	final static double intakeSpeed = 0.5;
-	final static double ejectSpeed = -0.5;
+	final static double intakeSpeed = 1.0;
+	final static double ejectSpeed = -1.0;
+	final static double retractSpeed = -0.5;
 	
 	//PrepMotor Intake Motor Rotation Time
 	final static double prepEjectTime = 0.5; //Seconds

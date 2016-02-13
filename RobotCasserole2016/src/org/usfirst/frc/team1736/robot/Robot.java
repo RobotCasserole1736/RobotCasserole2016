@@ -512,7 +512,22 @@ public class Robot extends IterativeRobot {
     	DBAC.periodUptade(joy2.getRawAxis(XBOX_RSTICK_XAXIS), (joy2.getRawAxis(XBOX_LTRIGGER_AXIS)> 0.5));
     	
     	//Intake/shooter controls
-    	intakeLauncherSM.processInputs(joy2);
+    	//intakeLauncherSM.processInputs(joy2);
+    	
+    	//TEST harness - run intake and shooter off of buttons
+    	if(joy1.getRawButton(XBOX_X_BUTTON))
+    		intakeLauncherSM.intake.set(intakeLauncherSM.retractSpeed);
+    	else if(joy1.getRawButton(XBOX_Y_BUTTON))
+    		intakeLauncherSM.intake.set(intakeLauncherSM.intakeSpeed);
+    	else if(joy1.getRawButton(XBOX_A_BUTTON))
+    		intakeLauncherSM.intake.set(intakeLauncherSM.ejectSpeed);
+    	else
+    		intakeLauncherSM.intake.set(0);
+    	
+    	if(joy1.getRawButton(XBOX_B_BUTTON))
+    		launchMotor.setSpeed(launchMotor.SHOT_RPM);
+    	else
+    		launchMotor.setSpeed(0);
     	
     	//Override stalled shooter motor to zero
     	shooterDiagnostics.eval(launchMotor.getActSpeed(), launchMotor.getCurrent(), launchMotor.getMotorCmd());
