@@ -154,7 +154,9 @@ public class Robot extends IterativeRobot {
             "DriverCmdInvertedControls",
             "PneumaticPress",
             "SquishSensorReading",
-            "AutonomousStep"};
+            "AutonomousStep",
+            "ShooterMotorStalled",
+            "IntakeMotorCmd"};
 
     static final String[] units_fields = {"sec", //TIME must always be in sec
            "sec",
@@ -218,7 +220,9 @@ public class Robot extends IterativeRobot {
            "bit",
            "PSI",
            "val",
-           "val"};
+           "val",
+           "bit",
+           "cmd"};
 		
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	// CLASS OBJECTS
@@ -247,6 +251,7 @@ public class Robot extends IterativeRobot {
 	Climb Climber;
 	//Launch Motor
 	Shooter launchMotor;
+	MotorDiagnostic shooterDiagnostics;
 	//Intake/Launch state machine
 	StateMachine intakeLauncherSM;
 	//Drawbridge arm
@@ -305,6 +310,7 @@ public class Robot extends IterativeRobot {
     	launchMotor = new Shooter();
     	intakeLauncherSM = new StateMachine(launchMotor);
     	DBAC = new DrawbridgeArmControls ();
+    	shooterDiagnostics = new MotorDiagnostic();
     	//Joysticks
     	joy1 = new Joystick(JOY1_INT);
     	joy2 = new Joystick(JOY2_INT);
@@ -507,6 +513,13 @@ public class Robot extends IterativeRobot {
     	//Intake/shooter controls
     	intakeLauncherSM.processInputs(joy2);
     	
+    	//Override stalled shooter motor to zero
+    	shooterDiagnostics.eval(launchMotor.getActSpeed(), launchMotor.getCurrent(), launchMotor.getMotorCmd());
+    	if(shooterDiagnostics.motorStalled){
+    		launchMotor.shooterController.set(0);
+    	}
+    	
+    	
     	//Adjust intake position based on driver commands
     	if(joy2.getRawButton(XBOX_A_BUTTON))
     		Pneumatics.intakeDown();
@@ -639,7 +652,9 @@ public class Robot extends IterativeRobot {
 		    							  cmdInvCtrls?1.0:0.0,
     									  Pneumatics.getPressurePsi(),
     									  launchMotor.getSquishSensorVal(),
-    									  currentStep
+    									  currentStep,
+    									  shooterDiagnostics.motorStalled?1.0:0.0,
+										  intakeLauncherSM.intake.get()
 				    					 );
 	    	//Check for brownout. If browned out, force write data to log. Just in case we
 	    	//lose power and nasty things happen, at least we'll know how we died...
@@ -704,10 +719,12 @@ public class Robot extends IterativeRobot {
     	if(shifter.gear)
     		SmartDashboard.putString("Gear", "HIGH GEAR");
     	else
-    		SmartDashboard.putString("Gear", "low gear");
+    		SmartDashboard.putString("Gear", "!!!LOW GEAR");
     	SmartDashboard.putNumber("Match Time", ds.getMatchTime());
     	SmartDashboard.putNumber("Total Current Draw", calcEstTotCurrentDraw());
     	SmartDashboard.putNumber("Launch Motor Speed (RPM)", launchMotor.getActSpeed());
+    	SmartDashboard.putBoolean("Launch Motor Stalled", shooterDiagnostics.motorStalled);
+    	SmartDashboard.putString("IntakeShooter State", intakeLauncherSM.getState());
     	
     }
 }
