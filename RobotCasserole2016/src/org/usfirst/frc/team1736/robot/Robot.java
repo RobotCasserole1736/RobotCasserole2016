@@ -286,7 +286,7 @@ public class Robot extends IterativeRobot {
     	autoChooser.addDefault("Do Nothing",-1);
     	SmartDashboard.putData("Auto Mode Chooser", autoChooser);
     	
-    	//Other Peripherials
+    	//Other Peripherals
     	ds = DriverStation.getInstance();
     	pdp = new PowerDistributionPanel();
     	bpe = new BatteryParamEstimator(BPE_length);
