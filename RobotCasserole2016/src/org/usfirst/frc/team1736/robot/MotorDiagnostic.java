@@ -26,7 +26,9 @@ public class MotorDiagnostic {
 	DaBouncer currentDbncr;
 	
 	
-	
+	/**
+	 * Constructor
+	 */
 	public MotorDiagnostic(){
 		speedDbncr = new DaBouncer();
 		speedDbncr.threshold = SpeedThresh_RPM;
@@ -41,6 +43,12 @@ public class MotorDiagnostic {
 		currentDbncr.dbnc = CurrentDbnc_loops;
 	}
 	
+	/**
+	 * Call once per periodic loop to determine motor state
+	 * @param motorSpeed_RPM - the motor's speed in RPM as measured by the encoders
+	 * @param currentDraw_A - The motor's present current draw (estimated or measured)
+	 * @param motorCommand - The present motor command (from the joystick or otherise, whatever is sent to the controller)
+	 */
 	public void eval(double motorSpeed_RPM, double currentDraw_A, double motorCommand){
 		boolean speedDbncState = speedDbncr.BelowDebounce(Math.abs(motorSpeed_RPM));
 		boolean cmdDbncState = cmdDbncr.AboveDebounce(Math.abs(motorCommand));
