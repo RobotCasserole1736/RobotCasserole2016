@@ -236,7 +236,11 @@ public class Robot extends IterativeRobot {
 	Climb Climber;
 	//Launch Motor
 	Shooter launchMotor;
+	//Intake/Launch state machine
+	StateMachine intakeLauncherSM;
+	//Drawbridge arm
 	DrawbridgeArmControls DBAC;
+	//Shifting Algorithm
 	OttoShifter shifter;
 	DerivativeCalculator wheel_speed;
 	//Motors
@@ -278,6 +282,7 @@ public class Robot extends IterativeRobot {
     	//Peripherals
     	Climber=new Climb();
     	launchMotor = new Shooter();
+    	intakeLauncherSM = new StateMachine(launchMotor);
     	DBAC = new DrawbridgeArmControls ();
     	//Joysticks
     	joy1 = new Joystick(JOY1_INT);
@@ -405,7 +410,11 @@ public class Robot extends IterativeRobot {
     	//Run climber
     	Climber.periodicClimb(joy2.getRawButton(XBOX_START_BUTTON), joy2.getRawAxis(XBOX_LSTICK_YAXIS), joy2.getRawAxis(XBOX_RTRIGGER_AXIS));
     	
+    	//Drawbridge Arm controls algorithm
     	DBAC.periodUptade(joy2.getRawAxis(XBOX_RSTICK_XAXIS), (joy2.getRawAxis(XBOX_LTRIGGER_AXIS)> 0.5));
+    	
+    	//Intake/shooter controls
+    	intakeLauncherSM.processInputs(joy2);;
     	
     	//Adjust intake position based on driver commands
     	if(joy2.getRawButton(XBOX_A_BUTTON))
