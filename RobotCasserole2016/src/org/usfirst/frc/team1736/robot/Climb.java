@@ -42,6 +42,7 @@ public class Climb {
 		
 		if(climbEnable){
 			 cEn = 1;
+			 Pneumatics.intakeUp();//as soon as climb is enabled, raise the intake to prevent a retraction causing bad things while hanging
 		}
 		
 		else{
