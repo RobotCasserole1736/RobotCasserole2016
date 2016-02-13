@@ -20,6 +20,8 @@ public class StateMachine {
 	//Shooter spooled up tolerance for validity of shot
 	final static int spooledUpTolerance = 50; //RPM
 
+	protected double launchEjectTimer = 0;
+	
 	//Main Components of shooting mechanism
 	protected Shooter shooter;
 	protected Talon intake;
@@ -49,29 +51,32 @@ public class StateMachine {
 		switch(state)
 		{
 			case "Inactive":
-				
+				//Theoretically does nothing, should be handled with the "Spooldown" state
 				break;
 			case "Intake":
-				
+				intake();
 				break;
 			case "Eject":
-				
+				eject();
 				break;
 			case "Carry Ball":
-				
+				setIntake(0);
 				break;
 			case "Prep Launch":
-				prepMotor();
-				break;
-			case "Spooldown":
-				setIntake(0);
-				if(spooledDown())
+				if(spooledUp())
 				{
-					setState("Inactive");
+					
 				}
 				else
 				{
-					stopLaunchMotor();
+					prepMotor();
+				}
+				break;
+			case "Spooldown":
+				stopMotors();
+				if(spooledDown())
+				{
+					setState("Inactive");
 				}
 				break;
 		}
@@ -79,8 +84,7 @@ public class StateMachine {
 	
 	public void processInputs(Joystick operator)
 	{
-		if(operator.getRawButton(Robot.XBOX_LEFT_BUTTON) && 
-		  ((!getBallSensor() && getState() != "Preplaunch") || overridden))
+		if(operator.getRawButton(Robot.XBOX_LEFT_BUTTON) && (getState() == "Inactive" || overridden))
 		{
 			setState("Intake");
 		}
@@ -92,13 +96,18 @@ public class StateMachine {
 		{
 			setState("Eject");
 		}
-		else
+		else if(spooledUp())
 		{
-			setState("Spooldown");
+			setState("");
+		}
+		else 
+		{
+			setState("Inactive");
 		}
 		
-		if(getBallSensor() && operator.getRawButton(Robot.XBOX_X_BUTTON) && getState() != "Prep Launch")
+		if(operator.getRawButton(Robot.XBOX_X_BUTTON) && (getState() != "Prep Launch" || getBallSensor() || overridden))
 		{
+			launchEjectTimer = Timer.getFPGATimestamp();
 			setState("Prep Launch");
 		}
 		else if(getBallSensor() && operator.getRawButton(Robot.XBOX_X_BUTTON) && getState() == "PrepLaunch")
@@ -117,9 +126,12 @@ public class StateMachine {
 	
 	public void prepMotor()
 	{	
-		
-		
-		
+		eject();
+		if(Timer.getFPGATimestamp() - launchEjectTimer > prepEjectTime)
+		{
+			setIntake(0);
+			setLaunchMotor(shooter.SHOT_RPM);
+		}
 	}
 	
 	public void setState(String newState)
