@@ -33,19 +33,19 @@ public class Pneumatics {
 	}
 	
 	public static void shiftToLowGear(){
-		shifterSolenoid.set(true);
-	}
-	
-	public static void shiftToHighGear(){
 		shifterSolenoid.set(false);
 	}
 	
+	public static void shiftToHighGear(){
+		shifterSolenoid.set(true);
+	}
+	
 	public static void intakeUp(){
-		intakeSolenoid.set(true);
+		intakeSolenoid.set(false);
 	}
 	
 	public static void intakeDown(){
-		intakeSolenoid.set(false);
+		intakeSolenoid.set(true);
 	}
 	
 	public static boolean isHighGear()

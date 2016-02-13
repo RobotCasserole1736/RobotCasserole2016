@@ -291,7 +291,8 @@ public class Robot extends IterativeRobot {
     	pdp = new PowerDistributionPanel();
     	bpe = new BatteryParamEstimator(BPE_length);
     	bpe.setConfidenceThresh(BPE_confidenceThresh_A);
-    	accel_RIO = new BuiltInAccelerometer();    	csm = new CameraServoMount();
+    	accel_RIO = new BuiltInAccelerometer();    	
+    	csm = new CameraServoMount();
     	gyro = new I2CGyro(); //this will cal the gyro - don't touch robot which this happens!
     	
     	//Motors - Drivetrain
@@ -488,7 +489,7 @@ public class Robot extends IterativeRobot {
     	double left_speed = Math.abs(driveTrain.getLeftWheelSpeedRPM());
     	double right_speed = Math.abs(driveTrain.getRightWheelSpeedRPM());
     	double net_speed = Math.min(left_speed,right_speed);
-    	shifter.OttoShifterPeriodic(net_speed, wheel_speed.calcDeriv(net_speed), Math.abs(accel_RIO.getY()), pdp.getTotalCurrent(), joy1.getRawButton(XBOX_LEFT_BUTTON), joy1.getRawButton(XBOX_RIGHT_BUTTON));
+    	shifter.OttoShifterPeriodic(net_speed, wheel_speed.calcDeriv(net_speed), Math.abs(accel_RIO.getZ()), pdp.getTotalCurrent(), joy1.getRawButton(XBOX_LEFT_BUTTON), joy1.getRawButton(XBOX_RIGHT_BUTTON));
     	//Set pneumatics to select gear and activate driver 1 rumble if needed
     	if(shifter.gear){
     		System.out.println("high_gear");
