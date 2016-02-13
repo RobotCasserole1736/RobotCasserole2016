@@ -44,6 +44,7 @@ public class Robot extends IterativeRobot {
 	// I'm a silly boy and Idk what I'm doing so I'm just gonna put these variables here, whoop whoop
 	int autoMode = 0;
 	SendableChooser autoChooser;
+	Timer autoTimer = new Timer();
 	int currentStep = 0;
 			
 	//-Controller Axes
@@ -288,6 +289,10 @@ public class Robot extends IterativeRobot {
     	
     	//reset gyro angle to 0
     	gyro.reset_gyro_angle();
+    	
+    	//reset encoders to 0
+    	driveTrain.leftEncoder.reset();
+		driveTrain.rightEncoder.reset();
 
     	//init the task timing things
     	prev_loop_start_timestamp = Timer.getFPGATimestamp();
@@ -304,52 +309,69 @@ public class Robot extends IterativeRobot {
      * This function is called periodically during autonomous
      */
     public void autonomousPeriodic() {
-    switch(autoMode){
-    case 0: //Just move to in front of the defense
     	prev_loop_start_timestamp = Timer.getFPGATimestamp();
     	
+    
+    switch(autoMode){
+    case 0: //Just move to in front of the defense
     	driveTrain.drive(0.8, 0);
-    	
-    	bpe.updateEstimate(pdp.getVoltage(), pdp.getTotalCurrent());
-    	log_data();
-    	loop_time_elapsed = Timer.getFPGATimestamp() - prev_loop_start_timestamp;
+    	if (driveTrain.getRightDistanceFt() > 1.5 && driveTrain.getRightDistanceFt() < 1.9) {
+    		driveTrain.drive(.2, 0);    		
+    	}
+    	if (driveTrain.getRightDistanceFt() >= 1.9) {
+    		driveTrain.drive(0, 0);
+    	}   	
     	break;    	
     case 1: //Case 0 + go over low bar
-    	if (currentStep == 1)
     	{		
-    		prev_loop_start_timestamp = Timer.getFPGATimestamp();
-    		bpe.updateEstimate(pdp.getVoltage(), pdp.getTotalCurrent());
-    		driveTrain.drive(0.8, 0);
-    		log_data();
-    		loop_time_elapsed = Timer.getFPGATimestamp() - prev_loop_start_timestamp;
+        	driveTrain.drive(0.8, 0);
+        	if (driveTrain.getRightDistanceFt() > 14.5 && driveTrain.getRightDistanceFt() < 14.9) {
+        		driveTrain.drive(.2, 0);    		
+        	}
+        	if (driveTrain.getRightDistanceFt() >= 14.9) {
+        		driveTrain.drive(0, 0);
+        	}   	
     	}    	
-    	if (currentStep == 2)
-    	{
-    		prev_loop_start_timestamp = Timer.getFPGATimestamp();
-			bpe.updateEstimate(pdp.getVoltage(), pdp.getTotalCurrent());
-			driveTrain.drive(0.8, 0);
-			log_data();
-			loop_time_elapsed = Timer.getFPGATimestamp() - prev_loop_start_timestamp;
-    	}
     	break;     	
     case 2: //Case 0 + go over rugged terrain
     	if (currentStep == 1)
-    	{		
-    		prev_loop_start_timestamp = Timer.getFPGATimestamp();
-    		bpe.updateEstimate(pdp.getVoltage(), pdp.getTotalCurrent());
-    		log_data();
-    		driveTrain.drive(0.8, 0);
-    		loop_time_elapsed = Timer.getFPGATimestamp() - prev_loop_start_timestamp;
+    	{
+        	driveTrain.drive(0.8, 0);
+        	if (driveTrain.getRightDistanceFt() > 1.5 && driveTrain.getRightDistanceFt() < 1.9) {
+        		driveTrain.drive(.2, 0);    		
+        	}
+        	if (driveTrain.getRightDistanceFt() >= 1.9) {
+        		driveTrain.drive(0, 0);
+        	} 
+        	currentStep = 2;
     	}    	
     	if (currentStep == 2)
     	{
-    		prev_loop_start_timestamp = Timer.getFPGATimestamp();
-			bpe.updateEstimate(pdp.getVoltage(), pdp.getTotalCurrent());
-			log_data();
-			driveTrain.drive(0.8, 0);
-			loop_time_elapsed = Timer.getFPGATimestamp() - prev_loop_start_timestamp;
+			autoTimer.reset();
+			autoTimer.start();
+			currentStep = 3;
+    	}
+    	if (currentStep == 3)
+    	{
+    		driveTrain.drive(0.8, 0);
+    		if (autoTimer.get() >= 10) {
+    			driveTrain.drive(0, 0);
+    		}
+    
+    		
+    		
+    		
+    		//FINISH IMPLEMENTING TIME+GYROSCOPE
+    		
     	}
     	break; 
+    }			
+    	bpe.updateEstimate(pdp.getVoltage(), pdp.getTotalCurrent());
+		log_data();
+		loop_time_elapsed = Timer.getFPGATimestamp() - prev_loop_start_timestamp;
+    }
+    	/*
+    	loop_time_elapsed = Timer.getFPGATimestamp() - prev_loop_start_timestamp;
     	
     	//Execution time metric - this must be first!
     	prev_loop_start_timestamp = Timer.getFPGATimestamp();
@@ -363,8 +385,9 @@ public class Robot extends IterativeRobot {
     	log_data();
     	
     	//Execution time metric - this must be last!
-    	loop_time_elapsed = Timer.getFPGATimestamp() - prev_loop_start_timestamp
-    }
+    	loop_time_elapsed = Timer.getFPGATimestamp() - prev_loop_start_timestamp;
+    	}
+    	 */
     
     /**
      * This function is called once right before the start of teleop
