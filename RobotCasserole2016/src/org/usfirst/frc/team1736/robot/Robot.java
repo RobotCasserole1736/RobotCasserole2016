@@ -11,7 +11,6 @@ import edu.wpi.first.wpilibj.PowerDistributionPanel;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.VictorSP;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -116,6 +115,7 @@ public class Robot extends IterativeRobot {
             "ActRightDTCurrent",
             "EstLeftDTCurrent",
             "EstRightDTCurrent",
+            "DTCmdLimitFactor",
             "EstBattESR",
             "EstBatVoc",
             "EstBatConfidence",
@@ -179,6 +179,7 @@ public class Robot extends IterativeRobot {
            "A",
            "A",
            "A",
+           "Pct",
            "Ohm",
            "V",
            "bit",
@@ -599,6 +600,7 @@ public class Robot extends IterativeRobot {
 				    			          pdp.getCurrent(DT_RF_PDP_CH) + pdp.getCurrent(DT_RB_PDP_CH),
 				    			          driveTrain.getLeftCurrent(),
 				    			          driveTrain.getRightCurrent(),
+				    			          driveTrain.reductionFactor,
 				    			          bpe.getEstESR(),
 	    								  bpe.getEstVoc(),
 	    								 (bpe.getConfidence()?1.0:0.0),

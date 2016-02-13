@@ -23,6 +23,8 @@ public class DriveTrain extends RobotDrive { //Inherits methods from RobotDrive 
 	//Chris' CIM Current Estimators
 	public CIMCurrentEstimator leftCCE;
 	public CIMCurrentEstimator rightCCE;
+	public double reductionFactor = 1;
+	public boolean disableCurrentLimiter = true;
 	
 	//Using Chris' naming convention
 	double controllerVDrop_V = 0;
@@ -35,6 +37,10 @@ public class DriveTrain extends RobotDrive { //Inherits methods from RobotDrive 
 	protected int leftEncoderChannel_2 = 1;
 	protected int rightEncoderChannel_1 = 2;
 	protected int rightEncoderChannel_2 = 3;
+	
+	//Current Limiting Tune Constants
+	public final double MinAllowableSysVoltage = 8.0;
+	public final double ReductionIterStep = 0.2;
 
 	//Encoder Ratios
 	public static final double WHEEL_RADIUS_IN = 8.75; //kinda, cuz they're pneumatic... 
@@ -77,28 +83,46 @@ public class DriveTrain extends RobotDrive { //Inherits methods from RobotDrive 
 		rightEncoder.setDistancePerPulse(Math.PI*2.0/(double)ENCODER_TICKS_PER_REV);
 		leftEncoder.setReverseDirection(true);
 		
-		//Disable safety timeout
+		//Disable safety timeout?
 		
 	}
 	
 	public boolean isAcceptableVoltage(double leftOutput, double rightOutput)
 	{
-		//Implement current/voltage checking here
-		//Need to ask Chris about how to implement with BPE
-		return true;
+		double leftCurEst = leftCCE.getCurrentEstimate(getLeftMotorSpeedRadPerS(), leftOutput);
+		double rightCurEst = rightCCE.getCurrentEstimate(getRightMotorSpeedRadPerS(), rightOutput);
+		
+		if(bpe.getEstVsys(leftCurEst + rightCurEst) > MinAllowableSysVoltage)
+			return true;
+		else
+			return false;
 	}
 	
 	public void setLeftRightMotorOutputs(double leftOutput, double rightOutput)
 	{
+		//If motor induces acceptable voltage drop, just set it
 		if(isAcceptableVoltage(leftOutput, rightOutput))
 		{
-			super.setLeftRightMotorOutputs(leftOutput, rightOutput);
+			reductionFactor = 1;
 		}
 		else
 		{
-			super.setLeftRightMotorOutputs(0, 0);
+			//If not, iterate over a set of reduction factors
+			//to get the drop acceptable it.
+			for(double i = 1; i >= 0; i-=ReductionIterStep){
+				if(isAcceptableVoltage(leftOutput*reductionFactor, rightOutput*reductionFactor)){
+					reductionFactor = i;
+					break;
+				}
+			}
 			System.out.println("Voltage too low!");
 		}
+		
+		//if we want to disable current limiting protection, don't apply the reduction factor
+		if(disableCurrentLimiter)
+			super.setLeftRightMotorOutputs(leftOutput, rightOutput);
+		else
+			super.setLeftRightMotorOutputs(leftOutput*reductionFactor, rightOutput*reductionFactor);
 	}
 	
 	public double getLeftMotorSpeedRadPerS(){
@@ -146,7 +170,7 @@ public class DriveTrain extends RobotDrive { //Inherits methods from RobotDrive 
 	
 	public double getLeftCurrent()
 	{
-		return leftCCE.getCurrentEstimate(getLeftMotorSpeedRadPerS(), leftMotor_1.get()); //*3 is fudge factor to make it work....
+		return leftCCE.getCurrentEstimate(getLeftMotorSpeedRadPerS(), leftMotor_1.get()); 
 	}
 	
 	public double getRightCurrent()
