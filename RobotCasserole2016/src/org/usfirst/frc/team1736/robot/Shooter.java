@@ -81,6 +81,14 @@ public class Shooter extends PIDSubsystem {
 	}
 	
 	/**
+	 * Get absolute value of present error in RPM
+	 * @return
+	 */
+	public double getAbsError() {
+		return Math.abs(getError());
+	}
+	
+	/**
 	 * Get the present command to the motor (range 0-1)
 	 * @return
 	 */
