@@ -46,30 +46,33 @@ public class StateMachine {
 		
 	}
 	
-	public void processState()
+	public void processState(Joystick operator)
 	{
 		switch(state)
 		{
 			case "Inactive":
-				//Theoretically does nothing, should be handled with the "Spooldown" state
+				
 				break;
 			case "Intake":
 				intake();
-				break;
-			case "Eject":
-				eject();
 				break;
 			case "Carry Ball":
 				setIntake(0);
 				break;
 			case "Prep Launch":
-				if(spooledUp())
+				prepMotor();
+				break;
+			case "Launch Ready":
+				
+				break;
+			case "Launch":
+				if(operator.getRawButton(Robot.XBOX_B_BUTTON))
 				{
-					
+					intake();
 				}
 				else
 				{
-					prepMotor();
+					setState("Spooldown");
 				}
 				break;
 			case "Spooldown":
@@ -84,33 +87,30 @@ public class StateMachine {
 	
 	public void processInputs(Joystick operator)
 	{
+		if(!operator.getRawButton(Robot.XBOX_LEFT_BUTTON) && !operator.getRawButton(Robot.XBOX_RIGHT_BUTTON))
+		{
+			setIntake(0);
+		}
+		
+		if(operator.getRawButton(Robot.XBOX_RIGHT_BUTTON) && !operator.getRawButton(Robot.XBOX_LEFT_BUTTON))
+		{
+			eject();
+		}
+		
 		if(operator.getRawButton(Robot.XBOX_LEFT_BUTTON) && (getState() == "Inactive" || overridden))
 		{
 			setState("Intake");
 		}
-		else if(getBallSensor())
-		{
-			setState("Carry Ball");
-		}
-		else if(operator.getRawButton(Robot.XBOX_RIGHT_BUTTON))
-		{
-			setState("Eject");
-		}
-		else if(spooledUp())
-		{
-			setState("");
-		}
-		else 
-		{
-			setState("Inactive");
-		}
-		
-		if(operator.getRawButton(Robot.XBOX_X_BUTTON) && (getState() != "Prep Launch" || getBallSensor() || overridden))
+		else if(operator.getRawButton(Robot.XBOX_X_BUTTON) && ((getState() != "Prep Launch" && getBallSensor()) || overridden))
 		{
 			launchEjectTimer = Timer.getFPGATimestamp();
 			setState("Prep Launch");
 		}
-		else if(getBallSensor() && operator.getRawButton(Robot.XBOX_X_BUTTON) && getState() == "PrepLaunch")
+		else if(operator.getRawButton(Robot.XBOX_B_BUTTON) && getState() == "Launch Ready")
+		{
+			setState("Launch");
+		}
+		else if(operator.getRawButton(Robot.XBOX_LEFT_BUTTON) && getState() == "Launch Ready")
 		{
 			setState("Spooldown");
 		}
@@ -120,7 +120,7 @@ public class StateMachine {
 			override();
 		}
 		
-		processState();
+		processState(operator);
 		
 	}
 	
@@ -129,8 +129,15 @@ public class StateMachine {
 		eject();
 		if(Timer.getFPGATimestamp() - launchEjectTimer > prepEjectTime)
 		{
-			setIntake(0);
-			setLaunchMotor(shooter.SHOT_RPM);
+			if(!spooledUp())
+			{
+				setIntake(0);
+				setLaunchMotor(shooter.SHOT_RPM);
+			}
+			else
+			{
+				setState("Launch Ready");
+			}
 		}
 	}
 	
