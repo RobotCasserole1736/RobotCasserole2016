@@ -696,7 +696,7 @@ public class Robot extends IterativeRobot {
     }
     
     /**
-     * Send things to smart dashboard which ought to be snet
+     * Send things to smart dashboard which ought to be sent
      * 
      */
     private void updateSmartDashboard(){
@@ -706,11 +706,14 @@ public class Robot extends IterativeRobot {
     	else
     		SmartDashboard.putString("Gear", "!!!LOW GEAR");
     	SmartDashboard.putNumber("Match Time", ds.getMatchTime());
-    	SmartDashboard.putNumber("Total Current Draw", calcEstTotCurrentDraw());
     	SmartDashboard.putNumber("Launch Motor Speed (RPM)", launchMotor.getActSpeed());
     	SmartDashboard.putBoolean("Launch Motor Stalled", shooterDiagnostics.motorStalled);
     	SmartDashboard.putString("IntakeShooter State", intakeLauncherSM.getState());
     	SmartDashboard.putNumber("DT Limiting Factor", driveTrain.reductionFactor);
+    	SmartDashboard.putNumber("Current Draw", pdp.getTotalCurrent());
+    	SmartDashboard.putNumber("Avg Speed FTpS", Math.abs((driveTrain.getRightSpdFtPerSec() + driveTrain.getLeftSpdFtPerSec())/2.0));
+    	
+    	
     	
     }
 }

@@ -1,0 +1,60 @@
+<xml version="1.0">
+<dashboard>
+	<static-widget class="edu.wpi.first.smartdashboard.gui.elements.Label">
+		<location x="1030" y="11"/>
+		<property name="Text" value="Speed (Ft/S)"/>
+	</static-widget>
+	<widget field="Avg Speed FTpS" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.SimpleDial">
+		<location x="942" y="37"/>
+		<property name="Upper Limit" value="20.0"/>
+		<property name="Tick Interval" value="1.0"/>
+	</widget>
+	<static-widget class="edu.wpi.first.smartdashboard.gui.elements.Label">
+		<location x="409" y="17"/>
+		<property name="Text" value="Current Draw (A)"/>
+	</static-widget>
+	<widget field="Current Draw" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.SimpleDial">
+		<location x="323" y="30"/>
+		<property name="Upper Limit" value="200.0"/>
+	</widget>
+	<static-widget class="edu.wpi.first.smartdashboard.gui.elements.Label">
+		<location x="827" y="22"/>
+		<property name="Text" value="Shooter RPM"/>
+	</static-widget>
+	<static-widget class="edu.wpi.first.smartdashboard.gui.elements.Label">
+		<location x="599" y="21"/>
+		<height>17</height>
+		<property name="Text" value="System Pressure (PSI)"/>
+	</static-widget>
+	<widget field="Launch Motor Speed (RPM)" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.SimpleDial">
+		<location x="731" y="38"/>
+		<property name="Upper Limit" value="6000.0"/>
+		<property name="Tick Interval" value="200.0"/>
+	</widget>
+	<widget field="Pneumatic System Pressure (PSI)" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.SimpleDial">
+		<location x="527" y="34"/>
+		<property name="Upper Limit" value="130.0"/>
+	</widget>
+	<widget field="DT Limiting Factor" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="366" y="192"/>
+	</widget>
+	<widget field="IntakeShooter State" type="String" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="777" y="222"/>
+	</widget>
+	<widget field="Launch Motor Stalled" type="Boolean" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="778" y="199"/>
+	</widget>
+	<widget field="Match Time" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="781" y="269"/>
+	</widget>
+	<widget field="Gear" type="String" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="1013" y="203"/>
+	</widget>
+	<widget field="Auto Mode Chooser" type="String Chooser" class="edu.wpi.first.smartdashboard.gui.elements.Chooser">
+		<location x="3" y="5"/>
+	</widget>
+</dashboard>
+<live-window>
+</live-window>
+	<hidden field="Total Current Draw"/>
+</xml>
