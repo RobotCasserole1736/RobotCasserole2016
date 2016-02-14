@@ -24,7 +24,7 @@ public class DriveTrain extends RobotDrive { //Inherits methods from RobotDrive 
 	public CIMCurrentEstimator leftCCE;
 	public CIMCurrentEstimator rightCCE;
 	public double reductionFactor = 1;
-	public boolean disableCurrentLimiter = true;
+	public boolean disableCurrentLimiter = false;
 	
 	//Using Chris' naming convention
 	double controllerVDrop_V = 0;
@@ -39,8 +39,8 @@ public class DriveTrain extends RobotDrive { //Inherits methods from RobotDrive 
 	protected int rightEncoderChannel_2 = 3;
 	
 	//Current Limiting Tune Constants
-	public final double MinAllowableSysVoltage = 8.0;
-	public final double ReductionIterStep = 0.2;
+	public final double MIN_ALLOWABLE_SYS_VOLTAGE = 8.0;
+	public final double REDUCTION_ITER_STEP = 0.1;
 
 	//Encoder Ratios
 	public static final double WHEEL_RADIUS_IN = 8.75; //kinda, cuz they're pneumatic... 
@@ -68,7 +68,7 @@ public class DriveTrain extends RobotDrive { //Inherits methods from RobotDrive 
 		leftCCE = new CIMCurrentEstimator(2, controllerVDrop_V, pdp);
 		rightCCE = new CIMCurrentEstimator(2, controllerVDrop_V, pdp);
 		
-		//Battery Para Estimator
+		//Battery Param Estimator
 		this.bpe = bpe;
 		
 		//Power Distribution Panel
@@ -94,10 +94,13 @@ public class DriveTrain extends RobotDrive { //Inherits methods from RobotDrive 
 			return true;
 		}
 		
+		
 		double leftCurEst = leftCCE.getCurrentEstimate(getLeftMotorSpeedRadPerS(), leftOutput);
 		double rightCurEst = rightCCE.getCurrentEstimate(getRightMotorSpeedRadPerS(), rightOutput);
 		
-		if(bpe.getEstVsys(leftCurEst + rightCurEst) > MinAllowableSysVoltage)
+		System.out.println(leftCurEst + "  |  " + rightCurEst);
+		
+		if(bpe.getEstVsys(leftCurEst + rightCurEst+10) > MIN_ALLOWABLE_SYS_VOLTAGE)
 			return true;
 		else
 			return false;
@@ -106,21 +109,22 @@ public class DriveTrain extends RobotDrive { //Inherits methods from RobotDrive 
 	public void setLeftRightMotorOutputs(double leftOutput, double rightOutput)
 	{
 		//If motor induces acceptable voltage drop, just set it
-		if(isAcceptableVoltage(leftOutput, rightOutput))
+		if(isAcceptableVoltage(-leftOutput, -rightOutput))
 		{
 			reductionFactor = 1;
 		}
 		else
 		{
+			reductionFactor = 0;
 			//If not, iterate over a set of reduction factors
 			//to get the drop acceptable it.
-			for(double i = 1; i >= 0; i-=ReductionIterStep){
-				if(isAcceptableVoltage(leftOutput*reductionFactor, rightOutput*reductionFactor)){
+			for(double i = 1.0; i >= 0; i-=REDUCTION_ITER_STEP){
+				if(isAcceptableVoltage(-leftOutput*i, -rightOutput*i)){
 					reductionFactor = i;
 					break;
 				}
 			}
-			System.out.println("Voltage too low!");
+			reductionFactor = Math.max(reductionFactor, REDUCTION_ITER_STEP);
 		}
 		
 		//if we want to disable current limiting protection, don't apply the reduction factor
@@ -139,9 +143,9 @@ public class DriveTrain extends RobotDrive { //Inherits methods from RobotDrive 
 	
 	public double getRightMotorSpeedRadPerS(){
 		if(Pneumatics.isHighGear())
-			return rightEncoder.getRate()*MOTOR_TO_ENCODER_RATIO_HG;
+			return -rightEncoder.getRate()*MOTOR_TO_ENCODER_RATIO_HG;
 		else
-			return rightEncoder.getRate()*MOTOR_TO_ENCODER_RATIO_LG;
+			return -rightEncoder.getRate()*MOTOR_TO_ENCODER_RATIO_LG;
 	}
 	
 	public double getLeftWheelSpeedRPM(){
@@ -149,11 +153,11 @@ public class DriveTrain extends RobotDrive { //Inherits methods from RobotDrive 
 	}
 	
 	public double getRightWheelSpeedRPM(){
-			return rightEncoder.getRate()*WHEEL_TO_ENCODER_RATIO*9.5492;
+			return -rightEncoder.getRate()*WHEEL_TO_ENCODER_RATIO*9.5492;
 	}
 	
 	public double getRightDistanceFt(){
-		return rightEncoder.getDistance()*WHEEL_TO_ENCODER_RATIO*WHEEL_RADIUS_IN*1/12;
+		return -rightEncoder.getDistance()*WHEEL_TO_ENCODER_RATIO*WHEEL_RADIUS_IN*1/12;
 	}
 	
 	public double getLeftDistanceFt(){
@@ -165,7 +169,7 @@ public class DriveTrain extends RobotDrive { //Inherits methods from RobotDrive 
 	}
 	
 	public double getRightSpdFtPerSec(){
-		return rightEncoder.getRate()*WHEEL_TO_ENCODER_RATIO*WHEEL_RADIUS_IN*1/12;
+		return -rightEncoder.getRate()*WHEEL_TO_ENCODER_RATIO*WHEEL_RADIUS_IN*1/12;
 	}
 	
 	public void resetEncoderDistances(){
@@ -175,12 +179,12 @@ public class DriveTrain extends RobotDrive { //Inherits methods from RobotDrive 
 	
 	public double getLeftCurrent()
 	{
-		return leftCCE.getCurrentEstimate(getLeftMotorSpeedRadPerS(), leftMotor_1.get()); 
+		return leftCCE.getCurrentEstimate(getLeftMotorSpeedRadPerS(), -leftMotor_1.get()); 
 	}
 	
 	public double getRightCurrent()
 	{
-		return rightCCE.getCurrentEstimate(getRightMotorSpeedRadPerS(), -rightMotor_1.get());
+		return rightCCE.getCurrentEstimate(getRightMotorSpeedRadPerS(), rightMotor_1.get());
 	}
 	
 	public void alignToVisionTarget()

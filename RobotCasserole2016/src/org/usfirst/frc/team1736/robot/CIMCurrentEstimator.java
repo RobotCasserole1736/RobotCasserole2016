@@ -13,7 +13,7 @@ public class CIMCurrentEstimator {
 	private static final double freewheelCurrent_A = 2.7;
 	
 	//Guessed Constants
-	private static final double motorWiringResistance = 0.25;
+	private static final double motorWiringResistance = 0.075;
 	
 	//Derived motor constants
 	private static final double ESR = operatingVoltage/stallCurrent_A + motorWiringResistance;
@@ -43,8 +43,10 @@ public class CIMCurrentEstimator {
 	 * Input - 
 	 */
 	public double getCurrentEstimate(double motorSpeed_radpersec, double motorCommand) {
-		if(Math.abs(motorCommand) > 0.05)
-			return Math.abs(((double)numMotorsInSystem)*(((pdp.getVoltage()-contVDrop)*motorCommand)-Ki*motorSpeed_radpersec)/ESR);
+		if(motorCommand > 0.05)
+			return Math.max(((double)numMotorsInSystem)*(((pdp.getVoltage()-contVDrop)*motorCommand)-Ki*motorSpeed_radpersec)/ESR, 0);
+		else if(motorCommand < -0.05)
+			return -Math.min(((double)numMotorsInSystem)*(((pdp.getVoltage()-contVDrop)*motorCommand)-Ki*motorSpeed_radpersec)/ESR, 0);
 		else
 			return 0.0;
 	}

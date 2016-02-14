@@ -50,7 +50,7 @@ public class Pneumatics {
 	
 	public static boolean isHighGear()
 	{
-	    return !shifterSolenoid.get();   
+	    return shifterSolenoid.get();//Note this is dependent upon whether solenoid engaged means high or low gear!   
 	}
 	
 	public static boolean isIntakeDown(){

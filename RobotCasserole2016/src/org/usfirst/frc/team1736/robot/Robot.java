@@ -489,7 +489,7 @@ public class Robot extends IterativeRobot {
     	double left_speed = Math.abs(driveTrain.getLeftWheelSpeedRPM());
     	double right_speed = Math.abs(driveTrain.getRightWheelSpeedRPM());
     	double net_speed = Math.min(left_speed,right_speed);
-    	shifter.OttoShifterPeriodic(net_speed, wheel_speed.calcDeriv(net_speed), Math.abs(accel_RIO.getZ()), pdp.getTotalCurrent(), joy1.getRawButton(XBOX_LEFT_BUTTON), joy1.getRawButton(XBOX_RIGHT_BUTTON));
+    	shifter.OttoShifterPeriodic(net_speed, wheel_speed.calcDeriv(net_speed), Math.abs(accel_RIO.getX()), pdp.getTotalCurrent(), joy1.getRawButton(XBOX_LEFT_BUTTON), joy1.getRawButton(XBOX_RIGHT_BUTTON));
     	//Set pneumatics to select gear and activate driver 1 rumble if needed
     	if(shifter.gear){
     		System.out.println("high_gear");
@@ -512,7 +512,7 @@ public class Robot extends IterativeRobot {
     	DBAC.periodUptade(joy2.getRawAxis(XBOX_RSTICK_XAXIS), (joy2.getRawAxis(XBOX_LTRIGGER_AXIS)> 0.5));
     	
     	//Intake/shooter controls
-    	intakeLauncherSM.processInputs(joy2);
+    	//intakeLauncherSM.processInputs(joy2);
     	
     	//Override stalled shooter motor to zero
     	shooterDiagnostics.eval(launchMotor.getActSpeed(), launchMotor.getCurrent(), launchMotor.getMotorCmd());
@@ -605,8 +605,8 @@ public class Robot extends IterativeRobot {
 	    								  bpe.getEstVsys(calcEstTotCurrentDraw()),
 				    			          joy1.getRawAxis(XBOX_LSTICK_YAXIS),
 				    			          joy1.getRawAxis(XBOX_RSTICK_XAXIS),
-				    			          driveTrain.leftMotor_1.get(),
-				    			         -driveTrain.rightMotor_1.get(),
+				    			         -driveTrain.leftMotor_1.get(),
+				    			          driveTrain.rightMotor_1.get(),
 				    			          driveTrain.getLeftMotorSpeedRadPerS()*9.5492, //report rate in RPM
 				    			          driveTrain.getRightMotorSpeedRadPerS()*9.5492,
 				    			          driveTrain.getLeftWheelSpeedRPM(),
@@ -710,6 +710,7 @@ public class Robot extends IterativeRobot {
     	SmartDashboard.putNumber("Launch Motor Speed (RPM)", launchMotor.getActSpeed());
     	SmartDashboard.putBoolean("Launch Motor Stalled", shooterDiagnostics.motorStalled);
     	SmartDashboard.putString("IntakeShooter State", intakeLauncherSM.getState());
+    	SmartDashboard.putNumber("DT Limiting Factor", driveTrain.reductionFactor);
     	
     }
 }
