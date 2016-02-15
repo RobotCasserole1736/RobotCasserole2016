@@ -463,6 +463,9 @@ public class Robot extends IterativeRobot {
     	//init the task timing things
     	prev_loop_start_timestamp = Timer.getFPGATimestamp();
     	loop_time_elapsed = 0;
+    	
+    	//Test only
+    	SmartDashboard.putNumber("ShooterRPM", 0);
     }
 
     /** 
@@ -525,7 +528,7 @@ public class Robot extends IterativeRobot {
     		intakeLauncherSM.intake.set(0);
     	
     	if(joy1.getRawButton(XBOX_B_BUTTON))
-    		launchMotor.setSpeed(launchMotor.SHOT_RPM);
+    		launchMotor.setSpeed(SmartDashboard.getNumber("ShooterRPM"));
     	else
     		launchMotor.setSpeed(0);
     	
