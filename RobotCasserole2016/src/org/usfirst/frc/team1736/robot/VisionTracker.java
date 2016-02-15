@@ -2,6 +2,7 @@ package org.usfirst.frc.team1736.robot;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.TreeMap;
 
 import edu.wpi.first.wpilibj.networktables.NetworkTable;
 
@@ -10,6 +11,10 @@ public class VisionTracker {
 	private VisionTarget[]  prevSortedTargets = new VisionTarget[3];
 	private double GOAL_ASPECT_RATIO = 1.4286;
 	private double GOAL_AREA_RATIO = 0.2857;
+	private TreeMap<Double, Integer> targetMap = new TreeMap<Double, Integer>();
+	
+	public VisionTarget bestTarget; //Target with best error
+	public VisionTarget trackedTarget; //Target that might be better to track
 
 	NetworkTable grip = NetworkTable.getTable("grip");
 	
@@ -30,24 +35,38 @@ public class VisionTracker {
 	
 	public void readTargets()
 	{
-		for(int i = 0; i < 3; i++)
-			prevSortedTargets[i] = sortedTargets[i];
+//		for(int i = 0; i < 3; i++)
+//			prevSortedTargets[i] = sortedTargets[i];
 		double[] targetAreas = getTargetAreaArray();
 		double[] targetWidths = getTargetWidthArray();
 		double[] targetHeights = getTargetHeightArray();
+		double[] targetXCenters = getTargetCenterXArray();
+		double[] targetYCenters = getTargetCenterYArray();
 		
-		double[] targetAreaErrors = new double[targetAreas.length];
-		double[] targetAspectErrors = new double[targetAreas.length];
+		double targetAreaError;
+		double targetAspectError;
 		
 		for(int i = 0; i < targetAreas.length; i++)
 		{
-			targetAreaErrors[i] = Math.abs(targetAreas[i] / (targetWidths[i] * targetHeights[i]) - GOAL_AREA_RATIO);
-			targetAspectErrors[i] = Math.abs(targetWidths[i] * targetHeights[i] - GOAL_ASPECT_RATIO);
+			targetAreaError = Math.abs(targetAreas[i] / (targetWidths[i] * targetHeights[i]) - GOAL_AREA_RATIO) / GOAL_AREA_RATIO;
+			targetAspectError = Math.abs(targetWidths[i] * targetHeights[i] - GOAL_ASPECT_RATIO) / GOAL_ASPECT_RATIO;
+			
+			//Get "total" error by multiplying together, then add to the map
+			targetMap.put(targetAreaError*targetAspectError, i);
 		}
 		
-		//Need to determine a way to figure out the minimum error across both terms
+		if(targetMap.isEmpty())
+		{
+			bestTarget = null;
+			return;
+		}
 		
-		//Put the best target(s) into array
+		int bestTargetIdx = targetMap.firstEntry().getValue();
+		bestTarget = new VisionTarget(targetWidths[bestTargetIdx], targetHeights[bestTargetIdx],
+				targetXCenters[bestTargetIdx], targetYCenters[bestTargetIdx], targetAreas[bestTargetIdx]);
+		
+		//May want to do more processing later to determine tracked target.  For now we can just use best target
+		
 	}
 	
 	public double[] getTargetWidthArray()
