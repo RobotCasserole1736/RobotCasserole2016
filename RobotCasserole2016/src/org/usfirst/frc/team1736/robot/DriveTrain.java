@@ -144,8 +144,9 @@ public class DriveTrain extends RobotDrive { //Inherits methods from RobotDrive 
 	
 	public void setLeftRightMotorOutputs(double leftOutput, double rightOutput)
 	{
-		//Add gyro offset if PID controller is enabled 
-		if (controller.isEnabled()) {
+		//Add gyro offset if PID controller is enabled
+		//Null check because this method can be called before controller is initialized
+		if (controller != null && controller.isEnabled()) {
 			if (controller.getError() > 0 ) {
 				rightOutput+= gyroOffset;
 				leftOutput-= gyroOffset;

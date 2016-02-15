@@ -390,10 +390,10 @@ public class Robot extends IterativeRobot {
 	    case 0: //Just move to in front of the defense
 	    	driveTrain.controller.setSetpoint(0); 
 	    	driveTrain.drive(0.8, 0);
-	    	if (driveTrain.getRightDistanceFt() > 1.5 && driveTrain.getRightDistanceFt() < 1.9) {
+	    	if (driveTrain.getRightDistanceFt() < -1.5 && driveTrain.getRightDistanceFt() > -1.9) {
 	    		driveTrain.drive(.2, 0);    		
 	    	}
-	    	if (driveTrain.getRightDistanceFt() >= 1.9) {
+	    	if (driveTrain.getRightDistanceFt() <= -1.9) {
 	    		driveTrain.drive(0, 0);
 	    	}   	
 	    	break;    	
@@ -402,10 +402,10 @@ public class Robot extends IterativeRobot {
 	    		driveTrain.controller.setSetpoint(0); 
 	        	driveTrain.drive(0.8, 0);
 	        	Pneumatics.intakeDown();
-	        	if (driveTrain.getRightDistanceFt() > 14.5 && driveTrain.getRightDistanceFt() < 14.9) {
+	        	if (driveTrain.getRightDistanceFt() < -14.5 && driveTrain.getRightDistanceFt() > -14.9) {
 	        		driveTrain.drive(.2, 0);    		
 	        	}
-	        	if (driveTrain.getRightDistanceFt() >= 14.9) {
+	        	if (driveTrain.getRightDistanceFt() <= -14.9) {
 	        		driveTrain.drive(0, 0);
 	        	}   	
 	    	}    	
@@ -416,10 +416,10 @@ public class Robot extends IterativeRobot {
 	    	if (currentStep == 1)
 	    	{
 	        	driveTrain.drive(0.8, 0);
-	        	if (driveTrain.getRightDistanceFt() > 1.5 && driveTrain.getRightDistanceFt() < 1.9) {
+	        	if (driveTrain.getRightDistanceFt() < -1.5 && driveTrain.getRightDistanceFt() > -1.9) {
 	        		driveTrain.drive(.2, 0);    		
 	        	}
-	        	if (driveTrain.getRightDistanceFt() >= 1.9) {
+	        	if (driveTrain.getRightDistanceFt() <= -1.9) {
 	        		driveTrain.drive(0, 0);
 	        	} 
 	        	currentStep = 2;
