@@ -465,6 +465,9 @@ public class Robot extends IterativeRobot {
     	//init the task timing things
     	prev_loop_start_timestamp = Timer.getFPGATimestamp();
     	loop_time_elapsed = 0;
+    	
+    	//Test only
+    	SmartDashboard.putNumber("ShooterRPM", 0);
     }
 
     /** 
@@ -515,6 +518,21 @@ public class Robot extends IterativeRobot {
     	
     	//Intake/shooter controls
     	//intakeLauncherSM.processInputs(joy2);
+    	
+    	//TEST harness - run intake and shooter off of buttons
+    	if(joy1.getRawButton(XBOX_X_BUTTON))
+    		intakeLauncherSM.intake.set(intakeLauncherSM.retractSpeed);
+    	else if(joy1.getRawButton(XBOX_Y_BUTTON))
+    		intakeLauncherSM.intake.set(intakeLauncherSM.intakeSpeed);
+    	else if(joy1.getRawButton(XBOX_A_BUTTON))
+    		intakeLauncherSM.intake.set(intakeLauncherSM.ejectSpeed);
+    	else
+    		intakeLauncherSM.intake.set(0);
+    	
+    	if(joy1.getRawButton(XBOX_B_BUTTON))
+    		launchMotor.setSpeed(SmartDashboard.getNumber("ShooterRPM"));
+    	else
+    		launchMotor.setSpeed(0);
     	
     	//Override stalled shooter motor to zero
     	shooterDiagnostics.eval(launchMotor.getActSpeed(), launchMotor.getCurrent(), launchMotor.getMotorCmd());
@@ -711,11 +729,17 @@ public class Robot extends IterativeRobot {
     	SmartDashboard.putNumber("Launch Motor Speed (RPM)", launchMotor.getActSpeed());
     	SmartDashboard.putBoolean("Launch Motor Stalled", shooterDiagnostics.motorStalled);
     	SmartDashboard.putString("IntakeShooter State", intakeLauncherSM.getState());
+<<<<<<< HEAD
     	SmartDashboard.putNumber("DT Limiting Factor", driveTrain.reductionFactor);
     	SmartDashboard.putNumber("Current Draw", pdp.getTotalCurrent());
     	SmartDashboard.putNumber("Avg Speed FTpS", Math.abs((driveTrain.getRightSpdFtPerSec() + driveTrain.getLeftSpdFtPerSec())/2.0));
     	
     	
+=======
+    	SmartDashboard.putNumber("Right Encoder Distance Ft.", driveTrain.getRightDistanceFt());
+    	SmartDashboard.putNumber("Left Encoder Distance Ft.", driveTrain.getLeftDistanceFt());
+
+>>>>>>> ChrisG_intake_shooter_test_harness
     	
     }
 }
