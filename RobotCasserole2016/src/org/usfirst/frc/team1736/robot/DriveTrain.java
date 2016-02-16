@@ -97,8 +97,6 @@ public class DriveTrain extends RobotDrive { //Inherits methods from RobotDrive 
 		double leftCurEst = leftCCE.getCurrentEstimate(getLeftMotorSpeedRadPerS(), leftOutput);
 		double rightCurEst = rightCCE.getCurrentEstimate(getRightMotorSpeedRadPerS(), rightOutput);
 		
-		System.out.println(leftCurEst + "  |  " + rightCurEst);
-		
 		if(bpe.getEstVsys(leftCurEst + rightCurEst+10) > MIN_ALLOWABLE_SYS_VOLTAGE)
 			return true;
 		else

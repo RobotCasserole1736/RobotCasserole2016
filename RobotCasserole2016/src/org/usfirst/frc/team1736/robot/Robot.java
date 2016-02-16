@@ -517,7 +517,7 @@ public class Robot extends IterativeRobot {
     	DBAC.periodUptade(joy2.getRawAxis(XBOX_RSTICK_XAXIS), (joy2.getRawAxis(XBOX_LTRIGGER_AXIS)> 0.5));
     	
     	//Intake/shooter controls
-    	//intakeLauncherSM.processInputs(joy2);
+    	intakeLauncherSM.processInputs(joy2); //currently stubbed to do nothing except update button state
     	
     	//TEST harness - run intake and shooter off of buttons
     	if(joy1.getRawButton(XBOX_X_BUTTON))
@@ -729,17 +729,11 @@ public class Robot extends IterativeRobot {
     	SmartDashboard.putNumber("Launch Motor Speed (RPM)", launchMotor.getActSpeed());
     	SmartDashboard.putBoolean("Launch Motor Stalled", shooterDiagnostics.motorStalled);
     	SmartDashboard.putString("IntakeShooter State", intakeLauncherSM.getState());
-<<<<<<< HEAD
     	SmartDashboard.putNumber("DT Limiting Factor", driveTrain.reductionFactor);
     	SmartDashboard.putNumber("Current Draw", pdp.getTotalCurrent());
     	SmartDashboard.putNumber("Avg Speed FTpS", Math.abs((driveTrain.getRightSpdFtPerSec() + driveTrain.getLeftSpdFtPerSec())/2.0));
-    	
-    	
-=======
-    	SmartDashboard.putNumber("Right Encoder Distance Ft.", driveTrain.getRightDistanceFt());
-    	SmartDashboard.putNumber("Left Encoder Distance Ft.", driveTrain.getLeftDistanceFt());
+    	SmartDashboard.putBoolean("Ball In CarryPos", intakeLauncherSM.getBallSensor());
 
->>>>>>> ChrisG_intake_shooter_test_harness
     	
     }
 }

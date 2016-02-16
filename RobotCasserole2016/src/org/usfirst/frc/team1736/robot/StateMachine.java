@@ -29,6 +29,11 @@ public class StateMachine {
 	
 	//Sensor for ball detection
 	protected DigitalInput ballSensor;
+	DaBouncer sensorOnDebounce;
+	DaBouncer sensorOffDebounce;
+	public boolean ballSensorState;
+	public final int BALL_SENSOR_RISING_DBNC_LOOPS = 25;
+	public final int BALL_SENSOR_FALLING_DBNC_LOOPS = 50;
 	
 	//IDs
 	final static int intake_ID = 5;
@@ -44,6 +49,12 @@ public class StateMachine {
 		
 		this.shooter = shooter;
 		intake = new Talon(intake_ID);
+		
+		sensorOnDebounce = new DaBouncer();
+		sensorOffDebounce = new DaBouncer();
+		sensorOnDebounce.threshold = 0.5; //boolean input
+		sensorOffDebounce.threshold = 0.5;
+		
 		
 	}
 	
@@ -85,6 +96,12 @@ public class StateMachine {
 	
 	public void processInputs(Joystick operator)
 	{
+		//debounce ball sensor
+		if(sensorOnDebounce.AboveDebounce(ballSensor.get()?1.0:0.0))
+			ballSensorState = true;
+		else if(sensorOffDebounce.BelowDebounce(ballSensor.get()?1.0:0.0))
+			ballSensorState = false;
+	/*	TEMP till tested
 		if(operator.getRawButton(Robot.XBOX_LEFT_BUTTON) && (getState() == "Inactive" || overridden))
 		{
 			setState("Intake");
@@ -122,7 +139,7 @@ public class StateMachine {
 		}
 		
 		processState();
-		
+		*/
 	}
 	
 	public void prepMotor()
@@ -204,7 +221,7 @@ public class StateMachine {
 	
 	public boolean getBallSensor()
 	{
-		return ballSensor.get();
+		return ballSensorState;
 	}
 	
 	public void override()
