@@ -251,7 +251,6 @@ public class Robot extends IterativeRobot {
 	Climb Climber;
 	//Launch Motor
 	Shooter launchMotor;
-	MotorDiagnostic shooterDiagnostics;
 	//Intake/Launch state machine
 	IntakeLauncherStateMachine intakeLauncherSM;
 	//Drawbridge arm
@@ -642,7 +641,7 @@ public class Robot extends IterativeRobot {
     									  Pneumatics.getPressurePsi(),
     									  launchMotor.getSquishSensorVal(),
     									  currentStep,
-    									  shooterDiagnostics.motorStalled?1.0:0.0,
+    									  intakeLauncherSM.shooterDiagnostics.motorStalled?1.0:0.0,
 										  intakeLauncherSM.intake.get()
 				    					 );
 	    	//Check for brownout. If browned out, force write data to log. Just in case we
@@ -711,7 +710,7 @@ public class Robot extends IterativeRobot {
     		SmartDashboard.putString("Gear", "!!!LOW GEAR");
     	SmartDashboard.putNumber("Match Time", ds.getMatchTime());
     	SmartDashboard.putNumber("Launch Motor Speed (RPM)", launchMotor.getActSpeed());
-    	SmartDashboard.putBoolean("Launch Motor Stalled", shooterDiagnostics.motorStalled);
+    	SmartDashboard.putBoolean("Launch Motor Stalled",  intakeLauncherSM.shooterDiagnostics.motorStalled);
     	SmartDashboard.putString("IntakeShooter State", intakeLauncherSM.curState.toString());
     	SmartDashboard.putNumber("DT Limiting Factor", driveTrain.reductionFactor);
     	SmartDashboard.putNumber("Current Draw", pdp.getTotalCurrent());

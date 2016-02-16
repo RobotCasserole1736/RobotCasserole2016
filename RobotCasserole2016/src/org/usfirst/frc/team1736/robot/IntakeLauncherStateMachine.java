@@ -152,7 +152,7 @@ public class IntakeLauncherStateMachine {
 				if(intakeCmded)
 					nextState = IntLncState.WAIT_FOR_SPOOLDOWN;
 				else if((shooter.getAbsError() < LAUNCH_SPEED_ERR_LMT_RPM) |
-					calcEncoderFailed(shooter.getCurrent()))
+					     calcEncoderFailed(shooter.getCurrent()))
 					nextState = IntLncState.WAIT_FOR_LAUNCH;
 				
 				break;
@@ -160,10 +160,10 @@ public class IntakeLauncherStateMachine {
 				if(intakeCmded)
 					nextState = IntLncState.WAIT_FOR_SPOOLDOWN;
 				else if((shooter.getAbsError() >= LAUNCH_SPEED_ERR_LMT_RPM) &
-					!calcEncoderFailed(shooter.getCurrent()))
-						nextState = IntLncState.WAIT_FOR_SPOOLUP;
+					     !calcEncoderFailed(shooter.getCurrent()))
+					nextState = IntLncState.WAIT_FOR_SPOOLUP;
 				else if(launchCmded)
-						nextState = IntLncState.LAUNCH;
+					nextState = IntLncState.LAUNCH;
 				
 				break;
 			case LAUNCH:
