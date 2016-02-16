@@ -346,7 +346,6 @@ public class Robot extends IterativeRobot {
     	//compressor starts automatically, but just in case...
     	Pneumatics.startCompressor();
 
-    	SmartDashboard.getNumber("Autonomous Mode:");
     	autoMode = (int) autoChooser.getSelected();
     	
     	//reset gyro angle to 0
@@ -389,7 +388,9 @@ public class Robot extends IterativeRobot {
 	    	break;
 	    case 0: //Just move to in front of the defense
 	    	driveTrain.controller.setSetpoint(0); 
-	    	driveTrain.drive(0.8, 0);
+	    	if (driveTrain.getRightDistanceFt() > -1.5) {
+	    		driveTrain.drive(0.8, 0);
+	    	}
 	    	if (driveTrain.getRightDistanceFt() < -1.5 && driveTrain.getRightDistanceFt() > -1.9) {
 	    		driveTrain.drive(.2, 0);    		
 	    	}
@@ -399,9 +400,11 @@ public class Robot extends IterativeRobot {
 	    	break;    	
 	    case 1: //Case 0 + go over low bar
 	    	{		
+	    		Pneumatics.intakeDown();
 	    		driveTrain.controller.setSetpoint(0); 
+	    		if (driveTrain.getRightDistanceFt() > -14.5) {
 	        	driveTrain.drive(0.8, 0);
-	        	Pneumatics.intakeDown();
+	    		}
 	        	if (driveTrain.getRightDistanceFt() < -14.5 && driveTrain.getRightDistanceFt() > -14.9) {
 	        		driveTrain.drive(.2, 0);    		
 	        	}
@@ -413,9 +416,11 @@ public class Robot extends IterativeRobot {
 	    case 2: //Case 0 + go over rugged terrain
 	    	driveTrain.controller.setSetpoint(0); 
 	    	Pneumatics.intakeUp();
-	    	if (currentStep == 1)
-	    	{
-	        	driveTrain.drive(0.8, 0);
+	    	if (currentStep == 1) {
+	    	
+	    		if (driveTrain.getRightDistanceFt() > -1.5) {	    			
+	    			driveTrain.drive(0.8, 0);
+	    		}
 	        	if (driveTrain.getRightDistanceFt() < -1.5 && driveTrain.getRightDistanceFt() > -1.9) {
 	        		driveTrain.drive(.2, 0);    		
 	        	}
