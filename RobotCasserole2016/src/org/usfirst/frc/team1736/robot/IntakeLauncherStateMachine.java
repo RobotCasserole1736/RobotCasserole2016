@@ -3,6 +3,9 @@
  */
 package org.usfirst.frc.team1736.robot;
 
+import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.Talon;
+
 /**
  * @author Chris Gerth
  *
@@ -12,7 +15,7 @@ public class IntakeLauncherStateMachine {
 	//State variables
 	public IntLncState curState;
 	private IntLncState nextState;
-	private int launchMotorEncFailedDbncCntr;
+	private int shooterEncFailedDbncCntr;
 	private int retractCounter; 
 	private int minLaunchTimeCounter;
 	
@@ -25,9 +28,9 @@ public class IntakeLauncherStateMachine {
 	private static final IntLncState initState = IntLncState.STOPPED_NO_BALL;
 	public static final double INTAKE_IN_SPEED = 1.0;
 	public static final double INTAKE_EJECT_SPEED = -1.0;
-	public static final double INTAKE_RETRACT_SPEED = -0.1;
+	public static final double INTAKE_RETRACT_SPEED = -0.5;
 	public static final double INTAKE_RETRACT_TIME_LOOPS = 10;
-	public static final double LAUNCH_SPEED_RPM = 3000;
+	public static final double LAUNCH_SPEED_RPM = 5400;
 	public static final double INTAKE_LAUNCH_FEED_SPEED = 0.8;
 	public static final double LAUNCH_SPEED_ERR_LMT_RPM = 300;
 	public static final double MIN_LAUNCH_TIME_THRESH_LOOPS = 75;
@@ -37,24 +40,55 @@ public class IntakeLauncherStateMachine {
 	public static final double LAUNCH_MOTOR_I_MAX_THRESH_A = 20;
 	public static final double LAUNCH_MOTOR_ERR_DBNC_TIME_LOOPS = 200;
 	
+	//Sensor for ball detection
+	protected DigitalInput ballSensor;
+	DaBouncer sensorOnDebounce;
+	DaBouncer sensorOffDebounce;
+	public boolean ballSensorState;
+	public final int BALL_SENSOR_RISING_DBNC_LOOPS = 25;
+	public final int BALL_SENSOR_FALLING_DBNC_LOOPS = 50;
+	
+	//intake motor
+	Talon intake;
+	
+	//launch motor object & diagnostics - from outside
+	Shooter shooter;
+    MotorDiagnostic shooterDiagnostics;
+	
+	//IDs
+	final static int intake_ID = 5;
+	final static int ballSensor_ID = 4;
 	
 	
-	IntakeLauncherStateMachine(){
+	
+	
+	IntakeLauncherStateMachine(Shooter shooter_in){
 		curState = initState;
-		launchMotorEncFailedDbncCntr = 0;
+		shooterEncFailedDbncCntr = 0;
 		retractCounter = 0;
 		launchEncoderFailed = false;
+		
+		intake = new Talon(intake_ID);
+		ballSensor = new DigitalInput(ballSensor_ID);
+		
+		sensorOnDebounce = new DaBouncer();
+		sensorOffDebounce = new DaBouncer();
+		sensorOnDebounce.threshold = 0.5; //boolean input
+		sensorOffDebounce.threshold = 0.5;
+		ballSensorState = false;
+		
+		shooter = shooter_in;
+		shooterDiagnostics = new MotorDiagnostic();
 	}
 	
-	void iterateStateMach(boolean intakeCmded, 
+	void periodicStateMach(boolean intakeCmded, 
 			              boolean ejectCmded, 
 			              boolean prepToLaunchCmded, 
 			              boolean launchCmded, 
-			              boolean intakeOvdCmded, 
-			              boolean ballInCarryPos, 
-			              double shooterError_RPM,
-			              double shooterSpeed_RPM,
-			              double launchMotorCurrent_A){
+			              boolean intakeOvdCmded){
+		
+		//Step 0 - process inputs. Mostly these are arguments
+		dbncBallSensor();
 		
 		//STEP 1 - Calculate Next State based on current state and Inputs
 		
@@ -75,14 +109,14 @@ public class IntakeLauncherStateMachine {
 			//execute the rest of the state-machine
 			switch(curState){
 			case STOPPED_NO_BALL:
-				if(ballInCarryPos)
+				if(ballSensorState)
 					nextState = IntLncState.CARRY_BALL;
 				else if(intakeCmded)
 					nextState = IntLncState.INTAKE;
 				
 				break;
 			case INTAKE:
-				if(ballInCarryPos)
+				if(ballSensorState)
 					nextState = IntLncState.CARRY_BALL;
 				else if(!intakeCmded)
 					nextState = IntLncState.STOPPED_NO_BALL;
@@ -99,7 +133,7 @@ public class IntakeLauncherStateMachine {
 				
 				break;
 			case CARRY_BALL:
-				if(!ballInCarryPos)
+				if(!ballSensorState)
 					nextState = IntLncState.STOPPED_NO_BALL;
 				else if(prepToLaunchCmded | launchCmded)
 					nextState = IntLncState.RETRACT;
@@ -115,14 +149,18 @@ public class IntakeLauncherStateMachine {
 					nextState = IntLncState.WAIT_FOR_SPOOLUP;
 				break;
 			case WAIT_FOR_SPOOLUP:
-				if((shooterError_RPM < LAUNCH_SPEED_ERR_LMT_RPM) |
-					calcEncoderFailed(launchMotorCurrent_A))
+				if(intakeCmded)
+					nextState = IntLncState.WAIT_FOR_SPOOLDOWN;
+				else if((shooter.getAbsError() < LAUNCH_SPEED_ERR_LMT_RPM) |
+					calcEncoderFailed(shooter.getCurrent()))
 					nextState = IntLncState.WAIT_FOR_LAUNCH;
 				
 				break;
 			case WAIT_FOR_LAUNCH:
-				if((shooterError_RPM >= LAUNCH_SPEED_ERR_LMT_RPM) &
-					!calcEncoderFailed(launchMotorCurrent_A))
+				if(intakeCmded)
+					nextState = IntLncState.WAIT_FOR_SPOOLDOWN;
+				else if((shooter.getAbsError() >= LAUNCH_SPEED_ERR_LMT_RPM) &
+					!calcEncoderFailed(shooter.getCurrent()))
 						nextState = IntLncState.WAIT_FOR_SPOOLUP;
 				else if(launchCmded)
 						nextState = IntLncState.LAUNCH;
@@ -134,7 +172,7 @@ public class IntakeLauncherStateMachine {
 				
 				break;
 			case WAIT_FOR_SPOOLDOWN:
-				if(shooterSpeed_RPM < SPOOLDOWN_THRESH_RPM)
+				if(shooter.getActSpeed() < SPOOLDOWN_THRESH_RPM)
 					nextState = IntLncState.STOPPED_NO_BALL;
 				
 				break;
@@ -149,7 +187,7 @@ public class IntakeLauncherStateMachine {
 		//but makes the debugging much easier. I don't recommend changing it.
 		switch(curState){
 		case STOPPED_NO_BALL:
-			launchMotorEncFailedDbncCntr = 0;
+			shooterEncFailedDbncCntr = 0;
 			retractCounter = 0; 
 			minLaunchTimeCounter = 0;
 			shooterCmd_RPM = 0;
@@ -157,7 +195,7 @@ public class IntakeLauncherStateMachine {
 			
 			break;
 		case INTAKE:
-			launchMotorEncFailedDbncCntr = 0;
+			shooterEncFailedDbncCntr = 0;
 			retractCounter = 0; 
 			minLaunchTimeCounter = 0;
 			shooterCmd_RPM = 0;
@@ -165,7 +203,7 @@ public class IntakeLauncherStateMachine {
 			
 			break;
 		case EJECT:
-			launchMotorEncFailedDbncCntr = 0;
+			shooterEncFailedDbncCntr = 0;
 			retractCounter = 0; 
 			minLaunchTimeCounter = 0;
 			shooterCmd_RPM = 0;
@@ -173,7 +211,7 @@ public class IntakeLauncherStateMachine {
 			
 			break;
 		case INTAKE_OVD:
-			launchMotorEncFailedDbncCntr = 0;
+			shooterEncFailedDbncCntr = 0;
 			retractCounter = 0; 
 			minLaunchTimeCounter = 0;
 			shooterCmd_RPM = 0;
@@ -181,7 +219,7 @@ public class IntakeLauncherStateMachine {
 			
 			break;
 		case CARRY_BALL:
-			launchMotorEncFailedDbncCntr = 0;
+			shooterEncFailedDbncCntr = 0;
 			retractCounter = 0; 
 			minLaunchTimeCounter = 0;
 			shooterCmd_RPM = 0;
@@ -189,7 +227,7 @@ public class IntakeLauncherStateMachine {
 			
 			break;
 		case CARRY_BALL_OVD:
-			launchMotorEncFailedDbncCntr = 0;
+			shooterEncFailedDbncCntr = 0;
 			retractCounter = 0; 
 			minLaunchTimeCounter = 0;
 			shooterCmd_RPM = 0;
@@ -197,7 +235,7 @@ public class IntakeLauncherStateMachine {
 			
 			break;
 		case RETRACT:
-			launchMotorEncFailedDbncCntr = 0;
+			shooterEncFailedDbncCntr = 0;
 			retractCounter++; //notice the increment!
 			minLaunchTimeCounter = 0;
 			shooterCmd_RPM = 0;
@@ -205,7 +243,7 @@ public class IntakeLauncherStateMachine {
 			
 			break;
 		case WAIT_FOR_SPOOLUP:
-			launchMotorEncFailedDbncCntr++; //notice the increment!
+			shooterEncFailedDbncCntr++; //notice the increment!
 			retractCounter = 0; 
 			minLaunchTimeCounter = 0;
 			shooterCmd_RPM = LAUNCH_SPEED_RPM;
@@ -213,7 +251,7 @@ public class IntakeLauncherStateMachine {
 			
 			break;
 		case WAIT_FOR_LAUNCH:
-			//launchMotorEncFailedDbncCntr; //notice the maintain-value!
+			//shooterEncFailedDbncCntr; //notice the maintain-value!
 			retractCounter = 0; 
 			minLaunchTimeCounter = 0;
 			shooterCmd_RPM = LAUNCH_SPEED_RPM;
@@ -221,7 +259,7 @@ public class IntakeLauncherStateMachine {
 			
 			break;
 		case LAUNCH:
-			launchMotorEncFailedDbncCntr = 0;
+			shooterEncFailedDbncCntr = 0;
 			retractCounter = 0; 
 			minLaunchTimeCounter++;  //notice the increment!
 			shooterCmd_RPM = LAUNCH_SPEED_RPM;
@@ -229,7 +267,7 @@ public class IntakeLauncherStateMachine {
 			
 			break;
 		case WAIT_FOR_SPOOLDOWN:
-			launchMotorEncFailedDbncCntr = 0;
+			shooterEncFailedDbncCntr = 0;
 			retractCounter = 0; 
 			minLaunchTimeCounter = 0;
 			shooterCmd_RPM = 0;
@@ -245,19 +283,46 @@ public class IntakeLauncherStateMachine {
 		//STEP 3 - Prep for Next Loop
 		//make the next-state the current state
 		curState = nextState;
+		
+		//Set 4 - Set Outputs
+		// intake motor
+		intake.set(intakeCmd);
+		
+    	// launch motor,but override to zero if stall detected.
+    	shooterDiagnostics.eval(shooter.getActSpeed(), shooter.getCurrent(), shooter.getMotorCmd());
+    	if(shooterDiagnostics.motorStalled){
+    		shooter.shooterController.set(0);
+    		shooter.setSpeed(0);
+    	}
+    	else { 
+    		shooter.setSpeed(shooterCmd_RPM);
+    	}
+    	
 		return;
+	}
+	
+	/**
+	 * Run both debouncers on the ball sensor's present value
+	 * and set the ballSensorState based on that.
+	 */
+	private void dbncBallSensor(){
+		if(sensorOnDebounce.AboveDebounce(ballSensor.get()?1.0:0.0))
+			ballSensorState = true;
+		else if(sensorOffDebounce.BelowDebounce(ballSensor.get()?1.0:0.0))
+			ballSensorState = false;
+		//Else, don't change the ballSensorState variable
 	}
 	
 	/**
 	 * Given the present debounce counter and motor current, determine if the encoder is faulted.
 	 * Note the debounce counter must be incremented elsewhere
-	 * @param launchMotorCurrent_A - current draw of the launch motor
+	 * @param shooterCurrent_A - current draw of the launch motor
 	 * @return True if encoder failed, false otherwise
 	 */
-	private boolean calcEncoderFailed(double launchMotorCurrent_A){
-	     if((launchMotorEncFailedDbncCntr > LAUNCH_MOTOR_ERR_DBNC_TIME_LOOPS) & 
-	    		   launchMotorCurrent_A < LAUNCH_MOTOR_I_MAX_THRESH_A &
-	    		   launchMotorCurrent_A > LAUNCH_MOTOR_I_MIN_THRESH_A)
+	private boolean calcEncoderFailed(double shooterCurrent_A){
+	     if((shooterEncFailedDbncCntr > LAUNCH_MOTOR_ERR_DBNC_TIME_LOOPS) & 
+	    		   shooterCurrent_A < LAUNCH_MOTOR_I_MAX_THRESH_A &
+	    		   shooterCurrent_A > LAUNCH_MOTOR_I_MIN_THRESH_A)
 	    	 launchEncoderFailed = true;
 	     else
 	    	 launchEncoderFailed = false;

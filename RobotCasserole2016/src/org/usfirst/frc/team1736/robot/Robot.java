@@ -253,7 +253,7 @@ public class Robot extends IterativeRobot {
 	Shooter launchMotor;
 	MotorDiagnostic shooterDiagnostics;
 	//Intake/Launch state machine
-	StateMachine intakeLauncherSM;
+	IntakeLauncherStateMachine intakeLauncherSM;
 	//Drawbridge arm
 	DrawbridgeArmControls DBAC;
 	//Shifting Algorithm
@@ -309,9 +309,9 @@ public class Robot extends IterativeRobot {
     	//Peripherals
     	Climber=new Climb();
     	launchMotor = new Shooter();
-    	intakeLauncherSM = new StateMachine(launchMotor);
+    	intakeLauncherSM = new IntakeLauncherStateMachine(launchMotor);
     	DBAC = new DrawbridgeArmControls ();
-    	shooterDiagnostics = new MotorDiagnostic();
+
     	//Joysticks
     	joy1 = new Joystick(JOY1_INT);
     	joy2 = new Joystick(JOY2_INT);
@@ -517,28 +517,12 @@ public class Robot extends IterativeRobot {
     	DBAC.periodUptade(joy2.getRawAxis(XBOX_RSTICK_XAXIS), (joy2.getRawAxis(XBOX_LTRIGGER_AXIS)> 0.5));
     	
     	//Intake/shooter controls
-    	intakeLauncherSM.processInputs(joy2); //currently stubbed to do nothing except update button state
+    	intakeLauncherSM.periodicStateMach(joy2.getRawButton(XBOX_LEFT_BUTTON), 
+    									   joy2.getRawButton(XBOX_RIGHT_BUTTON), 
+    									   joy2.getRawButton(XBOX_X_BUTTON), 
+    									   joy2.getRawButton(XBOX_B_BUTTON), 
+    									   joy2.getRawButton(XBOX_BACK_BUTTON));
     	
-    	//TEST harness - run intake and shooter off of buttons
-    	if(joy1.getRawButton(XBOX_X_BUTTON))
-    		intakeLauncherSM.intake.set(intakeLauncherSM.retractSpeed);
-    	else if(joy1.getRawButton(XBOX_Y_BUTTON))
-    		intakeLauncherSM.intake.set(intakeLauncherSM.intakeSpeed);
-    	else if(joy1.getRawButton(XBOX_A_BUTTON))
-    		intakeLauncherSM.intake.set(intakeLauncherSM.ejectSpeed);
-    	else
-    		intakeLauncherSM.intake.set(0);
-    	
-    	if(joy1.getRawButton(XBOX_B_BUTTON))
-    		launchMotor.setSpeed(SmartDashboard.getNumber("ShooterRPM"));
-    	else
-    		launchMotor.setSpeed(0);
-    	
-    	//Override stalled shooter motor to zero
-    	shooterDiagnostics.eval(launchMotor.getActSpeed(), launchMotor.getCurrent(), launchMotor.getMotorCmd());
-    	if(shooterDiagnostics.motorStalled){
-    		launchMotor.shooterController.set(0);
-    	}
     	
     	
     	//Adjust intake position based on driver commands
@@ -728,11 +712,11 @@ public class Robot extends IterativeRobot {
     	SmartDashboard.putNumber("Match Time", ds.getMatchTime());
     	SmartDashboard.putNumber("Launch Motor Speed (RPM)", launchMotor.getActSpeed());
     	SmartDashboard.putBoolean("Launch Motor Stalled", shooterDiagnostics.motorStalled);
-    	SmartDashboard.putString("IntakeShooter State", intakeLauncherSM.getState());
+    	SmartDashboard.putString("IntakeShooter State", intakeLauncherSM.curState.toString());
     	SmartDashboard.putNumber("DT Limiting Factor", driveTrain.reductionFactor);
     	SmartDashboard.putNumber("Current Draw", pdp.getTotalCurrent());
     	SmartDashboard.putNumber("Avg Speed FTpS", Math.abs((driveTrain.getRightSpdFtPerSec() + driveTrain.getLeftSpdFtPerSec())/2.0));
-    	SmartDashboard.putBoolean("Ball In CarryPos", intakeLauncherSM.getBallSensor());
+    	SmartDashboard.putBoolean("Ball In CarryPos", intakeLauncherSM.ballSensorState);
 
     	
     }
