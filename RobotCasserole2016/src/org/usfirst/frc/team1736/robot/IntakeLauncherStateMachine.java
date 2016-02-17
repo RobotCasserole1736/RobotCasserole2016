@@ -306,9 +306,9 @@ public class IntakeLauncherStateMachine {
 	 * and set the ballSensorState based on that.
 	 */
 	private void dbncBallSensor(){
-		if(sensorOnDebounce.AboveDebounce(ballSensor.get()?1.0:0.0))
+		if(sensorOnDebounce.AboveDebounce(ballSensor.get()?0.0:1.0))
 			ballSensorState = true;
-		else if(sensorOffDebounce.BelowDebounce(ballSensor.get()?1.0:0.0))
+		else if(sensorOffDebounce.BelowDebounce(ballSensor.get()?0.0:1.0))
 			ballSensorState = false;
 		//Else, don't change the ballSensorState variable
 	}

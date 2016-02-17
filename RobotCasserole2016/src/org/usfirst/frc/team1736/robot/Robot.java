@@ -510,7 +510,7 @@ public class Robot extends IterativeRobot {
     	processCameraAngle();
     	
     	//Run climber
-    	Climber.periodicClimb(joy2.getRawButton(XBOX_START_BUTTON), -1*joy2.getRawAxis(XBOX_LSTICK_YAXIS), joy2.getRawAxis(XBOX_RTRIGGER_AXIS));
+    	Climber.periodicClimb(joy2.getRawButton(XBOX_START_BUTTON), joy2.getRawAxis(XBOX_LSTICK_YAXIS), joy2.getRawAxis(XBOX_RTRIGGER_AXIS));
     	
     	//Drawbridge Arm controls algorithm
     	DBAC.periodUptade(joy2.getRawAxis(XBOX_RSTICK_XAXIS), (joy2.getRawAxis(XBOX_LTRIGGER_AXIS)> 0.5));
