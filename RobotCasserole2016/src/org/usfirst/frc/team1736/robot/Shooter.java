@@ -10,7 +10,7 @@ public class Shooter extends PIDSubsystem {
 	CANTalon shooterController;
 	static double F = 0.0001737; //We use FF because setpoint is proportional to motor command
 	static double P = 0.0005; //CMG - tuned with two wheels, will need to tune 
-	static double I = 0.000012; //I is definitely needed to overcome friction, otherwise there is a noticeable steady-state error
+	static double I = 0.000007; //I is definitely needed to overcome friction, otherwise there is a noticeable steady-state error
 	static double D = 0.00003; 
 	int SHOOTER_CHANNEL = 1; //CMG - confirmed 2/2/2016
 	

@@ -5,6 +5,7 @@ package org.usfirst.frc.team1736.robot;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Talon;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
  * @author Chris Gerth
@@ -28,9 +29,10 @@ public class IntakeLauncherStateMachine {
 	private static final IntLncState initState = IntLncState.STOPPED_NO_BALL;
 	public static final double INTAKE_IN_SPEED = 1.0;
 	public static final double INTAKE_EJECT_SPEED = -1.0;
-	public static final double INTAKE_RETRACT_SPEED = -0.3;
+	public static final double INTAKE_RETRACT_SPEED = -0.4;
 	public static final double INTAKE_RETRACT_TIME_LOOPS = 10;
-	public static final double LAUNCH_SPEED_RPM = 4800;
+	//public static final double LAUNCH_SPEED_RPM = 4800; TEMP DEBUG
+	public double LAUNCH_SPEED_RPM = 0;
 	public static final double INTAKE_LAUNCH_FEED_SPEED = 0.8;
 	public static final double LAUNCH_SPEED_ERR_LMT_RPM = 300;
 	public static final double MIN_LAUNCH_TIME_THRESH_LOOPS = 75;
@@ -181,6 +183,9 @@ public class IntakeLauncherStateMachine {
 				break;
 			}
 		}
+		
+		//Temp Debug - get launch wheel RPM from smartDashboard
+		LAUNCH_SPEED_RPM = SmartDashboard.getNumber("ShooterRPM");
 		
 		//STEP 2 - Calculate internal state updates (timers and such) and outputs
 		//Note that the same variables are always set. This admittedly is a bit redundant,
