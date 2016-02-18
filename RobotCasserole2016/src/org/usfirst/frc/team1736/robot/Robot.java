@@ -332,6 +332,9 @@ public class Robot extends IterativeRobot {
  
     	//Set intake state to up - intake automatically goes up, this is just a safety so it stays up when re-enabled
     	Pneumatics.intakeUp();
+    	
+    	//Turn rumble off
+    	joy1.setRumble(RumbleType.kLeftRumble, 0);
 
     }
     
@@ -716,7 +719,7 @@ public class Robot extends IterativeRobot {
     	SmartDashboard.putNumber("Current Draw", pdp.getTotalCurrent());
     	SmartDashboard.putNumber("Avg Speed FTpS", Math.abs((driveTrain.getRightSpdFtPerSec() + driveTrain.getLeftSpdFtPerSec())/2.0));
     	SmartDashboard.putBoolean("Ball In CarryPos", intakeLauncherSM.ballSensorState);
-
+    	SmartDashboard.putNumber("SquishSensor Reading", launchMotor.getSquishSensorVal());
     	
     }
 }

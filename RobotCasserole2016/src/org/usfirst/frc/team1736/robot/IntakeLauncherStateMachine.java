@@ -28,9 +28,9 @@ public class IntakeLauncherStateMachine {
 	private static final IntLncState initState = IntLncState.STOPPED_NO_BALL;
 	public static final double INTAKE_IN_SPEED = 1.0;
 	public static final double INTAKE_EJECT_SPEED = -1.0;
-	public static final double INTAKE_RETRACT_SPEED = -0.5;
+	public static final double INTAKE_RETRACT_SPEED = -0.3;
 	public static final double INTAKE_RETRACT_TIME_LOOPS = 10;
-	public static final double LAUNCH_SPEED_RPM = 5400;
+	public static final double LAUNCH_SPEED_RPM = 4800;
 	public static final double INTAKE_LAUNCH_FEED_SPEED = 0.8;
 	public static final double LAUNCH_SPEED_ERR_LMT_RPM = 300;
 	public static final double MIN_LAUNCH_TIME_THRESH_LOOPS = 75;
