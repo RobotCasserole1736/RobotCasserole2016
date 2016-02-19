@@ -485,7 +485,7 @@ public class Robot extends IterativeRobot {
         //Run Drivetrain with reversing
     	if(joy1.getRawAxis(XBOX_LTRIGGER_AXIS) > 0.5){ //reverse control
     		cmdInvCtrls = true;
-        	driveTrain.arcadeDrive(-1 * joy1.getRawAxis(XBOX_LSTICK_YAXIS), -1 * joy1.getRawAxis(XBOX_RSTICK_XAXIS), squaredInputs);
+        	driveTrain.arcadeDrive(-1 * joy1.getRawAxis(XBOX_LSTICK_YAXIS), joy1.getRawAxis(XBOX_RSTICK_XAXIS), squaredInputs);
     	}
     	else{ //regular control
     		cmdInvCtrls = false;
