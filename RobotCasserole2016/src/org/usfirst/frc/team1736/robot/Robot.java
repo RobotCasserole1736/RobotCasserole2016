@@ -156,7 +156,8 @@ public class Robot extends IterativeRobot {
             "SquishSensorReading",
             "AutonomousStep",
             "ShooterMotorStalled",
-            "IntakeMotorCmd"};
+            "IntakeMotorCmd",
+            "AudioInVoltage"};
 
     static final String[] units_fields = {"sec", //TIME must always be in sec
            "sec",
@@ -222,7 +223,8 @@ public class Robot extends IterativeRobot {
            "val",
            "val",
            "bit",
-           "cmd"};
+           "cmd",
+           "V"};
 		
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	// CLASS OBJECTS
@@ -265,6 +267,8 @@ public class Robot extends IterativeRobot {
 	VictorSP R_Motor_2;
 	//Camera servo mount
 	CameraServoMount csm;
+	//LED's
+	DotStarsLEDStrip leds;
 	
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	// PUBLIC METHODS 
@@ -309,7 +313,8 @@ public class Robot extends IterativeRobot {
     	Climber=new Climb();
     	launchMotor = new Shooter();
     	intakeLauncherSM = new IntakeLauncherStateMachine(launchMotor);
-    	DBAC = new DrawbridgeArmControls ();
+    	DBAC = new DrawbridgeArmControls();
+    	leds = new DotStarsLEDStrip(50);
 
     	//Joysticks
     	joy1 = new Joystick(JOY1_INT);
@@ -645,7 +650,8 @@ public class Robot extends IterativeRobot {
     									  launchMotor.getSquishSensorVal(),
     									  currentStep,
     									  intakeLauncherSM.shooterDiagnostics.motorStalled?1.0:0.0,
-										  intakeLauncherSM.intake.get()
+										  intakeLauncherSM.intake.get(),
+										  leds.audioIn.getVoltage()
 				    					 );
 	    	//Check for brownout. If browned out, force write data to log. Just in case we
 	    	//lose power and nasty things happen, at least we'll know how we died...

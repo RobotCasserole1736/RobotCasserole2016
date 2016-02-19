@@ -39,7 +39,7 @@ public class DriveTrain extends RobotDrive { //Inherits methods from RobotDrive 
 	protected int rightEncoderChannel_2 = 3;
 	
 	//Current Limiting Tune Constants
-	public final double MIN_ALLOWABLE_SYS_VOLTAGE = 8.0;
+	public final double MIN_ALLOWABLE_SYS_VOLTAGE = 7.5;
 	public final double REDUCTION_ITER_STEP = 0.1;
 
 	//Encoder Ratios
