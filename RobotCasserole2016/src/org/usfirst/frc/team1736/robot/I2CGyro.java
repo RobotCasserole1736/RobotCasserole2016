@@ -451,8 +451,6 @@ public class I2CGyro {
 			gyro_read_status = false; //gyro value not ok!!!
 			System.out.println("ERROR BAD READ FROM GYRO. Got " + buffer_config_test_vals[0] + " for CtrlReg1, expected " + CTRL_REG1_CONTENTS);
 			System.out.println("attempting full I2C Reset...");
-			gyro.free();
-			gyro = new I2C(Port.kOnboard, I2C_ADDR); 
 			//Control register setup
 			gyro.write(CTRL_REG1_ADDR, CTRL_REG1_CONTENTS);
 			gyro.write(CTRL_REG2_ADDR, CTRL_REG2_CONTENTS);
