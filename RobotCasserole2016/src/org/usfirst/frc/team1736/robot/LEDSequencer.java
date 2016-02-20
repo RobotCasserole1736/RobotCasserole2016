@@ -36,6 +36,11 @@ public class LEDSequencer {
 	//Counters
 	private int callCounter;
 	private double led_counter;
+	float ear = 0;
+	double oldval = 0;
+	double newval = 0.75;
+	float toe = ear % 50;
+	
 	//Randomizers
 	private Random rn;
 	
@@ -269,29 +274,25 @@ public class LEDSequencer {
 		}
 		
 		callCounter++;
-		led_counter = led_counter+2.35;
 		System.out.println(ledStrips.getAudioLevel() + "  |  " + ledStrips.audioIn.getVoltage());
 	}
 	
 	public void twinkle(){
-		float ear = 0;
-		double oldval = 0;
-		double newval = 0.75;
-		float toe = ear % 50;
-		while(ear < 18000){
-				
-			toe = ear % 50;
+		
+		ear = callCounter; //ChrisG - added this to remove the while loop that would have locked up the execution.
+		toe = ear % 50;
+		
 			
-				
-			while(toe/50 == 1)
-			{
-				newval = Math.random();
-				oldval = newval;			
-			}
-			
-			double ipsum = oldval - newval;
-			double eye = ipsum/50;
-			double currentval = 0.5 + eye*toe;
+		if(toe/50 == 1)
+		{
+			newval = Math.random();
+			oldval = newval;			
+		}
+		
+		double ipsum = oldval - newval;
+		double eye = ipsum/50;
+		double currentval = 0.5 + eye*toe;
+		
 		for(int i = 0; i < NUM_LEDS_TOTAL; i++)
 			{	
 			
@@ -320,8 +321,6 @@ public class LEDSequencer {
 			}
 			
 			
-		}
-		ear = ear + 1;
 		}
 		
 	}
@@ -537,7 +536,6 @@ public class LEDSequencer {
 		
 	}
 	led_counter = (led_counter + 0.234);
-	//for(int i = 0; i < NUM_LEDS_TOTAL; i++)
-		//ledStrips.setLEDColor(i, Math.random(), Math.random(), Math.random());
+
 	}
 }
