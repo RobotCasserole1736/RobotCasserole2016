@@ -35,7 +35,7 @@ public class LEDSequencer {
 	
 	//Counters
 	private int callCounter;
-	
+	private double led_counter;
 	//Randomizers
 	private Random rn;
 	
@@ -46,6 +46,7 @@ public class LEDSequencer {
 		ledStrips = new DotStarsLEDStrip(NUM_LEDS_TOTAL);
 		rn = new Random();
 		callCounter = 0;
+		led_counter = 0;
 	}
 	
 	void sequencerPeriodic(LEDPatterns cur_pattern){
@@ -209,6 +210,54 @@ public class LEDSequencer {
 					}
 				}
 				break;
+			case FIRE:
+				fire();
+			break;
+			
+			case SEVEN:
+				seven();
+			break;
+			
+			
+			case ROYGBIV:
+				roygbiv();
+			break;
+			
+			
+			case TWINKLE_TOMS:
+				twinkle();
+			break;
+			
+			
+			case RED:
+				redAlliance();
+			break;
+			
+			case GREEN:
+				green();
+			break;
+		
+			
+			case BLUE:
+				blueAlliance();
+			break;
+			
+			case BRIGHT:
+				BRIGHTLIGHTS();
+			break;
+				
+			
+			case SWAG:
+				swagLights();
+			break;	
+			
+			case CASS:
+				rusty_auto_red();
+			break;
+			
+			case MURICA:
+				disabledStuff();
+			break;
 				
 			//If we get here, something bad has happened and software team is having a bad day.
 			default:
@@ -220,8 +269,275 @@ public class LEDSequencer {
 		}
 		
 		callCounter++;
+		led_counter = led_counter+2.35;
 		System.out.println(ledStrips.getAudioLevel() + "  |  " + ledStrips.audioIn.getVoltage());
 	}
 	
+	public void twinkle(){
+		float ear = 0;
+		double oldval = 0;
+		double newval = 0.75;
+		float toe = ear % 50;
+		while(ear < 18000){
+				
+			toe = ear % 50;
+			
+				
+			while(toe/50 == 1)
+			{
+				newval = Math.random();
+				oldval = newval;			
+			}
+			
+			double ipsum = oldval - newval;
+			double eye = ipsum/50;
+			double currentval = 0.5 + eye*toe;
+		for(int i = 0; i < NUM_LEDS_TOTAL; i++)
+			{	
+			
+			double two = currentval/2 ;
+			double four = currentval/3;
+			double six = currentval/2.5;
+			double eight = currentval/4;
+			double ten = currentval/2;
+			
+			
+			if(i % 10 < 2){
+				ledStrips.setLEDColor(i, two, two, two);	
+			}
+			
+			else if(i % 10 < 4){
+				ledStrips.setLEDColor(i, four, four, four);	
+			}
+			else if(i % 10 < 6){
+				ledStrips.setLEDColor(i, six, six, six);	
+			}
+			else if(i % 10 < 8){
+				ledStrips.setLEDColor(i, eight, eight, eight);	
+			}
+			else if(i % 10 < 10){
+				ledStrips.setLEDColor(i, ten, ten, ten);	
+			}
+			
+			
+		}
+		ear = ear + 1;
+		}
+		
+	}
+	
+	public void BRIGHTLIGHTS(){
+	for(int i = 0; i < NUM_LEDS_TOTAL; i++)
+	{	
+		if(i % 2 < 1){
+			ledStrips.setLEDColor((int)Math.round(led_counter + i)%90, 1.0, 1.0, 1.0);	
+		}
+		
+		else{
+			ledStrips.setLEDColor((int)Math.round(led_counter + i)%90, 0.0, 0.0, 0.0);	
+		}
+		
+	}
+	led_counter = (led_counter + 90.0); 
+}
+	
+	public void rusty_auto_red(){
+		for(int i = 0; i < NUM_LEDS_TOTAL; i++)
+		{	
+			if(i % 9 < 5){
+				ledStrips.setLEDColor((int)Math.round(led_counter + i)%90, 0.9518387305, 0.0, 0.0);	
+			}
+			
+			
+			else if(i % 9 < 8){
+				ledStrips.setLEDColor((int)Math.round(led_counter + i)%90, 0.995723, 0.0, 0.4978615);	
+			}
+			
+			else{
+				ledStrips.setLEDColor((int)Math.round(led_counter + i)%90, 0.995723, 0.01872, 0.995723);	
+			}
+				
+			
+		}
+		led_counter = (led_counter + 0.2317); 
+	}
 
+
+	
+	public void fire(){
+			for(int i = 0; i < NUM_LEDS_TOTAL; i++)
+			{	
+				if(i % 5 < 1){
+					ledStrips.setLEDColor((int)Math.round(led_counter + i)%90, 0.7, 0.0, 0.0);	
+				}
+				else if(i % 5 < 2 ){
+					ledStrips.setLEDColor((int)Math.round(led_counter + i)%90, 0.95, 0.0, 0.95);	
+				}
+				else if(i % 5 < 3){
+					ledStrips.setLEDColor((int)Math.round(led_counter + i)%90, 0.95, 0.0, 0.36);	
+				}
+				else if(i % 5 < 4){
+					ledStrips.setLEDColor((int)Math.round(led_counter + i)%90, 0.1, 0.7, 0.3);	
+				}
+				else{
+					ledStrips.setLEDColor((int)Math.round(led_counter + i)%90, 0.75, 0.0, 0.75);	
+				}
+				
+			}
+			led_counter = (led_counter + 0.234); 
+	}
+	public void roygbiv(){
+		for(int i = 0; i < NUM_LEDS_TOTAL; i++)
+		{	
+			if(i % 7 < 1){
+				ledStrips.setLEDColor((int)Math.round(led_counter + i)%90, 1.0, 0.0, 0.0);	
+			}
+			else if(i % 7 < 2){
+				ledStrips.setLEDColor((int)Math.round(led_counter + i)%90, 0.7, 0.0, 0.3);
+			}
+			else if(i % 7 < 3){
+				ledStrips.setLEDColor((int)Math.round(led_counter + i)%90, 0.7, 0.0, 0.7);
+			}
+			else if(i % 7 < 4){
+				ledStrips.setLEDColor((int)Math.round(led_counter + i)%90, 0.0, 0.0, 1.0);
+			}
+			else if(i % 7 < 5){
+				ledStrips.setLEDColor((int)Math.round(led_counter + i)%90, 0.0, 1.0, 0.0);
+			}
+			else if(i % 7 < 6){
+				ledStrips.setLEDColor((int)Math.round(led_counter + i)%90, 0.3, 0.7, 0.0);
+			}
+			
+			else{
+				ledStrips.setLEDColor((int)Math.round(led_counter + i)%90, 0.7, 0.7, 0.0);	
+			}
+			
+		}
+		led_counter = (led_counter + 0.25);
+	}
+	public void seven(){
+		for(int i = 0; i < NUM_LEDS_TOTAL; i++)
+		{	
+			if(i % 8 < 4){
+				ledStrips.setLEDColor((int)Math.round(led_counter + i)%90, 0.17, 0.17, 0.1);	
+			}
+			else if(i % 8 < 7){
+				ledStrips.setLEDColor((int)Math.round(led_counter + i)%90, 0.17, 0.17, 0.5);
+			}
+			
+			else{
+				ledStrips.setLEDColor((int)Math.round(led_counter + i)%90, 0.7, 0.0, 0.9);	
+			}
+			
+		}
+		led_counter = (led_counter + 0.25); 
+	}
+	public void green(){
+		for(int i = 0; i < NUM_LEDS_TOTAL; i++)
+		{	
+			if(i % 8 < 4){
+				ledStrips.setLEDColor((int)Math.round(led_counter + i)%90, 0.0, 0.0, 0.1);	
+			}
+			else if(i % 8 < 7){
+				ledStrips.setLEDColor((int)Math.round(led_counter + i)%90, 0.0, 0.0, 0.5);
+			}
+			
+			else{
+				ledStrips.setLEDColor((int)Math.round(led_counter + i)%90, 0.0, 0.0, 0.9);	
+			}
+			
+		}
+		led_counter = (led_counter + 0.25); 
+	}
+	public void disabledStuff(){
+		for(int i = 0; i < NUM_LEDS_TOTAL; i++)
+		{	
+			if(i % 10 < 5){
+				ledStrips.setLEDColor((int)Math.round(led_counter + i)%90, 0.9518387305, 0.0, 0.0);	
+			}
+			
+			
+			else{
+				ledStrips.setLEDColor((int)Math.round(led_counter + i)%90, 0.0, 0.25, 1.0);	
+			}
+			
+		}
+		led_counter = (led_counter + 0.25); 
+	}
+	
+	public void swagLights() {
+	for(int i = 0; i < NUM_LEDS_TOTAL; i++)
+	{	
+		if(i % 8 < 4){
+			ledStrips.setLEDColor((int)Math.round(led_counter + i)%90, 0.9518387305, 0.0, 0.0);	
+		}
+		else if(i % 8 < 7){
+			ledStrips.setLEDColor((int)Math.round(led_counter + i)%90, 1.0, 1.0, 1.0);
+		}
+		
+		else{
+			ledStrips.setLEDColor((int)Math.round(led_counter + i)%90, 0.8, 0.0, 0.3);	
+		}
+		
+	}
+	led_counter = (led_counter + 0.25); 
+	
+}
+	//red alliance and robot casserole colors
+	public void redAlliance(){
+	for(int i = 0; i < NUM_LEDS_TOTAL; i++)
+	{	
+		if(i % 10 < 5){
+			ledStrips.setLEDColor((int)Math.round(led_counter + i)%90, 0.9518387305, 0.0, 0.0);	
+		}
+		
+		else{
+			ledStrips.setLEDColor((int)Math.round(led_counter + i)%90, 0.75, 0.75, 0.75);	
+		}
+		
+	}
+	led_counter = (led_counter + 0.234); 
+}
+	//blue alliance colors
+	/**for(int i = 0; i < NUM_LEDS_TOTAL; i++)
+	{	
+		if(i % 10 < 5){
+			ledStrips.setLEDColor((int)Math.round(led_counter + i)%90, 0.0, 0.9324289523, 0.0);	
+		}
+		
+		else{
+			ledStrips.setLEDColor((int)Math.round(led_counter + i)%90, 0.69, 0.69, 0.69);	
+		}
+		
+	}
+	led_counter = (led_counter + 0.234);
+	*/
+	public void blueAlliance(){
+	for(int i = 0; i < NUM_LEDS_TOTAL; i++)
+	{	
+		if(i % 10 < 5){
+			ledStrips.setLEDColor((int)Math.round(led_counter + i)%90, 0.0, 0.9324289523, 0.0);	
+		}
+		
+		else if(i % 10 < 6){
+			ledStrips.setLEDColor((int)Math.round(led_counter + i)%90, 0.4, 0.6, 0.4);	
+		}
+		else if(i % 10 < 7){
+			ledStrips.setLEDColor((int)Math.round(led_counter + i)%90, 0.32, 0.58, 0.32);	
+		}
+		else if(i % 10 < 8){
+			ledStrips.setLEDColor((int)Math.round(led_counter + i)%90, 0.26, 0.56, 0.26);	
+		}
+		else if(i % 10 < 9){
+			ledStrips.setLEDColor((int)Math.round(led_counter + i)%90, 0.2, 0.54, 0.2);	
+		}
+		else if(i % 10 < 10){
+			ledStrips.setLEDColor((int)Math.round(led_counter + i)%90, 0.14, 0.52, 0.14);	
+		}
+		
+	}
+	led_counter = (led_counter + 0.234);
+	//for(int i = 0; i < NUM_LEDS_TOTAL; i++)
+		//ledStrips.setLEDColor(i, Math.random(), Math.random(), Math.random());
+	}
 }
