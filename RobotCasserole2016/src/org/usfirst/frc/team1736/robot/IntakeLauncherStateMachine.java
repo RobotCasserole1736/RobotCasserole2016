@@ -28,7 +28,7 @@ public class IntakeLauncherStateMachine {
 	private static final IntLncState initState = IntLncState.STOPPED_NO_BALL;
 	public static final double INTAKE_IN_SPEED = 1.0;
 	public static final double INTAKE_EJECT_SPEED = -1.0;
-	public static final double INTAKE_RETRACT_SPEED = -0.30;
+	public static final double INTAKE_RETRACT_SPEED = -0.35;
 	public static final double INTAKE_RETRACT_TIME_LOOPS = 8;
 	public static final double LAUNCH_SPEED_RPM = 5100; 
 	public static final double INTAKE_LAUNCH_FEED_SPEED = 0.8;
@@ -46,7 +46,7 @@ public class IntakeLauncherStateMachine {
 	DaBouncer sensorOffDebounce;
 	public boolean ballSensorState;
 	public final int BALL_SENSOR_RISING_DBNC_LOOPS = 25;
-	public final int BALL_SENSOR_FALLING_DBNC_LOOPS = 50;
+	public final int BALL_SENSOR_FALLING_DBNC_LOOPS = 60;
 	
 	//intake motor
 	Talon intake;

@@ -157,7 +157,9 @@ public class Robot extends IterativeRobot {
             "AutonomousStep",
             "ShooterMotorStalled",
             "IntakeMotorCmd",
-            "AudioInVoltage"};
+            "AudioInVoltage",
+            "BallInCarry",
+            "IntakeShooterState"};
 
     static final String[] units_fields = {"sec", //TIME must always be in sec
            "sec",
@@ -224,7 +226,9 @@ public class Robot extends IterativeRobot {
            "val",
            "bit",
            "cmd",
-           "V"};
+           "V",
+           "bit",
+           "state"};
 		
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	// CLASS OBJECTS
@@ -697,7 +701,9 @@ public class Robot extends IterativeRobot {
     									  currentStep,
     									  intakeLauncherSM.shooterDiagnostics.motorStalled?1.0:0.0,
 										  intakeLauncherSM.intake.get(),
-										  leds.ledStrips.audioIn.getVoltage()
+										  leds.ledStrips.audioIn.getVoltage(),
+										  intakeLauncherSM.ballSensorState?1.0:0.0,
+										  intakeLauncherSM.curState.ordinal()
 				    					 );
 	    	//Check for brownout. If browned out, force write data to log. Just in case we
 	    	//lose power and nasty things happen, at least we'll know how we died...
