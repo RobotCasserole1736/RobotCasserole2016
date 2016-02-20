@@ -297,7 +297,7 @@ public class Robot extends IterativeRobot {
     	colorChooser.addObject("Stripes (Inv)", LEDPatterns.STRIPES_REV);
     	colorChooser.addObject("Twinkle", LEDPatterns.TWINKLE);
     	colorChooser.addObject("Pulse Red", LEDPatterns.PULSE_RED);
-    	colorChooser.addObject("Volume Controlled", LEDPatterns.VOLUME_CTRL);
+    	//colorChooser.addObject("Volume Controlled", LEDPatterns.VOLUME_CTRL);
     	colorChooser.addObject("Gradiant", LEDPatterns.GRADIENT);
     	colorChooser.addObject("Rainbow", LEDPatterns.RAINBOW);
     			//Tom's code (awesome stuff)
