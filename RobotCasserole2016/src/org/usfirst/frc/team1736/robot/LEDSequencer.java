@@ -106,7 +106,7 @@ public class LEDSequencer {
 				break;
 			
 			//Classy refinement.
-			case TWINKLE:
+			case TWINKLE_WEIRD:
 				double intensity1 = ((1-TWINKLE_DEPTH1) + TWINKLE_DEPTH1*Math.sin((double)callCounter*0.02*2*Math.PI*TWINKLE_FREQ1_HZ));
 				double intensity2 = ((1-TWINKLE_DEPTH2) + TWINKLE_DEPTH2*Math.sin((double)callCounter*0.02*2*Math.PI*TWINKLE_FREQ2_HZ));
 				double intensity3 = ((1-TWINKLE_DEPTH3) + TWINKLE_DEPTH3*Math.sin((double)callCounter*0.02*2*Math.PI*TWINKLE_FREQ3_HZ));
@@ -140,7 +140,7 @@ public class LEDSequencer {
 				break;
 				
 			//PUMP UP THE JAMS.
-			case VOLUME_CTRL:
+			case VOLUME_CTRL1:
 
 				for(i = 0; i < NUM_LEDS_R; i++){
 					if( ((double)i/(double)NUM_LEDS_R) < ledStrips.getAudioLevel() ){
