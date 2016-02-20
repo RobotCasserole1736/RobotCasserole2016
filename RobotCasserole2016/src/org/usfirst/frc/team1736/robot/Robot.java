@@ -235,7 +235,7 @@ public class Robot extends IterativeRobot {
 	PowerDistributionPanel pdp;
 	BatteryParamEstimator bpe;
 	BuiltInAccelerometer accel_RIO;
-	I2CGyro gyro;
+	//I2CGyro gyro;
 	
 	//Data Logger
 	CsvLogger logger = new CsvLogger();
@@ -286,7 +286,7 @@ public class Robot extends IterativeRobot {
     	autoChooser = new SendableChooser();
     	autoChooser.addObject("Drive Up To Defense (no cross)", 0);
     	autoChooser.addObject("Cross Low Bar (encoders)", 1);
-    	autoChooser.addDefault("Cross Uneven Defense (timer+gyro)",2);
+    	autoChooser.addDefault("Cross Uneven Defense (timer)",2);
     	autoChooser.addDefault("Do Nothing",-1);
     	SmartDashboard.putData("Auto Mode Chooser", autoChooser);
     	
@@ -322,7 +322,7 @@ public class Robot extends IterativeRobot {
     	bpe.setConfidenceThresh(BPE_confidenceThresh_A);
     	accel_RIO = new BuiltInAccelerometer();    	
     	csm = new CameraServoMount();
-    	gyro = new I2CGyro(); //this will cal the gyro - don't touch robot which this happens!
+    	//gyro = new I2CGyro(); //this will cal the gyro - don't touch robot which this happens!
     	
     	//Motors - Drivetrain
     	L_Motor_1 = new VictorSP(DT_LF_MOTOR_PWM_CH);
@@ -393,7 +393,7 @@ public class Robot extends IterativeRobot {
     	autoMode = (int) autoChooser.getSelected();
     	
     	//reset gyro angle to 0
-    	gyro.reset_gyro_angle();
+    	//gyro.reset_gyro_angle();
     	
     	//reset encoders to 0
     	driveTrain.leftEncoder.reset();
@@ -585,10 +585,14 @@ public class Robot extends IterativeRobot {
     	}
     	
     	//Set LED's to indicate current driver fwd direction
-    	if(cmdInvCtrls)
+    	if(cmdInvCtrls){
     		leds.sequencerPeriodic(LEDPatterns.STRIPES_REV);
-    	else
+    	}
+    	else{
     		leds.sequencerPeriodic(LEDPatterns.STRIPES_FWD);
+    	}
+    	//Update SmDB cam pos.
+		SmartDashboard.putBoolean("useCamera1", cmdInvCtrls);
     	
     	//Log data from this timestep
     	log_data();
@@ -675,8 +679,8 @@ public class Robot extends IterativeRobot {
 				    					  Climber.tapemotor.get(),
 				    					  Climber.winchmotor1.get(),
 				    					 (Climber.tapeTriggerState?1.0:0.0),
-				    					  gyro.get_gyro_angle()%360,
-				    					 (gyro.get_gyro_read_status()?1.0:0.0),
+				    					 -1, //Gyro not installed
+				    					 -1, //Gyro not installed
 				    					  Pneumatics.getCurrent(),
 				    					  launchMotor.getCurrent(),
 				    					  launchMotor.getMotorCmd(),
