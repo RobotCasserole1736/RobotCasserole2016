@@ -1,5 +1,14 @@
 <xml version="1.0">
 <dashboard>
+	<widget field="SquishSensor Reading" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="0" y="118"/>
+	</widget>
+	<widget field="Ball In CarryPos" type="Boolean" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="0" y="47"/>
+	</widget>
+	<widget field="ShooterRPM" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="0" y="26"/>
+	</widget>
 	<static-widget class="edu.wpi.first.smartdashboard.gui.elements.Label">
 		<location x="1030" y="11"/>
 		<property name="Text" value="Speed (Ft/S)"/>
@@ -39,7 +48,8 @@
 		<location x="366" y="192"/>
 	</widget>
 	<widget field="IntakeShooter State" type="String" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
-		<location x="777" y="222"/>
+		<location x="755" y="224"/>
+		<width>247</width>
 	</widget>
 	<widget field="Launch Motor Stalled" type="Boolean" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
 		<location x="778" y="199"/>
@@ -56,5 +66,4 @@
 </dashboard>
 <live-window>
 </live-window>
-	<hidden field="Total Current Draw"/>
 </xml>

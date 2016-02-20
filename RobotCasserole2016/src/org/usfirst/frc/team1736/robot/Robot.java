@@ -156,7 +156,8 @@ public class Robot extends IterativeRobot {
             "SquishSensorReading",
             "AutonomousStep",
             "ShooterMotorStalled",
-            "IntakeMotorCmd"};
+            "IntakeMotorCmd",
+            "AudioInVoltage"};
 
     static final String[] units_fields = {"sec", //TIME must always be in sec
            "sec",
@@ -222,7 +223,8 @@ public class Robot extends IterativeRobot {
            "val",
            "val",
            "bit",
-           "cmd"};
+           "cmd",
+           "V"};
 		
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	// CLASS OBJECTS
@@ -265,6 +267,9 @@ public class Robot extends IterativeRobot {
 	VictorSP R_Motor_2;
 	//Camera servo mount
 	CameraServoMount csm;
+	//LED's
+	LEDSequencer leds;
+	SendableChooser colorChooser;
 	
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	// PUBLIC METHODS 
@@ -284,6 +289,19 @@ public class Robot extends IterativeRobot {
     	autoChooser.addDefault("Cross Uneven Defense (timer+gyro)",2);
     	autoChooser.addDefault("Do Nothing",-1);
     	SmartDashboard.putData("Auto Mode Chooser", autoChooser);
+    	
+    	//LED Color Choose
+    	colorChooser = new SendableChooser();
+    	colorChooser.addObject("Solid Red", LEDPatterns.SOLID_RED);
+    	colorChooser.addObject("Stripes", LEDPatterns.STRIPES_FWD);
+    	colorChooser.addObject("Stripes (Inv)", LEDPatterns.STRIPES_REV);
+    	colorChooser.addObject("Twinkle", LEDPatterns.TWINKLE);
+    	colorChooser.addObject("Pulse Red", LEDPatterns.PULSE_RED);
+    	colorChooser.addObject("Volume Controlled", LEDPatterns.VOLUME_CTRL);
+    	colorChooser.addObject("Gradiant", LEDPatterns.GRADIENT);
+    	colorChooser.addObject("Rainbow", LEDPatterns.RAINBOW);
+    	colorChooser.addDefault("Off", LEDPatterns.OFF);
+    	//SmartDashboard.putData("LED Pattern Chooser", colorChooser);
     	
     	//Other Peripherals
     	ds = DriverStation.getInstance();
@@ -309,7 +327,8 @@ public class Robot extends IterativeRobot {
     	Climber=new Climb();
     	launchMotor = new Shooter();
     	intakeLauncherSM = new IntakeLauncherStateMachine(launchMotor);
-    	DBAC = new DrawbridgeArmControls ();
+    	DBAC = new DrawbridgeArmControls();
+    	leds = new LEDSequencer();
 
     	//Joysticks
     	joy1 = new Joystick(JOY1_INT);
@@ -336,6 +355,13 @@ public class Robot extends IterativeRobot {
     	//Turn rumble off
     	joy1.setRumble(RumbleType.kLeftRumble, 0);
 
+    }
+    
+    public void disabledPeriodic() {
+    	//Debug only
+    	System.out.println("In Disabled");
+    	leds.sequencerPeriodic(LEDPatterns.GRADIENT);
+    	
     }
     
     
@@ -378,6 +404,9 @@ public class Robot extends IterativeRobot {
     	
     	//Execution time metric - this must be first!
     	prev_loop_start_timestamp = Timer.getFPGATimestamp();
+    	
+    	//Indicate auto w/ led's
+    	leds.sequencerPeriodic(LEDPatterns.PULSE_RED);
     	
     
 	    switch(autoMode){
@@ -543,6 +572,12 @@ public class Robot extends IterativeRobot {
     		Pneumatics.stopCompressor();
     	}
     	
+    	//Set LED's to indicate current driver fwd direction
+    	if(cmdInvCtrls)
+    		leds.sequencerPeriodic(LEDPatterns.STRIPES_REV);
+    	else
+    		leds.sequencerPeriodic(LEDPatterns.STRIPES_FWD);
+    	
     	//Log data from this timestep
     	log_data();
     	updateSmartDashboard();
@@ -645,7 +680,8 @@ public class Robot extends IterativeRobot {
     									  launchMotor.getSquishSensorVal(),
     									  currentStep,
     									  intakeLauncherSM.shooterDiagnostics.motorStalled?1.0:0.0,
-										  intakeLauncherSM.intake.get()
+										  intakeLauncherSM.intake.get(),
+										  leds.ledStrips.audioIn.getVoltage()
 				    					 );
 	    	//Check for brownout. If browned out, force write data to log. Just in case we
 	    	//lose power and nasty things happen, at least we'll know how we died...
