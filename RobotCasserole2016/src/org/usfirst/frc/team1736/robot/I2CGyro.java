@@ -14,8 +14,7 @@
 //        background thread. Each time it is called, it gets the latest value
 //        from the gyro, performs any filtering required, and integrates
 //        the gyro value to calculate an angle. Class-private variables are 
-//        updated by this function. Synchronized public-facing functions
-//        are provided to read these variables' values.
+//        updated by this function. 
 //
 //
 //  CHANGE HISTORY:
@@ -398,7 +397,7 @@ public class I2CGyro {
 	//Must be synchronized due to multi-threaded stuff
 	
 	//Returns the most recent gyro reading in degrees per second
-	public synchronized double get_gyro_z(){
+	public  double get_gyro_z(){
 		if(gyro_initalized)
 			return gyro_z_val_deg_per_sec[0];
 		else
@@ -408,7 +407,7 @@ public class I2CGyro {
 	//returns the most recently calculated gyro angle in degrees
 	//Angle can vary between -Infinity and Infinity, you must wrap this
 	// to 0-360 if desired
-	public synchronized double get_gyro_angle(){
+	public  double get_gyro_angle(){
 		if(gyro_initalized)
 			return angle;
 		else
@@ -417,15 +416,15 @@ public class I2CGyro {
 	}
 	
 	//Resets the current angle of the gyro to zero
-	public synchronized void reset_gyro_angle(){
+	public  void reset_gyro_angle(){
 		angle = 0;		
 	}
 	
-	public synchronized boolean get_gyro_read_status(){
+	public  boolean get_gyro_read_status(){
 		return gyro_read_status;
 	}
 	
-	public synchronized boolean get_gyro_initalized(){
+	public  boolean get_gyro_initalized(){
 		return gyro_initalized;
 	}
 	
@@ -435,7 +434,7 @@ public class I2CGyro {
 	
 	//Initiates a request over I2C to get the Z-rotation data from teh gyro.
 	//Assumes all I2C communication initialization has been already done.
-	private synchronized short read_gyro_z_reg(){
+	private  short read_gyro_z_reg(){
 		byte[] buffer_low_and_high_bytes = {0, 0}; //buffer for I2C to read into
 		byte[] buffer_config_test_vals = {0}; // buffer to test the config values to make sure we didn't hit brownout
 		
@@ -477,7 +476,7 @@ public class I2CGyro {
 	//It commands a gyro read, scales the raw data to degrees/sec, and then calculates the current angle
 	// using the desired integration method
 	@SuppressWarnings("unused") //suppress compiler warnings because I swear, we do actually use this function.
-	public synchronized void periodic_update() {
+	public  void periodic_update() {
 		long cur_period_start_time = System.nanoTime(); //Record the time the current sample is being taken at.
 		//shift existing values
     	gyro_z_val_deg_per_sec[2] = gyro_z_val_deg_per_sec[1]; //note we discard the oldest sample
@@ -518,7 +517,7 @@ public class I2CGyro {
 	//Shifts a new value into the circular buffer
 	//outputs the current filter value (based on current and previous values given as input)
 	@SuppressWarnings("unused")
-	private synchronized double gyro_LP_filter(double input){
+	private  double gyro_LP_filter(double input){
 		int circ_buffer_index = 0;
 		double accumulator = 0;
 		
@@ -547,7 +546,7 @@ public class I2CGyro {
 	}
 	
 	//returns the median of some values. Pretty straightworward, figure it out yourself.
-	private synchronized double gyro_median_filter(double input){
+	private  double gyro_median_filter(double input){
 		double[] sorted_array = new double[MED_FILT_LEN];
 		
 		//shift the buffer the really slow way.
