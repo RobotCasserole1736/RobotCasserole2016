@@ -300,8 +300,20 @@ public class Robot extends IterativeRobot {
     	colorChooser.addObject("Volume Controlled", LEDPatterns.VOLUME_CTRL);
     	colorChooser.addObject("Gradiant", LEDPatterns.GRADIENT);
     	colorChooser.addObject("Rainbow", LEDPatterns.RAINBOW);
+    			//Tom's code (awesome stuff)
+    	colorChooser.addObject("Tom's Rainbow", LEDPatterns.ROYGBIV);
+    	colorChooser.addObject("Tom's Twinkle", LEDPatterns.TWINKLE_TOMS);
+    	colorChooser.addObject("March 17", LEDPatterns.GREEN);
+    	colorChooser.addObject("Red Alliance", LEDPatterns.RED);
+    	colorChooser.addObject("Blue Alliance", LEDPatterns.BLUE);
+    	colorChooser.addObject("Seven", LEDPatterns.SEVEN);
+    	colorChooser.addObject("Bright", LEDPatterns.BRIGHT);
+    	colorChooser.addObject("Swag", LEDPatterns.SWAG);
+    	colorChooser.addObject("RWB", LEDPatterns.MURICA);
+    	colorChooser.addObject("Robot Casserole", LEDPatterns.CASS);
+    			//default
     	colorChooser.addDefault("Off", LEDPatterns.OFF);
-    	//SmartDashboard.putData("LED Pattern Chooser", colorChooser);
+    	SmartDashboard.putData("LED Pattern Chooser", colorChooser);
     	
     	//Other Peripherals
     	ds = DriverStation.getInstance();
