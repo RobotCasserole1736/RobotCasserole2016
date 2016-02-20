@@ -55,6 +55,9 @@ public class DotStarsLEDStrip {
 	//Audio Input
 	AnalogInput audioIn;
 	private static final int AUDIO_IN_PORT = 2;
+	//scale/offset for microphone input
+	private final double AUDIO_MIN_V = 0.2;
+	private final double AUDIO_MAX_V = 3.0;
 	
 	/**
 	 * Constructor for led strip class
@@ -170,7 +173,7 @@ public class DotStarsLEDStrip {
 	 */
 	
 	public double getAudioLevel(){
-		return audioIn.getVoltage()/5.0;
+		return Math.min(1, Math.max(((audioIn.getVoltage() - AUDIO_MIN_V) / (AUDIO_MAX_V-AUDIO_MIN_V)),0));
 	}
 	
 	/**

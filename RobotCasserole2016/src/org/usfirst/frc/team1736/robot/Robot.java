@@ -301,7 +301,7 @@ public class Robot extends IterativeRobot {
     	colorChooser.addObject("Gradiant", LEDPatterns.GRADIENT);
     	colorChooser.addObject("Rainbow", LEDPatterns.RAINBOW);
     	colorChooser.addDefault("Off", LEDPatterns.OFF);
-    	SmartDashboard.putData("LED Pattern Chooser", colorChooser);
+    	//SmartDashboard.putData("LED Pattern Chooser", colorChooser);
     	
     	//Other Peripherals
     	ds = DriverStation.getInstance();
@@ -360,7 +360,7 @@ public class Robot extends IterativeRobot {
     public void disabledPeriodic() {
     	//Debug only
     	System.out.println("In Disabled");
-    	leds.sequencerPeriodic((LEDPatterns)colorChooser.getSelected());
+    	leds.sequencerPeriodic(LEDPatterns.GRADIENT);
     	
     }
     
@@ -404,6 +404,9 @@ public class Robot extends IterativeRobot {
     	
     	//Execution time metric - this must be first!
     	prev_loop_start_timestamp = Timer.getFPGATimestamp();
+    	
+    	//Indicate auto w/ led's
+    	leds.sequencerPeriodic(LEDPatterns.PULSE_RED);
     	
     
 	    switch(autoMode){
@@ -568,6 +571,12 @@ public class Robot extends IterativeRobot {
     	{
     		Pneumatics.stopCompressor();
     	}
+    	
+    	//Set LED's to indicate current driver fwd direction
+    	if(cmdInvCtrls)
+    		leds.sequencerPeriodic(LEDPatterns.STRIPES_REV);
+    	else
+    		leds.sequencerPeriodic(LEDPatterns.STRIPES_FWD);
     	
     	//Log data from this timestep
     	log_data();

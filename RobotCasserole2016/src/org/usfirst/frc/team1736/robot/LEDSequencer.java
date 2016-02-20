@@ -9,36 +9,29 @@ public class LEDSequencer {
 	private final int NUM_LEDS_L = 19;
 	private final int NUM_LEDS_TOTAL = NUM_LEDS_R + NUM_LEDS_L;
 	
-	private final int LED_INDEX_OFFSET_R = NUM_LEDS_L;
-	private final int LED_INDEX_OFFSET_L = 0;
-	
-	//scale/offset for microphone input
-	private final double AUDIO_MIN_LVL = 0.2;
-	private final double AUDIO_MAX_LVL = 3.0;
-	
 	//Effect Params
 	private final double PULSE_FREQ_HZ = 0.2;
 	
-	private final int STRIPE_WIDTH = 3;
+	private final int STRIPE_WIDTH = 5;
 	
 	private final double TWINKLE_FREQ1_HZ = 0.125;
-	private final double TWINKLE_FREQ2_HZ = 0.13;
+	private final double TWINKLE_FREQ2_HZ = 0.131;
 	private final double TWINKLE_FREQ3_HZ = 0.1;
 	private final double TWINKLE_FREQ4_HZ = 0.09;
 	private final double TWINKLE_DEPTH1 = 0.5;
-	private final double TWINKLE_DEPTH2 = 0.2;
-	private final double TWINKLE_DEPTH3 = 0.1;
-	private final double TWINKLE_DEPTH4 = 0.08;
+	private final double TWINKLE_DEPTH2 = 0.4;
+	private final double TWINKLE_DEPTH3 = 0.3;
+	private final double TWINKLE_DEPTH4 = 0.5;
 	private final int NUM_TWINKLES = 4; //at this point, "Twinkle" no longer looks like a word to this developer.
 	
 	//Color Defs
 	private final double CASSEROLE_RED_R = 1.0;
-	private final double CASSEROLE_RED_G = 0.1;
-	private final double CASSEROLE_RED_B = 0.1;
+	private final double CASSEROLE_RED_G = 0.00;
+	private final double CASSEROLE_RED_B = 0.00;
 	
 	private final double CASSEROLE_WHITE_R = 1.0;
 	private final double CASSEROLE_WHITE_G = 1.0;
-	private final double CASSEROLE_WHITE_B = 0.95;
+	private final double CASSEROLE_WHITE_B = 0.98;
 	
 	//Counters
 	private int callCounter;
@@ -87,13 +80,13 @@ public class LEDSequencer {
 			//Standard casserole banner
 			case STRIPES_FWD:
 				for(i = 0; i < NUM_LEDS_R; i++){
-					if(i % 2*STRIPE_WIDTH < STRIPE_WIDTH){
-						ledStrips.setLEDColor(i+LED_INDEX_OFFSET_L, CASSEROLE_RED_R, CASSEROLE_RED_G, CASSEROLE_RED_B);
-						ledStrips.setLEDColor(i+LED_INDEX_OFFSET_R, CASSEROLE_RED_R, CASSEROLE_RED_G, CASSEROLE_RED_B);
+					if((i % (2*STRIPE_WIDTH)) < STRIPE_WIDTH){
+						ledStrips.setLEDColor(i, CASSEROLE_RED_R, CASSEROLE_RED_G, CASSEROLE_RED_B);
+						ledStrips.setLEDColor(NUM_LEDS_TOTAL-i-1, CASSEROLE_RED_R, CASSEROLE_RED_G, CASSEROLE_RED_B);
 					}
 					else{
-						ledStrips.setLEDColor(i+LED_INDEX_OFFSET_L, CASSEROLE_WHITE_R, CASSEROLE_WHITE_G, CASSEROLE_WHITE_B);
-						ledStrips.setLEDColor(i+LED_INDEX_OFFSET_R, CASSEROLE_WHITE_R, CASSEROLE_WHITE_G, CASSEROLE_WHITE_B);
+						ledStrips.setLEDColor(i, CASSEROLE_WHITE_R, CASSEROLE_WHITE_G, CASSEROLE_WHITE_B);
+						ledStrips.setLEDColor(NUM_LEDS_TOTAL-i-1, CASSEROLE_WHITE_R, CASSEROLE_WHITE_G, CASSEROLE_WHITE_B);
 					}
 				}
 				break;
@@ -101,23 +94,23 @@ public class LEDSequencer {
 			//Standard casserole banner with swapped red/white stripes
 			case STRIPES_REV:
 				for(i = 0; i < NUM_LEDS_R; i++){
-					if(i % 2*STRIPE_WIDTH < STRIPE_WIDTH){
-						ledStrips.setLEDColor(i+LED_INDEX_OFFSET_L, CASSEROLE_WHITE_R, CASSEROLE_WHITE_G, CASSEROLE_WHITE_B);
-						ledStrips.setLEDColor(i+LED_INDEX_OFFSET_R, CASSEROLE_WHITE_R, CASSEROLE_WHITE_G, CASSEROLE_WHITE_B);
+					if((i % (2*STRIPE_WIDTH)) < STRIPE_WIDTH){
+						ledStrips.setLEDColor(i, CASSEROLE_WHITE_R, CASSEROLE_WHITE_G, CASSEROLE_WHITE_B);
+						ledStrips.setLEDColor(NUM_LEDS_TOTAL-(i)-1, CASSEROLE_WHITE_R, CASSEROLE_WHITE_G, CASSEROLE_WHITE_B);
 					}
 					else{
-						ledStrips.setLEDColor(i+LED_INDEX_OFFSET_L, CASSEROLE_RED_R, CASSEROLE_RED_G, CASSEROLE_RED_B);
-						ledStrips.setLEDColor(i+LED_INDEX_OFFSET_R, CASSEROLE_RED_R, CASSEROLE_RED_G, CASSEROLE_RED_B);
+						ledStrips.setLEDColor(i, CASSEROLE_RED_R, CASSEROLE_RED_G, CASSEROLE_RED_B);
+						ledStrips.setLEDColor(NUM_LEDS_TOTAL-(i)-1, CASSEROLE_RED_R, CASSEROLE_RED_G, CASSEROLE_RED_B);
 					}
 				}
 				break;
 			
 			//Classy refinement.
 			case TWINKLE:
-				double intensity1 = Math.max(Math.min(((1-TWINKLE_DEPTH1) + TWINKLE_DEPTH1*2*Math.sin((double)callCounter*0.02*2*Math.PI*TWINKLE_FREQ1_HZ)),1),0);
-				double intensity2 = Math.max(Math.min(((1-TWINKLE_DEPTH2) + TWINKLE_DEPTH2*2*Math.sin((double)callCounter*0.02*2*Math.PI*TWINKLE_FREQ2_HZ)),1),0);
-				double intensity3 = Math.max(Math.min(((1-TWINKLE_DEPTH3) + TWINKLE_DEPTH3*2*Math.sin((double)callCounter*0.02*2*Math.PI*TWINKLE_FREQ3_HZ)),1),0);
-				double intensity4 = Math.max(Math.min(((1-TWINKLE_DEPTH4) + TWINKLE_DEPTH4*2*Math.sin((double)callCounter*0.02*2*Math.PI*TWINKLE_FREQ4_HZ)),1),0);
+				double intensity1 = ((1-TWINKLE_DEPTH1) + TWINKLE_DEPTH1*Math.sin((double)callCounter*0.02*2*Math.PI*TWINKLE_FREQ1_HZ));
+				double intensity2 = ((1-TWINKLE_DEPTH2) + TWINKLE_DEPTH2*Math.sin((double)callCounter*0.02*2*Math.PI*TWINKLE_FREQ2_HZ));
+				double intensity3 = ((1-TWINKLE_DEPTH3) + TWINKLE_DEPTH3*Math.sin((double)callCounter*0.02*2*Math.PI*TWINKLE_FREQ3_HZ));
+				double intensity4 = ((1-TWINKLE_DEPTH4) + TWINKLE_DEPTH4*Math.sin((double)callCounter*0.02*2*Math.PI*TWINKLE_FREQ4_HZ));
 				for(i = 0; i < NUM_LEDS_TOTAL; i++){
 					if(i%2 == 1){ //only twinkle ever other LED
 						ledStrips.setLEDColor(i, CASSEROLE_WHITE_R, CASSEROLE_WHITE_G, CASSEROLE_WHITE_B);
@@ -150,26 +143,27 @@ public class LEDSequencer {
 			case VOLUME_CTRL:
 
 				for(i = 0; i < NUM_LEDS_R; i++){
-					redIntensity   = Math.max(Math.min(((double)i)/((double)NUM_LEDS_R-1.0) + 2*(0.5 - getNormalizedVolume()),1),0);
-					whiteIntensity = Math.max(Math.min(((double)(NUM_LEDS_R-i))/((double)NUM_LEDS_R-1.0) + 2*(getNormalizedVolume() - 0.5),1),0);
-					rval = (CASSEROLE_WHITE_R*whiteIntensity + CASSEROLE_RED_R*redIntensity)/2; //Assumes linear something something...
-					gval = (CASSEROLE_WHITE_G*whiteIntensity + CASSEROLE_RED_G*redIntensity)/2;
-					bval = (CASSEROLE_WHITE_B*whiteIntensity + CASSEROLE_RED_B*redIntensity)/2;
-					ledStrips.setLEDColor(i+LED_INDEX_OFFSET_L, rval, gval, bval);
-					ledStrips.setLEDColor(i+LED_INDEX_OFFSET_R, rval, gval, bval);
+					if( ((double)i/(double)NUM_LEDS_R) < ledStrips.getAudioLevel() ){
+						ledStrips.setLEDColor(i, CASSEROLE_WHITE_R, CASSEROLE_WHITE_G, CASSEROLE_WHITE_B);
+						ledStrips.setLEDColor(NUM_LEDS_TOTAL-(i)-1, CASSEROLE_WHITE_R, CASSEROLE_WHITE_G, CASSEROLE_WHITE_B);
+					}
+					else{
+						ledStrips.setLEDColor(i, CASSEROLE_RED_R, CASSEROLE_RED_G, CASSEROLE_RED_B);
+						ledStrips.setLEDColor(NUM_LEDS_TOTAL-(i)-1, CASSEROLE_RED_R, CASSEROLE_RED_G, CASSEROLE_RED_B);
+					}
 				}
 				break;
 				
 			//Smooth operator.
 			case GRADIENT:
 				for(i = 0; i < NUM_LEDS_R; i++){
-					redIntensity = ((double)i)/((double)NUM_LEDS_R-1.0);
-					whiteIntensity = ((double)(NUM_LEDS_R-i))/((double)NUM_LEDS_R-1.0);
+					redIntensity = Math.pow(((double)i)/((double)NUM_LEDS_R-1.0),3);
+					whiteIntensity = Math.pow(((double)(NUM_LEDS_R-i))/((double)NUM_LEDS_R-1.0),3);
 					rval = (CASSEROLE_WHITE_R*whiteIntensity + CASSEROLE_RED_R*redIntensity)/2; //Assumes linear something something...
 					gval = (CASSEROLE_WHITE_G*whiteIntensity + CASSEROLE_RED_G*redIntensity)/2;
 					bval = (CASSEROLE_WHITE_B*whiteIntensity + CASSEROLE_RED_B*redIntensity)/2;
-					ledStrips.setLEDColor(i+LED_INDEX_OFFSET_L, rval, gval, bval);
-					ledStrips.setLEDColor(i+LED_INDEX_OFFSET_R, rval, gval, bval);
+					ledStrips.setLEDColor(i, rval, gval, bval);
+					ledStrips.setLEDColor(NUM_LEDS_TOTAL-(i)-1, rval, gval, bval);
 				}
 				break;
 				
@@ -226,16 +220,8 @@ public class LEDSequencer {
 		}
 		
 		callCounter++;
+		System.out.println(ledStrips.getAudioLevel() + "  |  " + ledStrips.audioIn.getVoltage());
 	}
 	
-	
-	/**
-	 * Get the volume from the microphone in a range of 0 to 1
-	 * where 0 is the quietest we'll see and 1 is the loudest
-	 * @return
-	 */
-	double getNormalizedVolume(){
-		return Math.min(1, Math.max((ledStrips.getAudioLevel() - AUDIO_MIN_LVL) / (AUDIO_MAX_LVL-AUDIO_MIN_LVL),0));
-	}
 
 }
