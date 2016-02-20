@@ -13,7 +13,7 @@ public class CIMCurrentEstimator {
 	private static final double freewheelCurrent_A = 2.7;
 	
 	//Guessed Constants
-	private static final double motorWiringResistance = 0.160; //total guess to make the numbers work?
+	private static final double motorWiringResistance = 0.051; //total guess to make the numbers work? assumed 0.006 for wires and 0.005 for controller
 	
 	//Derived motor constants
 	private static final double ESR = operatingVoltage/stallCurrent_A + motorWiringResistance;
