@@ -372,7 +372,7 @@ public class Robot extends IterativeRobot {
     public void disabledPeriodic() {
     	//Debug only
     	System.out.println("In Disabled");
-    	leds.sequencerPeriodic(LEDPatterns.GRADIENT);
+    	leds.sequencerPeriodic((LEDPatterns)colorChooser.getSelected());
     	
     }
     

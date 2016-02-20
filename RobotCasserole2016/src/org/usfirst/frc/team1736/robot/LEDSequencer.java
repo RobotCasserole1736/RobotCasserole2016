@@ -329,11 +329,11 @@ public class LEDSequencer {
 	for(int i = 0; i < NUM_LEDS_TOTAL; i++)
 	{	
 		if(i % 2 < 1){
-			ledStrips.setLEDColor((int)Math.round(led_counter + i)%90, 1.0, 1.0, 1.0);	
+			ledStrips.setLEDColor((int)Math.round(led_counter + i)%NUM_LEDS_TOTAL, 1.0, 1.0, 1.0);	
 		}
 		
 		else{
-			ledStrips.setLEDColor((int)Math.round(led_counter + i)%90, 0.0, 0.0, 0.0);	
+			ledStrips.setLEDColor((int)Math.round(led_counter + i)%NUM_LEDS_TOTAL, 0.0, 0.0, 0.0);	
 		}
 		
 	}
@@ -344,16 +344,16 @@ public class LEDSequencer {
 		for(int i = 0; i < NUM_LEDS_TOTAL; i++)
 		{	
 			if(i % 9 < 5){
-				ledStrips.setLEDColor((int)Math.round(led_counter + i)%90, 0.9518387305, 0.0, 0.0);	
+				ledStrips.setLEDColor((int)Math.round(led_counter + i)%NUM_LEDS_TOTAL, 0.9518387305, 0.0, 0.0);	
 			}
 			
 			
 			else if(i % 9 < 8){
-				ledStrips.setLEDColor((int)Math.round(led_counter + i)%90, 0.995723, 0.0, 0.4978615);	
+				ledStrips.setLEDColor((int)Math.round(led_counter + i)%NUM_LEDS_TOTAL, 0.995723, 0.0, 0.4978615);	
 			}
 			
 			else{
-				ledStrips.setLEDColor((int)Math.round(led_counter + i)%90, 0.995723, 0.01872, 0.995723);	
+				ledStrips.setLEDColor((int)Math.round(led_counter + i)%NUM_LEDS_TOTAL, 0.995723, 0.01872, 0.995723);	
 			}
 				
 			
@@ -367,19 +367,19 @@ public class LEDSequencer {
 			for(int i = 0; i < NUM_LEDS_TOTAL; i++)
 			{	
 				if(i % 5 < 1){
-					ledStrips.setLEDColor((int)Math.round(led_counter + i)%90, 0.7, 0.0, 0.0);	
+					ledStrips.setLEDColor((int)Math.round(led_counter + i)%NUM_LEDS_TOTAL, 0.7, 0.0, 0.0);	
 				}
 				else if(i % 5 < 2 ){
-					ledStrips.setLEDColor((int)Math.round(led_counter + i)%90, 0.95, 0.0, 0.95);	
+					ledStrips.setLEDColor((int)Math.round(led_counter + i)%NUM_LEDS_TOTAL, 0.95, 0.0, 0.95);	
 				}
 				else if(i % 5 < 3){
-					ledStrips.setLEDColor((int)Math.round(led_counter + i)%90, 0.95, 0.0, 0.36);	
+					ledStrips.setLEDColor((int)Math.round(led_counter + i)%NUM_LEDS_TOTAL, 0.95, 0.0, 0.36);	
 				}
 				else if(i % 5 < 4){
-					ledStrips.setLEDColor((int)Math.round(led_counter + i)%90, 0.1, 0.7, 0.3);	
+					ledStrips.setLEDColor((int)Math.round(led_counter + i)%NUM_LEDS_TOTAL, 0.1, 0.7, 0.3);	
 				}
 				else{
-					ledStrips.setLEDColor((int)Math.round(led_counter + i)%90, 0.75, 0.0, 0.75);	
+					ledStrips.setLEDColor((int)Math.round(led_counter + i)%NUM_LEDS_TOTAL, 0.75, 0.0, 0.75);	
 				}
 				
 			}
@@ -389,26 +389,26 @@ public class LEDSequencer {
 		for(int i = 0; i < NUM_LEDS_TOTAL; i++)
 		{	
 			if(i % 7 < 1){
-				ledStrips.setLEDColor((int)Math.round(led_counter + i)%90, 1.0, 0.0, 0.0);	
+				ledStrips.setLEDColor((int)Math.round(led_counter + i)%NUM_LEDS_TOTAL, 1.0, 0.0, 0.0);	
 			}
 			else if(i % 7 < 2){
-				ledStrips.setLEDColor((int)Math.round(led_counter + i)%90, 0.7, 0.0, 0.3);
+				ledStrips.setLEDColor((int)Math.round(led_counter + i)%NUM_LEDS_TOTAL, 0.7, 0.0, 0.3);
 			}
 			else if(i % 7 < 3){
-				ledStrips.setLEDColor((int)Math.round(led_counter + i)%90, 0.7, 0.0, 0.7);
+				ledStrips.setLEDColor((int)Math.round(led_counter + i)%NUM_LEDS_TOTAL, 0.7, 0.0, 0.7);
 			}
 			else if(i % 7 < 4){
-				ledStrips.setLEDColor((int)Math.round(led_counter + i)%90, 0.0, 0.0, 1.0);
+				ledStrips.setLEDColor((int)Math.round(led_counter + i)%NUM_LEDS_TOTAL, 0.0, 0.0, 1.0);
 			}
 			else if(i % 7 < 5){
-				ledStrips.setLEDColor((int)Math.round(led_counter + i)%90, 0.0, 1.0, 0.0);
+				ledStrips.setLEDColor((int)Math.round(led_counter + i)%NUM_LEDS_TOTAL, 0.0, 1.0, 0.0);
 			}
 			else if(i % 7 < 6){
-				ledStrips.setLEDColor((int)Math.round(led_counter + i)%90, 0.3, 0.7, 0.0);
+				ledStrips.setLEDColor((int)Math.round(led_counter + i)%NUM_LEDS_TOTAL, 0.3, 0.7, 0.0);
 			}
 			
 			else{
-				ledStrips.setLEDColor((int)Math.round(led_counter + i)%90, 0.7, 0.7, 0.0);	
+				ledStrips.setLEDColor((int)Math.round(led_counter + i)%NUM_LEDS_TOTAL, 0.7, 0.7, 0.0);	
 			}
 			
 		}
@@ -418,14 +418,14 @@ public class LEDSequencer {
 		for(int i = 0; i < NUM_LEDS_TOTAL; i++)
 		{	
 			if(i % 8 < 4){
-				ledStrips.setLEDColor((int)Math.round(led_counter + i)%90, 0.17, 0.17, 0.1);	
+				ledStrips.setLEDColor((int)Math.round(led_counter + i)%NUM_LEDS_TOTAL, 0.17, 0.17, 0.1);	
 			}
 			else if(i % 8 < 7){
-				ledStrips.setLEDColor((int)Math.round(led_counter + i)%90, 0.17, 0.17, 0.5);
+				ledStrips.setLEDColor((int)Math.round(led_counter + i)%NUM_LEDS_TOTAL, 0.17, 0.17, 0.5);
 			}
 			
 			else{
-				ledStrips.setLEDColor((int)Math.round(led_counter + i)%90, 0.7, 0.0, 0.9);	
+				ledStrips.setLEDColor((int)Math.round(led_counter + i)%NUM_LEDS_TOTAL, 0.7, 0.0, 0.9);	
 			}
 			
 		}
@@ -435,14 +435,14 @@ public class LEDSequencer {
 		for(int i = 0; i < NUM_LEDS_TOTAL; i++)
 		{	
 			if(i % 8 < 4){
-				ledStrips.setLEDColor((int)Math.round(led_counter + i)%90, 0.0, 0.0, 0.1);	
+				ledStrips.setLEDColor((int)Math.round(led_counter + i)%NUM_LEDS_TOTAL, 0.0, 0.0, 0.1);	
 			}
 			else if(i % 8 < 7){
-				ledStrips.setLEDColor((int)Math.round(led_counter + i)%90, 0.0, 0.0, 0.5);
+				ledStrips.setLEDColor((int)Math.round(led_counter + i)%NUM_LEDS_TOTAL, 0.0, 0.0, 0.5);
 			}
 			
 			else{
-				ledStrips.setLEDColor((int)Math.round(led_counter + i)%90, 0.0, 0.0, 0.9);	
+				ledStrips.setLEDColor((int)Math.round(led_counter + i)%NUM_LEDS_TOTAL, 0.0, 0.0, 0.9);	
 			}
 			
 		}
@@ -452,12 +452,12 @@ public class LEDSequencer {
 		for(int i = 0; i < NUM_LEDS_TOTAL; i++)
 		{	
 			if(i % 10 < 5){
-				ledStrips.setLEDColor((int)Math.round(led_counter + i)%90, 0.9518387305, 0.0, 0.0);	
+				ledStrips.setLEDColor((int)Math.round(led_counter + i)%NUM_LEDS_TOTAL, 0.9518387305, 0.0, 0.0);	
 			}
 			
 			
 			else{
-				ledStrips.setLEDColor((int)Math.round(led_counter + i)%90, 0.0, 0.25, 1.0);	
+				ledStrips.setLEDColor((int)Math.round(led_counter + i)%NUM_LEDS_TOTAL, 0.0, 0.25, 1.0);	
 			}
 			
 		}
@@ -468,14 +468,14 @@ public class LEDSequencer {
 	for(int i = 0; i < NUM_LEDS_TOTAL; i++)
 	{	
 		if(i % 8 < 4){
-			ledStrips.setLEDColor((int)Math.round(led_counter + i)%90, 0.9518387305, 0.0, 0.0);	
+			ledStrips.setLEDColor((int)Math.round(led_counter + i)%NUM_LEDS_TOTAL, 0.9518387305, 0.0, 0.0);	
 		}
 		else if(i % 8 < 7){
-			ledStrips.setLEDColor((int)Math.round(led_counter + i)%90, 1.0, 1.0, 1.0);
+			ledStrips.setLEDColor((int)Math.round(led_counter + i)%NUM_LEDS_TOTAL, 1.0, 1.0, 1.0);
 		}
 		
 		else{
-			ledStrips.setLEDColor((int)Math.round(led_counter + i)%90, 0.8, 0.0, 0.3);	
+			ledStrips.setLEDColor((int)Math.round(led_counter + i)%NUM_LEDS_TOTAL, 0.8, 0.0, 0.3);	
 		}
 		
 	}
@@ -487,11 +487,11 @@ public class LEDSequencer {
 	for(int i = 0; i < NUM_LEDS_TOTAL; i++)
 	{	
 		if(i % 10 < 5){
-			ledStrips.setLEDColor((int)Math.round(led_counter + i)%90, 0.9518387305, 0.0, 0.0);	
+			ledStrips.setLEDColor((int)Math.round(led_counter + i)%NUM_LEDS_TOTAL, 0.9518387305, 0.0, 0.0);	
 		}
 		
 		else{
-			ledStrips.setLEDColor((int)Math.round(led_counter + i)%90, 0.75, 0.75, 0.75);	
+			ledStrips.setLEDColor((int)Math.round(led_counter + i)%NUM_LEDS_TOTAL, 0.75, 0.75, 0.75);	
 		}
 		
 	}
@@ -501,11 +501,11 @@ public class LEDSequencer {
 	/**for(int i = 0; i < NUM_LEDS_TOTAL; i++)
 	{	
 		if(i % 10 < 5){
-			ledStrips.setLEDColor((int)Math.round(led_counter + i)%90, 0.0, 0.9324289523, 0.0);	
+			ledStrips.setLEDColor((int)Math.round(led_counter + i)%NUM_LEDS_TOTAL, 0.0, 0.9324289523, 0.0);	
 		}
 		
 		else{
-			ledStrips.setLEDColor((int)Math.round(led_counter + i)%90, 0.69, 0.69, 0.69);	
+			ledStrips.setLEDColor((int)Math.round(led_counter + i)%NUM_LEDS_TOTAL, 0.69, 0.69, 0.69);	
 		}
 		
 	}
@@ -515,23 +515,23 @@ public class LEDSequencer {
 	for(int i = 0; i < NUM_LEDS_TOTAL; i++)
 	{	
 		if(i % 10 < 5){
-			ledStrips.setLEDColor((int)Math.round(led_counter + i)%90, 0.0, 0.9324289523, 0.0);	
+			ledStrips.setLEDColor((int)Math.round(led_counter + i)%NUM_LEDS_TOTAL, 0.0, 0.9324289523, 0.0);	
 		}
 		
 		else if(i % 10 < 6){
-			ledStrips.setLEDColor((int)Math.round(led_counter + i)%90, 0.4, 0.6, 0.4);	
+			ledStrips.setLEDColor((int)Math.round(led_counter + i)%NUM_LEDS_TOTAL, 0.4, 0.6, 0.4);	
 		}
 		else if(i % 10 < 7){
-			ledStrips.setLEDColor((int)Math.round(led_counter + i)%90, 0.32, 0.58, 0.32);	
+			ledStrips.setLEDColor((int)Math.round(led_counter + i)%NUM_LEDS_TOTAL, 0.32, 0.58, 0.32);	
 		}
 		else if(i % 10 < 8){
-			ledStrips.setLEDColor((int)Math.round(led_counter + i)%90, 0.26, 0.56, 0.26);	
+			ledStrips.setLEDColor((int)Math.round(led_counter + i)%NUM_LEDS_TOTAL, 0.26, 0.56, 0.26);	
 		}
 		else if(i % 10 < 9){
-			ledStrips.setLEDColor((int)Math.round(led_counter + i)%90, 0.2, 0.54, 0.2);	
+			ledStrips.setLEDColor((int)Math.round(led_counter + i)%NUM_LEDS_TOTAL, 0.2, 0.54, 0.2);	
 		}
 		else if(i % 10 < 10){
-			ledStrips.setLEDColor((int)Math.round(led_counter + i)%90, 0.14, 0.52, 0.14);	
+			ledStrips.setLEDColor((int)Math.round(led_counter + i)%NUM_LEDS_TOTAL, 0.14, 0.52, 0.14);	
 		}
 		
 	}
