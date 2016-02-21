@@ -335,7 +335,7 @@ public class Robot extends IterativeRobot {
     	R_Motor_2 = new VictorSP(DT_RB_MOTOR_PWM_CH);
     	
     	//Drivetrain
-    	driveTrain = new DriveTrain(L_Motor_1, L_Motor_2, R_Motor_1, R_Motor_2, pdp, bpe, gyro);
+    	driveTrain = new DriveTrain(L_Motor_1, L_Motor_2, R_Motor_1, R_Motor_2, pdp, bpe);
     	shifter = new OttoShifter();
     	wheel_speed = new DerivativeCalculator();
     	

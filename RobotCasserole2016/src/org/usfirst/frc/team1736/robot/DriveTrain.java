@@ -33,9 +33,6 @@ public class DriveTrain extends RobotDrive { //Inherits methods from RobotDrive 
 	//Using Chris' naming convention
 	double controllerVDrop_V = 0;
 	
-	//Gyro
-	I2CGyro gyro;
-	
 	//Encoders
 	protected Encoder leftEncoder;
 	protected Encoder rightEncoder;
@@ -56,31 +53,8 @@ public class DriveTrain extends RobotDrive { //Inherits methods from RobotDrive 
 	public static final double MOTOR_TO_ENCODER_RATIO_LG = (6.1275)/3;
 	public static final int ENCODER_TICKS_PER_REV = 128;
 	
-	PIDController controller;
-	double P = 1.3; //PID values from last year.  Probably too aggressive
-	double I = 0;
-	double D = 2.0;
-	
 	//Offset computed by PID controller
 	double gyroOffset = 0;
-
-	private PIDOutput output = new PIDOutput() {
-	    public void pidWrite(double output) {
-	    	gyroOffset = output;
-	    }
-	};
-
-	private PIDSource source = new PIDSource() {
-	    public PIDSourceType getPIDSourceType() {
-	        return PIDSourceType.kDisplacement;
-	    }
-
-	    public void setPIDSourceType(PIDSourceType type) {}
-
-	    public double pidGet() {
-	        return gyro.get_gyro_angle();
-	    }
-	};
 	
 	
 	public DriveTrain(SpeedController leftMotor_1, SpeedController leftMotor_2, 
@@ -90,13 +64,6 @@ public class DriveTrain extends RobotDrive { //Inherits methods from RobotDrive 
 	{
 		//Super Constructor
 		super(leftMotor_1, leftMotor_2, rightMotor_1, rightMotor_2);
-		
-		//Create the PID Controller - starts a new thread
-	    controller = new PIDController(P, I, D, source, output);
-	    controller.setInputRange(0, 360);
-	    controller.setContinuous();
-	    controller.setOutputRange(0, 1); // we'll figure out +/- for L/R ourselves
-	    controller.setPercentTolerance(2); //going to want this based on our type of wheels/dt
 	    
 		//Left Motors
 		this.leftMotor_1 = leftMotor_1;
@@ -111,9 +78,6 @@ public class DriveTrain extends RobotDrive { //Inherits methods from RobotDrive 
 		
 		//Battery Param Estimator
 		this.bpe = bpe;
-		
-		//Gyro
-		this.gyro = gyro;
 		
 		//Power Distribution Panel
 		this.pdp = pdp;
@@ -148,22 +112,7 @@ public class DriveTrain extends RobotDrive { //Inherits methods from RobotDrive 
 	}
 	
 	public void setLeftRightMotorOutputs(double leftOutput, double rightOutput)
-	{
-		//Add gyro offset if PID controller is enabled
-		//Null check because this method can be called before controller is initialized
-		if (controller != null && controller.isEnabled()) {
-			if (controller.getError() > 0 ) {
-				rightOutput+= gyroOffset;
-				leftOutput-= gyroOffset;
-			}
-			else {
-				rightOutput-= gyroOffset;
-				leftOutput+= gyroOffset;	
-			}
-			rightOutput = limit(rightOutput);
-			leftOutput = limit(leftOutput);
-		}
-			
+	{		
 		//If motor induces acceptable voltage drop, just set it
 		if(isAcceptableVoltage(-leftOutput, -rightOutput))
 		{
@@ -245,7 +194,7 @@ public class DriveTrain extends RobotDrive { //Inherits methods from RobotDrive 
 	
 	public void alignToVisionTarget()
 	{
-		
+		//RIP Vision Processing :(
 	}
 	
 	public String getMemes()
