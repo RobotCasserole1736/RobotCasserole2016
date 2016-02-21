@@ -584,9 +584,10 @@ public class Robot extends IterativeRobot {
     	
     	
     	//Adjust intake position based on driver commands
+    	//Default to up, unless the driver commands down
     	if(joy2.getRawButton(XBOX_A_BUTTON))
     		Pneumatics.intakeDown();
-    	if(joy2.getRawButton(XBOX_Y_BUTTON))
+    	else
     		Pneumatics.intakeUp();
     	
     	//Enable/Disable compressor based on driver commands
