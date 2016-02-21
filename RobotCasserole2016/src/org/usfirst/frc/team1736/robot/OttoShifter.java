@@ -79,7 +79,7 @@ public class OttoShifter {
 		 StallCurrentDebounceState = StallCurrentDebounce.AboveDebounce(CurrentValue_A);
 	 		 
 		 if (gear == true){ //Top Gear
-			 if (DriverDownshiftCmd == true|| (VelDebounceState == true &&  //"ran into a wall" downshift
+			 if (DriverUpshiftCmd == false || (VelDebounceState == true &&  //"ran into a wall" downshift
 					                           WheelAccelDebounceState == true && 
 					                           VertAccelDebounceState == true && 
 					                           CurrentDebounceState == true && 
