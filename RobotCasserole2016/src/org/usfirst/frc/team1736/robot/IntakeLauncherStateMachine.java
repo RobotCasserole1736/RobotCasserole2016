@@ -5,6 +5,7 @@ package org.usfirst.frc.team1736.robot;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Talon;
+import edu.wpi.first.wpilibj.Timer;
 
 /**
  * @author Chris Gerth
@@ -15,9 +16,6 @@ public class IntakeLauncherStateMachine {
 	//State variables
 	public IntLncState curState;
 	private IntLncState nextState;
-	private int shooterEncFailedDbncCntr;
-	private int retractCounter; 
-	private int minLaunchTimeCounter;
 	
 	//Public Outputs - read these to set motor values
 	public double shooterCmd_RPM;
@@ -29,16 +27,16 @@ public class IntakeLauncherStateMachine {
 	public static final double INTAKE_IN_SPEED = 1.0;
 	public static final double INTAKE_EJECT_SPEED = -1.0;
 	public static final double INTAKE_RETRACT_SPEED = -0.40;
-	public static final double INTAKE_RETRACT_TIME_LOOPS = 10;
+	public static final double INTAKE_RETRACT_TIME_MS = 200;
 	public static final double LAUNCH_SPEED_RPM = 4150; 
 	public static final double INTAKE_LAUNCH_FEED_SPEED = 0.8;
 	public static final double LAUNCH_SPEED_ERR_LMT_RPM = 200;
-	public static final double MIN_LAUNCH_TIME_THRESH_LOOPS = 75;
+	public static final double MIN_LAUNCH_TIME_THRESH_MS = 1500;
 	public static final double SPOOLDOWN_THRESH_RPM = 100;
 	
 	public static final double LAUNCH_MOTOR_I_MIN_THRESH_A = 5;
 	public static final double LAUNCH_MOTOR_I_MAX_THRESH_A = 20;
-	public static final double LAUNCH_MOTOR_ERR_DBNC_TIME_LOOPS = 200;
+	public static final double LAUNCH_MOTOR_ERR_DBNC_TIME_MS = 4000;
 	
 	//Sensor for ball detection
 	protected DigitalInput ballSensor;
@@ -59,13 +57,15 @@ public class IntakeLauncherStateMachine {
 	final static int intake_ID = 5;
 	final static int ballSensor_ID = 4;
 	
+	//State Transition Timers
+	Timer stateTimer;
+	Timer encFailedTimer;
+	
 	
 	
 	
 	IntakeLauncherStateMachine(Shooter shooter_in){
 		curState = initState;
-		shooterEncFailedDbncCntr = 0;
-		retractCounter = 0;
 		launchEncoderFailed = false;
 		
 		intake = new Talon(intake_ID);
@@ -79,6 +79,9 @@ public class IntakeLauncherStateMachine {
 		
 		shooter = shooter_in;
 		shooterDiagnostics = new MotorDiagnostic();
+		
+		stateTimer = new Timer();
+		encFailedTimer = new Timer();
 	}
 	
 	void periodicStateMach(boolean intakeCmded, 
@@ -135,40 +138,60 @@ public class IntakeLauncherStateMachine {
 			case CARRY_BALL:
 				if(!ballSensorState)
 					nextState = IntLncState.STOPPED_NO_BALL;
-				else if(prepToLaunchCmded | launchCmded)
+				else if(prepToLaunchCmded | launchCmded){
 					nextState = IntLncState.RETRACT;
+					stateTimer.reset(); //Will be used to calculate retract time
+					stateTimer.start();
+				}
 				
 				break;
 			case CARRY_BALL_OVD:
-				if(prepToLaunchCmded | launchCmded)
+				if(prepToLaunchCmded | launchCmded){
 					nextState = IntLncState.RETRACT;
+					stateTimer.reset(); //Will be used to calculate retract time
+					stateTimer.start();
+				}
 				
 				break;
 			case RETRACT:
-				if(retractCounter >= INTAKE_RETRACT_TIME_LOOPS)
+				if(stateTimer.get()*1000 >= INTAKE_RETRACT_TIME_MS){
 					nextState = IntLncState.WAIT_FOR_SPOOLUP;
+					stateTimer.stop();
+					encFailedTimer.reset(); //start up the timer to ensure encoder hasn't failed.
+					encFailedTimer.start();
+				}
 				break;
 			case WAIT_FOR_SPOOLUP:
 				if(intakeCmded)
 					nextState = IntLncState.WAIT_FOR_SPOOLDOWN;
 				else if((shooter.getAbsError() < LAUNCH_SPEED_ERR_LMT_RPM) |
-					     calcEncoderFailed(shooter.getCurrent()))
+					     calcEncoderFailed(shooter.getCurrent())){
 					nextState = IntLncState.WAIT_FOR_LAUNCH;
+					encFailedTimer.stop();//do not reset here, just stop accumulating since we're within a valid speed range
+				}
 				
 				break;
 			case WAIT_FOR_LAUNCH:
 				if(intakeCmded)
 					nextState = IntLncState.WAIT_FOR_SPOOLDOWN;
 				else if((shooter.getAbsError() >= LAUNCH_SPEED_ERR_LMT_RPM) &
-					     !calcEncoderFailed(shooter.getCurrent()))
+					     !calcEncoderFailed(shooter.getCurrent())){
 					nextState = IntLncState.WAIT_FOR_SPOOLUP;
-				else if(launchCmded)
+					encFailedTimer.start(); //we're back to an invalid speed range, start accumulating time again
+				}
+				else if(launchCmded){
 					nextState = IntLncState.LAUNCH;
+					encFailedTimer.stop();
+					stateTimer.reset();//Will be used to calculate minimum launch time
+					stateTimer.start(); 
+				}
 				
 				break;
 			case LAUNCH:
-				if(!launchCmded & minLaunchTimeCounter > MIN_LAUNCH_TIME_THRESH_LOOPS)
+				if(!launchCmded & stateTimer.get()*1000 > MIN_LAUNCH_TIME_THRESH_MS){
 					nextState = IntLncState.WAIT_FOR_SPOOLDOWN;
+					stateTimer.stop();
+				}
 				
 				break;
 			case WAIT_FOR_SPOOLDOWN:
@@ -188,89 +211,56 @@ public class IntakeLauncherStateMachine {
 		//but makes the debugging much easier. I don't recommend changing it.
 		switch(curState){
 		case STOPPED_NO_BALL:
-			shooterEncFailedDbncCntr = 0;
-			retractCounter = 0; 
-			minLaunchTimeCounter = 0;
 			shooterCmd_RPM = 0;
 			intakeCmd = 0;
 			
 			break;
 		case INTAKE:
-			shooterEncFailedDbncCntr = 0;
-			retractCounter = 0; 
-			minLaunchTimeCounter = 0;
 			shooterCmd_RPM = 0;
 			intakeCmd = INTAKE_IN_SPEED;
 			
 			break;
 		case EJECT:
-			shooterEncFailedDbncCntr = 0;
-			retractCounter = 0; 
-			minLaunchTimeCounter = 0;
 			shooterCmd_RPM = 0;
 			intakeCmd = INTAKE_EJECT_SPEED;
 			
 			break;
 		case INTAKE_OVD:
-			shooterEncFailedDbncCntr = 0;
-			retractCounter = 0; 
-			minLaunchTimeCounter = 0;
 			shooterCmd_RPM = 0;
 			intakeCmd = INTAKE_IN_SPEED;
 			
 			break;
 		case CARRY_BALL:
-			shooterEncFailedDbncCntr = 0;
-			retractCounter = 0; 
-			minLaunchTimeCounter = 0;
 			shooterCmd_RPM = 0;
 			intakeCmd = 0;
 			
 			break;
 		case CARRY_BALL_OVD:
-			shooterEncFailedDbncCntr = 0;
-			retractCounter = 0; 
-			minLaunchTimeCounter = 0;
 			shooterCmd_RPM = 0;
 			intakeCmd = 0;
 			
 			break;
 		case RETRACT:
-			shooterEncFailedDbncCntr = 0;
-			retractCounter++; //notice the increment!
-			minLaunchTimeCounter = 0;
 			shooterCmd_RPM = 0;
 			intakeCmd = INTAKE_RETRACT_SPEED;
 			
 			break;
 		case WAIT_FOR_SPOOLUP:
-			shooterEncFailedDbncCntr++; //notice the increment!
-			retractCounter = 0; 
-			minLaunchTimeCounter = 0;
 			shooterCmd_RPM = LAUNCH_SPEED_RPM;
 			intakeCmd = 0;
 			
 			break;
 		case WAIT_FOR_LAUNCH:
-			//shooterEncFailedDbncCntr; //notice the maintain-value!
-			retractCounter = 0; 
-			minLaunchTimeCounter = 0;
 			shooterCmd_RPM = LAUNCH_SPEED_RPM;
 			intakeCmd = 0;
 			
 			break;
 		case LAUNCH:
-			shooterEncFailedDbncCntr = 0;
-			retractCounter = 0; 
-			minLaunchTimeCounter++;  //notice the increment!
 			shooterCmd_RPM = LAUNCH_SPEED_RPM;
 			intakeCmd = INTAKE_LAUNCH_FEED_SPEED;
 			
 			break;
 		case WAIT_FOR_SPOOLDOWN:
-			shooterEncFailedDbncCntr = 0;
-			retractCounter = 0; 
-			minLaunchTimeCounter = 0;
 			shooterCmd_RPM = 0;
 			intakeCmd = 0;
 			
@@ -321,7 +311,7 @@ public class IntakeLauncherStateMachine {
 	 * @return True if encoder failed, false otherwise
 	 */
 	private boolean calcEncoderFailed(double shooterCurrent_A){
-	     if((shooterEncFailedDbncCntr > LAUNCH_MOTOR_ERR_DBNC_TIME_LOOPS) & 
+	     if((encFailedTimer.get() > LAUNCH_MOTOR_ERR_DBNC_TIME_MS) & 
 	    		   shooterCurrent_A < LAUNCH_MOTOR_I_MAX_THRESH_A &
 	    		   shooterCurrent_A > LAUNCH_MOTOR_I_MIN_THRESH_A)
 	    	 launchEncoderFailed = true;
