@@ -59,6 +59,7 @@ for filename in filenames:
     file = open(local_filename, 'wb')
     ftp.retrbinary('RETR '+ filename, file.write)
     file.close()
+    ftp.delete(filename)
     i = i+1
     
 #We're Done!

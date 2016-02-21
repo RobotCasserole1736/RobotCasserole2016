@@ -28,11 +28,11 @@ public class IntakeLauncherStateMachine {
 	private static final IntLncState initState = IntLncState.STOPPED_NO_BALL;
 	public static final double INTAKE_IN_SPEED = 1.0;
 	public static final double INTAKE_EJECT_SPEED = -1.0;
-	public static final double INTAKE_RETRACT_SPEED = -0.35;
-	public static final double INTAKE_RETRACT_TIME_LOOPS = 8;
-	public static final double LAUNCH_SPEED_RPM = 5100; 
+	public static final double INTAKE_RETRACT_SPEED = -0.40;
+	public static final double INTAKE_RETRACT_TIME_LOOPS = 10;
+	public static final double LAUNCH_SPEED_RPM = 4150; 
 	public static final double INTAKE_LAUNCH_FEED_SPEED = 0.8;
-	public static final double LAUNCH_SPEED_ERR_LMT_RPM = 300;
+	public static final double LAUNCH_SPEED_ERR_LMT_RPM = 200;
 	public static final double MIN_LAUNCH_TIME_THRESH_LOOPS = 75;
 	public static final double SPOOLDOWN_THRESH_RPM = 100;
 	
@@ -293,7 +293,7 @@ public class IntakeLauncherStateMachine {
     	shooterDiagnostics.eval(shooter.getActSpeed(), shooter.getCurrent(), shooter.getMotorCmd());
     	if(shooterDiagnostics.motorStalled){
     		shooter.shooterController.set(0);
-    		shooter.setSpeed(0);
+    		shooter.setSpeed(0.0);
     	}
     	else { 
     		shooter.setSpeed(shooterCmd_RPM);
