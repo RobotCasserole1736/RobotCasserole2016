@@ -315,6 +315,7 @@ public class Robot extends IterativeRobot {
     	colorChooser.addObject("Swag", LEDPatterns.SWAG);
     	colorChooser.addObject("RWB", LEDPatterns.MURICA);
     	colorChooser.addObject("Robot Casserole", LEDPatterns.CASS);
+    	colorChooser.addObject("Randy", LEDPatterns.RANDY);
     			//default
     	colorChooser.addDefault("Off", LEDPatterns.OFF);
     	SmartDashboard.putData("LED Pattern Chooser", colorChooser);

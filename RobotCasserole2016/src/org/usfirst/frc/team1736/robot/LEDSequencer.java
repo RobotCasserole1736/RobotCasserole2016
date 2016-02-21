@@ -263,6 +263,10 @@ public class LEDSequencer {
 			case MURICA:
 				disabledStuff();
 			break;
+			
+			case RANDY:
+				random();
+			break;
 				
 			//If we get here, something bad has happened and software team is having a bad day.
 			default:
@@ -537,5 +541,10 @@ public class LEDSequencer {
 	}
 	led_counter = (led_counter + 0.234);
 
+	}
+	public void random(){
+		for(int i = 0; i < NUM_LEDS_TOTAL; i++){
+			ledStrips.setLEDColor(i, Math.random(), Math.random(), Math.random());
+		}
 	}
 }
