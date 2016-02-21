@@ -520,6 +520,9 @@ public class Robot extends IterativeRobot {
     	//compressor starts automatically, but just in case...
     	Pneumatics.startCompressor();
     	
+    	//Default to low gear
+    	Pneumatics.shiftToLowGear();
+    	
     	//init the task timing things
     	prev_loop_start_timestamp = Timer.getFPGATimestamp();
     	loop_time_elapsed = 0;
