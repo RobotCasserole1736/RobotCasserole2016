@@ -6,53 +6,63 @@ import java.util.TimerTask;
 public class casserolePathAuto {
 
 	//Path Planner Constants
-	double[][] waypoints_mode0 = new double[][]{ // go up to defenses
+	final double[][] waypoints_apchDfns = new double[][]{ // go up to defenses
 		{0,0},
 		{2,0}		
 	};
 	
-	double[][] waypoints_mode1 = new double[][]{ //cross low-bar defense
+	final double[][] waypoints_crsLwBr = new double[][]{ //cross low-bar defense
 		{0,0},
 		{5,0}		
 	};
 	
-	double[][] waypoints_mode2 = new double[][]{ //cross shoot
+	final double[][] waypoints_crossShootHigh = new double[][]{ //cross and shoot
 		{0,0},
 		{5,0},
 		{8,5} //Total guess for testing, we'll have to use Justin's points
 	};
-	double[][] waypoints_modeNothing = new double[][]{ // do nothing
+	final double[][] waypoints_modeNothing = new double[][]{ // do nothing
 		{0,0}
 	};
 	
-	double totalPathPlannerTime_mode0 = 2;
-	double totalPathPlannerTime_mode1 = 5;
-	double totalPathPlannerTime_mode2 = 10;
-	double totalPathPlannerTime_modeNothing = 1;
+	final double totalPathPlannerTime_apchDfns = 2;
+	final double totalPathPlannerTime_crsLwBr = 5;
+	final double totalPathPlannerTime_crossShootHigh = 10;
+	final double totalPathPlannerTime_modeNothing = 1;
 	
-	double timeStep = 0.1; //100ms update rate 
-	double robotTrackWidth = 1.9; //1.9ft wide tracks
+	final double PLANNER_SAMPLE_RATE = 0.1; //100ms update rate 
+	final double ROBOT_TRACK_WIDTH_FT = 1.9; //1.9ft wide tracks
 	
 	int timestep = 0;
 	
 	FalconPathPlanner path;
 	
-	//Output Device - the drivetrain
+	//Output Device - the drivetrain (and sometimes the shooter)
 	DriveTrain dt;
 	DriveMotorsPIDVelocity motors;
+	IntakeLauncherStateMachine ilsm;
 	
 	//Playback thread
 	Timer timerThread;
 	boolean playbackActive = false;
+	
+	//End-of-path event variables
+	boolean shootHighGoal = false;
+	boolean shootLowGoal = false;
+	edu.wpi.first.wpilibj.Timer shotTimer;
+	final double HIGH_GOAL_SHOT_TIME_S = 2;
+	final double LOW_GOAL_SHOT_TIME_S = 8;
 	
 	
 	/**
 	 * Constructor
 	 * 
 	 */
-	casserolePathAuto(DriveTrain dt_in){
+	casserolePathAuto(DriveTrain dt_in, IntakeLauncherStateMachine ilsm_in){
 		dt = dt_in;
+		ilsm = ilsm_in;
 		motors = new DriveMotorsPIDVelocity(dt);
+		
 	}
 	
 	
@@ -63,20 +73,20 @@ public class casserolePathAuto {
 	 */
 	public void calcPath(int auto_mode){
 		if(auto_mode == 0){
-			path = new FalconPathPlanner(waypoints_mode0);
-			path.calculate(totalPathPlannerTime_mode0, timeStep, robotTrackWidth);
+			path = new FalconPathPlanner(waypoints_apchDfns);
+			path.calculate(totalPathPlannerTime_apchDfns, PLANNER_SAMPLE_RATE, ROBOT_TRACK_WIDTH_FT);
 		}
 		else if(auto_mode == 1){
-			path = new FalconPathPlanner(waypoints_mode1);
-			path.calculate(totalPathPlannerTime_mode1, timeStep, robotTrackWidth);
+			path = new FalconPathPlanner(waypoints_crsLwBr);
+			path.calculate(totalPathPlannerTime_crsLwBr, PLANNER_SAMPLE_RATE, ROBOT_TRACK_WIDTH_FT);
 		}
 		else if(auto_mode == 2){
-			path = new FalconPathPlanner(waypoints_mode2);
-			path.calculate(totalPathPlannerTime_mode2, timeStep, robotTrackWidth);
+			path = new FalconPathPlanner(waypoints_crossShootHigh);
+			path.calculate(totalPathPlannerTime_crossShootHigh, PLANNER_SAMPLE_RATE, ROBOT_TRACK_WIDTH_FT);
 		}
 		else{
 			path = new FalconPathPlanner(waypoints_modeNothing);
-			path.calculate(totalPathPlannerTime_modeNothing, timeStep, robotTrackWidth);
+			path.calculate(totalPathPlannerTime_modeNothing, PLANNER_SAMPLE_RATE, ROBOT_TRACK_WIDTH_FT);
 		}
 	}
 	
@@ -89,7 +99,7 @@ public class casserolePathAuto {
 		timestep = 0;
 		timerThread = new java.util.Timer();
 		playbackActive = true;
-		timerThread.schedule(new PathPlanningPlayback(this), 0L, (long) (timeStep));
+		timerThread.schedule(new PathPlanningPlayback(this), 0L, (long) (PLANNER_SAMPLE_RATE));
 		return 0;
 	}
 	
@@ -116,11 +126,12 @@ public class casserolePathAuto {
 	}
 
 	/**
-	 * Playback function = should 
+	 * Playback function = should be called 
 	 */
 	public void plannerStep(){
 		//detect end condition
 		if(timestep > path.numFinalPoints){
+			if()
 			stopPlayback();
 		}
 		else{ //otherwise continue playback
