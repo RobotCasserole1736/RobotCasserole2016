@@ -322,7 +322,5 @@ public class IntakeLauncherStateMachine {
 	    	 
 		
 	}
-	
-	
-	
+
 }

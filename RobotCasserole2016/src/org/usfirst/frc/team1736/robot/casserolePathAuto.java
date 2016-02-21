@@ -6,29 +6,29 @@ import java.util.TimerTask;
 public class casserolePathAuto {
 
 	//Path Planner Constants
-	double[][] waypoints_mode0 = new double[][]{ // go up to defense
+	double[][] waypoints_mode0 = new double[][]{ // go up to defenses
 		{0,0},
 		{2,0}		
 	};
 	
-	double[][] waypoints_mode1 = new double[][]{ //cross defense
+	double[][] waypoints_mode1 = new double[][]{ //cross low-bar defense
 		{0,0},
 		{5,0}		
 	};
 	
-	double[][] waypoints_mode2 = new double[][]{ //cross and cross back
+	double[][] waypoints_mode2 = new double[][]{ //cross shoot
 		{0,0},
 		{5,0},
-		{0,0}
+		{8,5} //Total guess for testing, we'll have to use Justin's points
 	};
 	double[][] waypoints_modeNothing = new double[][]{ // do nothing
 		{0,0}
 	};
 	
-	double totalTime_mode0 = 2;
-	double totalTime_mode1 = 5;
-	double totalTime_mode2 = 10;
-	double totalTime_modeNothing = 1;
+	double totalPathPlannerTime_mode0 = 2;
+	double totalPathPlannerTime_mode1 = 5;
+	double totalPathPlannerTime_mode2 = 10;
+	double totalPathPlannerTime_modeNothing = 1;
 	
 	double timeStep = 0.1; //100ms update rate 
 	double robotTrackWidth = 1.9; //1.9ft wide tracks
@@ -64,19 +64,19 @@ public class casserolePathAuto {
 	public void calcPath(int auto_mode){
 		if(auto_mode == 0){
 			path = new FalconPathPlanner(waypoints_mode0);
-			path.calculate(totalTime_mode0, timeStep, robotTrackWidth);
+			path.calculate(totalPathPlannerTime_mode0, timeStep, robotTrackWidth);
 		}
 		else if(auto_mode == 1){
 			path = new FalconPathPlanner(waypoints_mode1);
-			path.calculate(totalTime_mode1, timeStep, robotTrackWidth);
+			path.calculate(totalPathPlannerTime_mode1, timeStep, robotTrackWidth);
 		}
 		else if(auto_mode == 2){
 			path = new FalconPathPlanner(waypoints_mode2);
-			path.calculate(totalTime_mode2, timeStep, robotTrackWidth);
+			path.calculate(totalPathPlannerTime_mode2, timeStep, robotTrackWidth);
 		}
 		else{
 			path = new FalconPathPlanner(waypoints_modeNothing);
-			path.calculate(totalTime_modeNothing, timeStep, robotTrackWidth);
+			path.calculate(totalPathPlannerTime_modeNothing, timeStep, robotTrackWidth);
 		}
 	}
 	
