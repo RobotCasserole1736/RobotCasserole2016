@@ -45,8 +45,8 @@ public class IntakeLauncherStateMachine {
 	DaBouncer sensorOnDebounce;
 	DaBouncer sensorOffDebounce;
 	public boolean ballSensorState;
-	public final int BALL_SENSOR_RISING_DBNC_LOOPS = 25;
-	public final int BALL_SENSOR_FALLING_DBNC_LOOPS = 60;
+	public final int BALL_SENSOR_RISING_DBNC_LOOPS = 1;
+	public final int BALL_SENSOR_FALLING_DBNC_LOOPS = 5;
 	
 	//intake motor
 	Talon intake;
