@@ -43,7 +43,7 @@ public class DriveTrain extends RobotDrive { //Inherits methods from RobotDrive 
 	public final double REDUCTION_ITER_STEP = 0.1;
 
 	//Encoder Ratios
-	public static final double WHEEL_RADIUS_IN = 4.375; //kinda, cuz they're pneumatic... 
+	public static final double WHEEL_RADIUS_IN = 8.1666/2.0; //kinda, cuz they're pneumatic... 
 	public static final double WHEEL_TO_ENCODER_RATIO = 24f/60f*12f/24f*12f/36f; //encoder is downstream of shifter, so same ratio hg/lg - Third Stage * chain stage * encoder stage 
 	public static final double MOTOR_TO_ENCODER_RATIO_HG = (2.8333)/3;
 	public static final double MOTOR_TO_ENCODER_RATIO_LG = (6.1275)/3;

@@ -98,7 +98,8 @@ public class casserolePathAuto {
 	 * @return
 	 */
 	public int stopPlayback(){
-		timerThread.cancel(); //kill thread
+		if(timerThread != null)
+			timerThread.cancel(); //kill thread
 		playbackActive = false; //set status to not running
 		motors.lmpid.setSetpoint(0); //zero out motor controllers
 		motors.rmpid.setSetpoint(0);

@@ -26,15 +26,18 @@ public class DriveMotorsPIDVelocity {
 
 class LeftMotorPID extends PIDSubsystem{
 	
-	static double P = 0.0001; 
-	static double I = 0.0000; 
-	static double D = 0.0000; 
-	static double F = 0.0001;
+	static double P = 0.07; 
+	static double I = 0.0001; 
+	static double D = 0.0001; 
+	static double F = 0.12;
 	
 	DriveTrain dt;
 	
 	LeftMotorPID(DriveTrain dt_in){
 		super("LeftMotorPID", P, I, D);
+		setOutputRange(-1, 1);
+		setInputRange(-10,10);
+		enable();
 		dt = dt_in;
 	}
 
@@ -45,8 +48,8 @@ class LeftMotorPID extends PIDSubsystem{
 
 	@Override
 	protected void usePIDOutput(double arg0) {
-		dt.leftMotor_1.set(arg0 + returnPIDInput()*F);
-		dt.leftMotor_2.set(arg0 + returnPIDInput()*F);
+		dt.leftMotor_1.set(arg0 + getSetpoint()*F);
+		dt.leftMotor_2.set(arg0 + getSetpoint()*F);
 		
 	}
 
@@ -66,15 +69,18 @@ class LeftMotorPID extends PIDSubsystem{
  */
 class RightMotorPID extends PIDSubsystem{
 	
-	static double P = 0.0001; 
-	static double I = 0.0000; 
-	static double D = 0.0000; 
-	static double F = 0.0001;
+	static double P = 0.07; 
+	static double I = 0.0001; 
+	static double D = 0.0001; 
+	static double F = 0.12;
 	DriveTrain dt;
 	
 	
 	RightMotorPID(DriveTrain dt_in){
 		super("RightMotorPID", P, I, D);
+		setOutputRange(-1, 1);
+		setInputRange(-10,10);
+		enable();
 		dt = dt_in;
 	}
 
@@ -85,8 +91,8 @@ class RightMotorPID extends PIDSubsystem{
 
 	@Override
 	protected void usePIDOutput(double arg0) {
-		dt.rightMotor_1.set(-(arg0+ returnPIDInput()*F)); //set minus cuz this is the right side and stuff
-		dt.rightMotor_2.set(-(arg0+ returnPIDInput()*F));
+		dt.rightMotor_1.set(-(arg0+ getSetpoint()*F)); //set minus cuz this is the right side and stuff
+		dt.rightMotor_2.set(-(arg0+ getSetpoint()*F));
 		
 	}
 

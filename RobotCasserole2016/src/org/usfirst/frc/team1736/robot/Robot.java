@@ -274,6 +274,8 @@ public class Robot extends IterativeRobot {
 	//LED's
 	LEDSequencer leds;
 	SendableChooser colorChooser;
+	//Auto PathPlanner
+	casserolePathAuto autopp;
 	
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	// PUBLIC METHODS 
@@ -290,7 +292,8 @@ public class Robot extends IterativeRobot {
     	autoChooser = new SendableChooser();
     	autoChooser.addObject("Drive Up To Defense (no cross)", 0);
     	autoChooser.addObject("Cross Low Bar (encoders)", 1);
-    	autoChooser.addDefault("Cross Uneven Defense (timer)",2);
+    	autoChooser.addObject("Cross Uneven Defense (timer)",2);
+    	autoChooser.addObject("PathPlanner LowGoal",3);
     	autoChooser.addDefault("Do Nothing",-1);
     	SmartDashboard.putData("Auto Mode Chooser", autoChooser);
     	
@@ -352,6 +355,10 @@ public class Robot extends IterativeRobot {
     	
     	//Ensure intake starts in proper position
     	Pneumatics.intakeUp();
+    	
+    	
+    	//init pathPlanner
+    	autopp = new casserolePathAuto(driveTrain);
     }
     
     /**
@@ -369,6 +376,9 @@ public class Robot extends IterativeRobot {
     	
     	//Turn rumble off
     	joy1.setRumble(RumbleType.kLeftRumble, 0);
+    	
+    	//Kill off any autonomous that may have been running
+    	autopp.stopPlayback();
 
     }
     
@@ -394,9 +404,6 @@ public class Robot extends IterativeRobot {
 
     	autoMode = (int) autoChooser.getSelected();
     	
-    	//reset gyro angle to 0
-    	//gyro.reset_gyro_angle();
-    	
     	
     	//reset encoders to 0
     	driveTrain.leftEncoder.reset();
@@ -411,6 +418,11 @@ public class Robot extends IterativeRobot {
     	
     	//Shift to low gear
     	Pneumatics.shiftToLowGear();
+    	
+    	//Kill off any autonomous that may have been running
+    	autopp.stopPlayback();
+    	//Calc a path
+    	autopp.calcPath(0); //TEMP - just test with 0 for now
     	
     }
 
@@ -434,10 +446,10 @@ public class Robot extends IterativeRobot {
 	    	break;
 	    case 0: //Just move to in front of the defense
 	    	if (driveTrain.getRightDistanceFt() > -1.5) {
-	    		driveTrain.drive(0.8, 0);
+	    		driveTrain.drive(0.5, 0);
 	    	}
 	    	if (driveTrain.getRightDistanceFt() < -1.5 && driveTrain.getRightDistanceFt() > -1.9) {
-	    		driveTrain.drive(.2, 0);    		
+	    		driveTrain.drive(.1, 0);    		
 	    	}
 	    	if (driveTrain.getRightDistanceFt() <= -1.9) {
 	    		driveTrain.drive(0, 0);
@@ -446,11 +458,11 @@ public class Robot extends IterativeRobot {
 	    case 1: //Case 0 + go over low bar
 	    	{		
 	    		Pneumatics.intakeDown();
-	    		if (driveTrain.getRightDistanceFt() > -14.5) {
+	    		if (driveTrain.getRightDistanceFt() > -14.3) {
 	        	driveTrain.drive(0.8, 0);
 	    		}
-	        	if (driveTrain.getRightDistanceFt() < -14.5 && driveTrain.getRightDistanceFt() > -14.9) {
-	        		driveTrain.drive(.2, 0);    		
+	        	if (driveTrain.getRightDistanceFt() < -14.3 && driveTrain.getRightDistanceFt() > -14.9) {
+	        		driveTrain.drive(.1, 0);    		
 	        	}
 	        	if (driveTrain.getRightDistanceFt() <= -14.9) {
 	        		driveTrain.drive(0, 0);
@@ -484,14 +496,12 @@ public class Robot extends IterativeRobot {
 	    		if (autoTimer.get() >= 10) {
 	    			driveTrain.drive(0, 0);
 	    		}
-	    
-	    		
-	    		
-	    		
-	    		//FINISH IMPLEMENTING TIME+GYROSCOPE
 	    		
 	    	}
 	    	break; 
+	    case 3:
+	    	autopp.startPlayback();
+	    	break;
 	    }	
     	
     	//Add autonomous code here
@@ -517,6 +527,9 @@ public class Robot extends IterativeRobot {
     		logger.init(logger_fields, units_fields);
     	}
 
+    	//Kill off any autonomous that may have been running
+    	autopp.stopPlayback();
+    	
     	//compressor starts automatically, but just in case...
     	Pneumatics.startCompressor();
     	
@@ -538,6 +551,7 @@ public class Robot extends IterativeRobot {
     	//Estimate battery Parameters
     	bpe.updateEstimate(pdp.getVoltage(), pdp.getTotalCurrent());
     	
+    	
         //Run Drivetrain with reversing
     	if(joy1.getRawAxis(XBOX_LTRIGGER_AXIS) > 0.5){ //reverse control
     		cmdInvCtrls = true;
@@ -547,7 +561,31 @@ public class Robot extends IterativeRobot {
     		cmdInvCtrls = false;
     		driveTrain.arcadeDrive(joy1.getRawAxis(XBOX_LSTICK_YAXIS), joy1.getRawAxis(XBOX_RSTICK_XAXIS), squaredInputs);
     	}
-
+    	
+    	/*
+    	//TEMP - override wheel speed to PID values
+    	if(joy1.getRawButton(XBOX_X_BUTTON)){
+    		autopp.motors.lmpid.setSetpoint(5);
+    		autopp.motors.rmpid.setSetpoint(5);
+    	}
+    	else if(joy1.getRawButton(XBOX_A_BUTTON)){
+    		autopp.motors.lmpid.setSetpoint(-5);
+    		autopp.motors.rmpid.setSetpoint(-5);
+    	}
+    	else if(joy1.getRawButton(XBOX_B_BUTTON)){
+    		autopp.motors.lmpid.setSetpoint(3);
+    		autopp.motors.rmpid.setSetpoint(3);
+    	}
+    	else if(joy1.getRawButton(XBOX_Y_BUTTON)){
+    		autopp.motors.lmpid.setSetpoint(1);
+    		autopp.motors.rmpid.setSetpoint(1);
+    	}
+    	else{
+    		autopp.motors.lmpid.setSetpoint(0);
+    		autopp.motors.rmpid.setSetpoint(0);
+    	}
+    	*/
+    		
     	//Evaluate upshift/downshift need
     	double left_speed = Math.abs(driveTrain.getLeftWheelSpeedRPM());
     	double right_speed = Math.abs(driveTrain.getRightWheelSpeedRPM());
@@ -789,6 +827,8 @@ public class Robot extends IterativeRobot {
     	SmartDashboard.putNumber("Avg Speed FTpS", Math.abs((driveTrain.getRightSpdFtPerSec() + driveTrain.getLeftSpdFtPerSec())/2.0));
     	SmartDashboard.putBoolean("Ball In CarryPos", intakeLauncherSM.ballSensorState);
     	SmartDashboard.putNumber("SquishSensor Reading", launchMotor.getSquishSensorVal());
+    	SmartDashboard.putNumber("LeftFtpS", driveTrain.getLeftSpdFtPerSec());
+    	SmartDashboard.putNumber("RightFtpS", driveTrain.getRightSpdFtPerSec());
     	
     }
 }
