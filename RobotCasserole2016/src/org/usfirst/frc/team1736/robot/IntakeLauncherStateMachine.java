@@ -26,11 +26,12 @@ public class IntakeLauncherStateMachine {
 	
 	//Tune Params
 	private static final IntLncState initState = IntLncState.STOPPED_NO_BALL;
-	public static final double INTAKE_IN_SPEED = 1.0;
+	public static final double INTAKE_IN_SPEED = 0.80;
 	public static final double INTAKE_EJECT_SPEED = -1.0;
-	public static final double INTAKE_RETRACT_SPEED = -0.35;
-	public static final double INTAKE_RETRACT_TIME_LOOPS = 8;
-	public static final double LAUNCH_SPEED_RPM = 5100; 
+	public static final double INTAKE_RETRACT_SPEED = -0.4;
+	public static final double INTAKE_RETRACT_TIME_LOOPS = 15;
+	//public static final double LAUNCH_SPEED_RPM = 5100;
+	public static final double LAUNCH_SPEED_RPM = 0;
 	public static final double INTAKE_LAUNCH_FEED_SPEED = 0.8;
 	public static final double LAUNCH_SPEED_ERR_LMT_RPM = 300;
 	public static final double MIN_LAUNCH_TIME_THRESH_LOOPS = 75;
@@ -45,8 +46,10 @@ public class IntakeLauncherStateMachine {
 	DaBouncer sensorOnDebounce;
 	DaBouncer sensorOffDebounce;
 	public boolean ballSensorState;
-	public final int BALL_SENSOR_RISING_DBNC_LOOPS = 25;
-	public final int BALL_SENSOR_FALLING_DBNC_LOOPS = 60;
+	public final int BALL_SENSOR_RISING_DBNC_LOOPS = 5;
+	public final int BALL_SENSOR_FALLING_DBNC_LOOPS = 5;
+	public DerivativeCalculator squishSensorDeriv;
+	public AveragingFilter squishSensorDerivAvgFilt;
 	
 	//intake motor
 	Talon intake;
@@ -58,6 +61,8 @@ public class IntakeLauncherStateMachine {
 	//IDs
 	final static int intake_ID = 5;
 	final static int ballSensor_ID = 4;
+	
+	boolean peaked = false;
 	
 	
 	
@@ -77,6 +82,9 @@ public class IntakeLauncherStateMachine {
 		sensorOffDebounce.threshold = 0.5;
 		ballSensorState = false;
 		
+		squishSensorDeriv = new DerivativeCalculator();
+		squishSensorDerivAvgFilt = new AveragingFilter(15, 0.0);
+		
 		shooter = shooter_in;
 		shooterDiagnostics = new MotorDiagnostic();
 	}
@@ -87,9 +95,12 @@ public class IntakeLauncherStateMachine {
 			              boolean launchCmded, 
 			              boolean intakeOvdCmded){
 		
+		
 		//Step 0 - process inputs. Mostly these are arguments
 		dbncBallSensor();
-		
+		//double squishSensorDerivFilt = squishSensorDerivAvgFilt.filter(squishSensorDeriv.calcDeriv(shooter.squishSensor.getVoltage()));
+
+	
 		//STEP 1 - Calculate Next State based on current state and Inputs
 		
 		//if no state transition is specified, 
@@ -145,8 +156,12 @@ public class IntakeLauncherStateMachine {
 				
 				break;
 			case RETRACT:
-				if(retractCounter >= INTAKE_RETRACT_TIME_LOOPS)
+				shooter.startTestRetractWithSmallSpeed();
+				if((retractCounter >= INTAKE_RETRACT_TIME_LOOPS) | shooter.getActSpeed() > 100){
+					shooter.stopTestRetractWithSmallSpeed();
 					nextState = IntLncState.WAIT_FOR_SPOOLUP;
+				}
+
 				break;
 			case WAIT_FOR_SPOOLUP:
 				if(intakeCmded)
@@ -248,7 +263,7 @@ public class IntakeLauncherStateMachine {
 			retractCounter = 0; 
 			minLaunchTimeCounter = 0;
 			shooterCmd_RPM = LAUNCH_SPEED_RPM;
-			intakeCmd = 0;
+			intakeCmd = 0.1;
 			
 			break;
 		case WAIT_FOR_LAUNCH:
@@ -256,7 +271,7 @@ public class IntakeLauncherStateMachine {
 			retractCounter = 0; 
 			minLaunchTimeCounter = 0;
 			shooterCmd_RPM = LAUNCH_SPEED_RPM;
-			intakeCmd = 0;
+			intakeCmd = 0.1;
 			
 			break;
 		case LAUNCH:

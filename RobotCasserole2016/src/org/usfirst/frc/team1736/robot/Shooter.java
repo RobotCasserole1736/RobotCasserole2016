@@ -9,8 +9,8 @@ import edu.wpi.first.wpilibj.command.PIDSubsystem;
 public class Shooter extends PIDSubsystem {
 	CANTalon shooterController;
 	static double F = 0.0001737; //We use FF because setpoint is proportional to motor command
-	static double P = 0.0005; //CMG - tuned with two wheels, will need to tune 
-	static double I = 0.000007; //I is definitely needed to overcome friction, otherwise there is a noticeable steady-state error
+	static double P = 0.0008; //CMG - tuned with two wheels, will need to tune 
+	static double I = 0.000000; //I is definitely needed to overcome friction, otherwise there is a noticeable steady-state error
 	static double D = 0.00003; 
 	int SHOOTER_CHANNEL = 1; //CMG - confirmed 2/2/2016
 	
@@ -22,6 +22,9 @@ public class Shooter extends PIDSubsystem {
 	
 	double filtered_act_speed = 0;
 	double motorCmd = 0;
+	
+	boolean overrideSpeedForTestRotation = false;
+	final double TEST_ROTATION_CMD = 0.2;
 	
 	public Shooter() {
 		super("ShooterPID", P, I, D); //we don't need to WPILIB feed forward. we do feed fowrard ourselfs cuz they were silly with their implementation.
@@ -95,6 +98,18 @@ public class Shooter extends PIDSubsystem {
 	public double getMotorCmd(){
 		return motorCmd;
 	}
+	
+	/**
+	 * Overrides the motor command and returns the present speed
+	 * 
+	 */
+	public void startTestRetractWithSmallSpeed(){
+		overrideSpeedForTestRotation = true;
+	}
+	public void stopTestRetractWithSmallSpeed(){
+		overrideSpeedForTestRotation = false;
+	}
+	
 
 	/**
 	 * returns the value of the ball compression sensor
@@ -108,13 +123,24 @@ public class Shooter extends PIDSubsystem {
 	@Override
 	protected double returnPIDInput() {
 		filtered_act_speed = -shooterController.getSpeed();
-		return filtered_act_speed + (getSquishSensorVal() - squishSensorZeroOffsetPoint) * squishSensorOffsetGain;
+		
+		//If override is desired, just say we're at the desired speed to not wind up integrators
+		if(overrideSpeedForTestRotation)
+			return filtered_act_speed + (getSquishSensorVal() - squishSensorZeroOffsetPoint) * squishSensorOffsetGain;
+		else
+			return getDesSpeed();
 	}
 
 	@Override
 	protected void usePIDOutput(double arg0) {
+		//Apply Feed-forward
 		double cmd = Math.max(Math.min(arg0 + F*getDesSpeed(), 1), 0);
-		shooterController.set(cmd);	
+		//Apply command override for testing if needed
+		if(overrideSpeedForTestRotation)
+			shooterController.set(TEST_ROTATION_CMD);	
+		else
+			shooterController.set(cmd);
+		//record command for other methods to use
 		motorCmd = cmd;
 	}
 
