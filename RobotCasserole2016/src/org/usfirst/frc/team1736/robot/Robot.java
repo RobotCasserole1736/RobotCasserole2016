@@ -327,7 +327,6 @@ public class Robot extends IterativeRobot {
     	bpe.setConfidenceThresh(BPE_confidenceThresh_A);
     	accel_RIO = new BuiltInAccelerometer();    	
     	csm = new CameraServoMount();
-    	//gyro = new I2CGyro(); //this will cal the gyro - don't touch robot which this happens!
     	
     	//Motors - Drivetrain
     	L_Motor_1 = new VictorSP(DT_LF_MOTOR_PWM_CH);
@@ -336,7 +335,7 @@ public class Robot extends IterativeRobot {
     	R_Motor_2 = new VictorSP(DT_RB_MOTOR_PWM_CH);
     	
     	//Drivetrain
-    	driveTrain = new DriveTrain(L_Motor_1, L_Motor_2, R_Motor_1, R_Motor_2, pdp, bpe);
+    	driveTrain = new DriveTrain(L_Motor_1, L_Motor_2, R_Motor_1, R_Motor_2, pdp, bpe, gyro);
     	shifter = new OttoShifter();
     	wheel_speed = new DerivativeCalculator();
     	
@@ -360,7 +359,7 @@ public class Robot extends IterativeRobot {
      * on startup (since default state is disabled), and then once after the match is done
      */
     public void disabledInit() {
-    	
+    	driveTrain.controller.disable();
     	if(enable_logging){
 	    	//Ensure any open file gets closed
 	    	logger.close();
@@ -390,15 +389,18 @@ public class Robot extends IterativeRobot {
 	    	//Initialize the new log file for autonomous
 	    	logger.init(logger_fields, units_fields);
     	}
-
+    	
     	//compressor starts automatically, but just in case...
     	Pneumatics.startCompressor();
 
-    	SmartDashboard.getNumber("Autonomous Mode:");
     	autoMode = (int) autoChooser.getSelected();
     	
     	//reset gyro angle to 0
     	//gyro.reset_gyro_angle();
+    	
+    	//Start gyro-based PID controller
+    	driveTrain.controller.reset();
+    	driveTrain.controller.enable();
     	
     	//reset encoders to 0
     	driveTrain.leftEncoder.reset();
@@ -409,7 +411,10 @@ public class Robot extends IterativeRobot {
     	loop_time_elapsed = 0;
     	
     	//Raise intake to prevent damage in auto.
-    	Pneumatics.intakeUp();   	
+    	Pneumatics.intakeUp();
+    	
+    	//Shift to low gear
+    	Pneumatics.shiftToLowGear();
     	
     }
 
@@ -427,37 +432,49 @@ public class Robot extends IterativeRobot {
     	
     
 	    switch(autoMode){
-	    case -1: //Do squat
+	    case -1: 
+	    	//Do squatS
 	    	//nobody here but us chickens
 	    	break;
 	    case 0: //Just move to in front of the defense
-	    	driveTrain.drive(0.8, 0);
-	    	if (driveTrain.getRightDistanceFt() > 1.5 && driveTrain.getRightDistanceFt() < 1.9) {
+	    	driveTrain.controller.setSetpoint(0); 
+	    	if (driveTrain.getRightDistanceFt() > -1.5) {
+	    		driveTrain.drive(0.8, 0);
+	    	}
+	    	if (driveTrain.getRightDistanceFt() < -1.5 && driveTrain.getRightDistanceFt() > -1.9) {
 	    		driveTrain.drive(.2, 0);    		
 	    	}
-	    	if (driveTrain.getRightDistanceFt() >= 1.9) {
+	    	if (driveTrain.getRightDistanceFt() <= -1.9) {
 	    		driveTrain.drive(0, 0);
 	    	}   	
 	    	break;    	
 	    case 1: //Case 0 + go over low bar
 	    	{		
+	    		Pneumatics.intakeDown();
+	    		driveTrain.controller.setSetpoint(0); 
+	    		if (driveTrain.getRightDistanceFt() > -14.5) {
 	        	driveTrain.drive(0.8, 0);
-	        	if (driveTrain.getRightDistanceFt() > 14.5 && driveTrain.getRightDistanceFt() < 14.9) {
+	    		}
+	        	if (driveTrain.getRightDistanceFt() < -14.5 && driveTrain.getRightDistanceFt() > -14.9) {
 	        		driveTrain.drive(.2, 0);    		
 	        	}
-	        	if (driveTrain.getRightDistanceFt() >= 14.9) {
+	        	if (driveTrain.getRightDistanceFt() <= -14.9) {
 	        		driveTrain.drive(0, 0);
 	        	}   	
 	    	}    	
 	    	break;     	
 	    case 2: //Case 0 + go over rugged terrain
-	    	if (currentStep == 1)
-	    	{
-	        	driveTrain.drive(0.8, 0);
-	        	if (driveTrain.getRightDistanceFt() > 1.5 && driveTrain.getRightDistanceFt() < 1.9) {
+	    	driveTrain.controller.setSetpoint(0); 
+	    	Pneumatics.intakeUp();
+	    	if (currentStep == 1) {
+	    	
+	    		if (driveTrain.getRightDistanceFt() > -1.5) {	    			
+	    			driveTrain.drive(0.8, 0);
+	    		}
+	        	if (driveTrain.getRightDistanceFt() < -1.5 && driveTrain.getRightDistanceFt() > -1.9) {
 	        		driveTrain.drive(.2, 0);    		
 	        	}
-	        	if (driveTrain.getRightDistanceFt() >= 1.9) {
+	        	if (driveTrain.getRightDistanceFt() <= -1.9) {
 	        		driveTrain.drive(0, 0);
 	        	} 
 	        	currentStep = 2;
