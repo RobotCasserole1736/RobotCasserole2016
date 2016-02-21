@@ -99,11 +99,15 @@ public class casserolePathAuto {
 	 * @return
 	 */
 	public int startPlayback(){
-		timestep = 0;
-		timerThread = new java.util.Timer();
-		shotTimer.reset();
-		playbackActive = true;
-		timerThread.schedule(new PathPlanningPlayback(this), 0L, (long) (PLANNER_SAMPLE_RATE));
+		timestep = 0; //reset timestamp
+		motors.lmpid.setSetpoint(0); //zero out motor controllers
+		motors.rmpid.setSetpoint(0);
+		motors.lmpid.enable(); //enable both drivetrain PID's
+		motors.rmpid.enable();
+		timerThread = new java.util.Timer(); //create new thread for the playback function
+		shotTimer.reset(); //Make sure the shot timer is ready to be used (zeroed out)
+		playbackActive = true; //Mark that playback has begun (or, will begin shortly)
+		timerThread.schedule(new PathPlanningPlayback(this), 0L, (long) (PLANNER_SAMPLE_RATE)); //Kick off playback thread. Here we go!
 		return 0;
 	}
 	
@@ -113,13 +117,15 @@ public class casserolePathAuto {
 	 */
 	public int stopPlayback(){
 		if(timerThread != null)
-			timerThread.cancel(); //kill thread
+			timerThread.cancel(); //kill thread, assuming it was running
 		playbackActive = false; //set status to not running
 		motors.lmpid.setSetpoint(0); //zero out motor controllers
 		motors.rmpid.setSetpoint(0);
-		shotTimer.stop();
+		motors.lmpid.disable(); //Kill off the motor PID's so they don't fight with the regular driving
+		motors.rmpid.disable();
+		shotTimer.stop(); //Stop and reset whatever shot timer might be running
 		shotTimer.reset();
-		timestep = 0; //reset time (just in case)
+		timestep = 0; //reset time (just in case? probably not needed)
 		return 0;
 	}
 	
@@ -135,16 +141,14 @@ public class casserolePathAuto {
 	 * Playback function = should be called 
 	 */
 	public void plannerStep(){
-		//detect end condition
+		//detect end condition where path planner has finished playback
 		if(timestep > path.numFinalPoints){
-			shotTimer.start(); //only does something on the first call
+			shotTimer.start(); //only does something on the first call - make sure the shot timer is in fact running. Assumes it was reset at the start of path-planner auto
 			motors.lmpid.setSetpoint(0); //zero out motor controllers
 			motors.rmpid.setSetpoint(0);
 			if(shootHighGoal){ //high-goal end shot
 				if(shotTimer.get() > HIGH_GOAL_SHOT_TIME_S){
 					ilsm.periodicStateMach(false, false, false, false, false); //shut everything down
-					shotTimer.stop();
-					shotTimer.reset();
 					stopPlayback();
 				} 
 				else {
@@ -154,8 +158,6 @@ public class casserolePathAuto {
 			else if(shootLowGoal){ //low-goal end shot
 				if(shotTimer.get() > LOW_GOAL_SHOT_TIME_S){
 					ilsm.periodicStateMach(false, false, false, false, false); //shut everything down
-					shotTimer.stop();
-					shotTimer.reset();
 					stopPlayback();
 				} 
 				else {
@@ -166,7 +168,7 @@ public class casserolePathAuto {
 				stopPlayback(); 
 			}
 		}
-		else{ //otherwise continue playback
+		else{ //otherwise, continue playback
 			motors.lmpid.setSetpoint(path.smoothLeftVelocity[timestep][1]);
 			motors.rmpid.setSetpoint(path.smoothRightVelocity[timestep][1]);
 			timestep++;

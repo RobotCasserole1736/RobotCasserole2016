@@ -37,7 +37,6 @@ class LeftMotorPID extends PIDSubsystem{
 		super("LeftMotorPID", P, I, D);
 		setOutputRange(-1, 1);
 		setInputRange(-10,10);
-		enable();
 		dt = dt_in;
 	}
 
@@ -80,7 +79,6 @@ class RightMotorPID extends PIDSubsystem{
 		super("RightMotorPID", P, I, D);
 		setOutputRange(-1, 1);
 		setInputRange(-10,10);
-		enable();
 		dt = dt_in;
 	}
 

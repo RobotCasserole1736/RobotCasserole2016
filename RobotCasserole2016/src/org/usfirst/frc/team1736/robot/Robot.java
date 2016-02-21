@@ -159,7 +159,11 @@ public class Robot extends IterativeRobot {
             "IntakeMotorCmd",
             "AudioInVoltage",
             "BallInCarry",
-            "IntakeShooterState"};
+            "IntakeShooterState",
+            "PathPlannerLDesSpd",
+            "PathPlannerRDesSpd",
+            "LeftDTGroundSpeed",
+            "RightDTGroundSpeed"};
 
     static final String[] units_fields = {"sec", //TIME must always be in sec
            "sec",
@@ -228,7 +232,11 @@ public class Robot extends IterativeRobot {
            "cmd",
            "V",
            "bit",
-           "state"};
+           "state",
+           "ft/s",
+           "ft/s",
+           "ft/s",
+           "ft/s"};
 		
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	// CLASS OBJECTS
@@ -358,7 +366,7 @@ public class Robot extends IterativeRobot {
     	
     	
     	//init pathPlanner
-    	autopp = new casserolePathAuto(driveTrain);
+    	autopp = new casserolePathAuto(driveTrain, intakeLauncherSM);
     }
     
     /**
@@ -561,30 +569,6 @@ public class Robot extends IterativeRobot {
     		cmdInvCtrls = false;
     		driveTrain.arcadeDrive(joy1.getRawAxis(XBOX_LSTICK_YAXIS), joy1.getRawAxis(XBOX_RSTICK_XAXIS), squaredInputs);
     	}
-    	
-    	/*
-    	//TEMP - override wheel speed to PID values
-    	if(joy1.getRawButton(XBOX_X_BUTTON)){
-    		autopp.motors.lmpid.setSetpoint(5);
-    		autopp.motors.rmpid.setSetpoint(5);
-    	}
-    	else if(joy1.getRawButton(XBOX_A_BUTTON)){
-    		autopp.motors.lmpid.setSetpoint(-5);
-    		autopp.motors.rmpid.setSetpoint(-5);
-    	}
-    	else if(joy1.getRawButton(XBOX_B_BUTTON)){
-    		autopp.motors.lmpid.setSetpoint(3);
-    		autopp.motors.rmpid.setSetpoint(3);
-    	}
-    	else if(joy1.getRawButton(XBOX_Y_BUTTON)){
-    		autopp.motors.lmpid.setSetpoint(1);
-    		autopp.motors.rmpid.setSetpoint(1);
-    	}
-    	else{
-    		autopp.motors.lmpid.setSetpoint(0);
-    		autopp.motors.rmpid.setSetpoint(0);
-    	}
-    	*/
     		
     	//Evaluate upshift/downshift need
     	double left_speed = Math.abs(driveTrain.getLeftWheelSpeedRPM());
