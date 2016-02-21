@@ -61,6 +61,8 @@ public class casserolePathAuto {
 	casserolePathAuto(DriveTrain dt_in, IntakeLauncherStateMachine ilsm_in){
 		dt = dt_in;
 		ilsm = ilsm_in;
+		shotTimer = new edu.wpi.first.wpilibj.Timer();
+		shotTimer.reset();
 		motors = new DriveMotorsPIDVelocity(dt);
 		
 	}
@@ -83,6 +85,7 @@ public class casserolePathAuto {
 		else if(auto_mode == 2){
 			path = new FalconPathPlanner(waypoints_crossShootHigh);
 			path.calculate(totalPathPlannerTime_crossShootHigh, PLANNER_SAMPLE_RATE, ROBOT_TRACK_WIDTH_FT);
+			shootHighGoal = true; //set that we want to shoot at the end of this auto routine
 		}
 		else{
 			path = new FalconPathPlanner(waypoints_modeNothing);
@@ -98,6 +101,7 @@ public class casserolePathAuto {
 	public int startPlayback(){
 		timestep = 0;
 		timerThread = new java.util.Timer();
+		shotTimer.reset();
 		playbackActive = true;
 		timerThread.schedule(new PathPlanningPlayback(this), 0L, (long) (PLANNER_SAMPLE_RATE));
 		return 0;
@@ -113,6 +117,8 @@ public class casserolePathAuto {
 		playbackActive = false; //set status to not running
 		motors.lmpid.setSetpoint(0); //zero out motor controllers
 		motors.rmpid.setSetpoint(0);
+		shotTimer.stop();
+		shotTimer.reset();
 		timestep = 0; //reset time (just in case)
 		return 0;
 	}
@@ -131,8 +137,34 @@ public class casserolePathAuto {
 	public void plannerStep(){
 		//detect end condition
 		if(timestep > path.numFinalPoints){
-			if()
-			stopPlayback();
+			shotTimer.start(); //only does something on the first call
+			motors.lmpid.setSetpoint(0); //zero out motor controllers
+			motors.rmpid.setSetpoint(0);
+			if(shootHighGoal){ //high-goal end shot
+				if(shotTimer.get() > HIGH_GOAL_SHOT_TIME_S){
+					ilsm.periodicStateMach(false, false, false, false, false); //shut everything down
+					shotTimer.stop();
+					shotTimer.reset();
+					stopPlayback();
+				} 
+				else {
+					ilsm.periodicStateMach(false, false, false, true, false); //command high-goal shot
+				}
+			}
+			else if(shootLowGoal){ //low-goal end shot
+				if(shotTimer.get() > LOW_GOAL_SHOT_TIME_S){
+					ilsm.periodicStateMach(false, false, false, false, false); //shut everything down
+					shotTimer.stop();
+					shotTimer.reset();
+					stopPlayback();
+				} 
+				else {
+					ilsm.periodicStateMach(true, false, false, false, false); //command low-goal shot (eject)
+				}
+			}
+			else{ //no end shot
+				stopPlayback(); 
+			}
 		}
 		else{ //otherwise continue playback
 			motors.lmpid.setSetpoint(path.smoothLeftVelocity[timestep][1]);
