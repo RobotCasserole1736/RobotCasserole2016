@@ -359,7 +359,6 @@ public class Robot extends IterativeRobot {
      * on startup (since default state is disabled), and then once after the match is done
      */
     public void disabledInit() {
-    	driveTrain.controller.disable();
     	if(enable_logging){
 	    	//Ensure any open file gets closed
 	    	logger.close();
@@ -398,9 +397,6 @@ public class Robot extends IterativeRobot {
     	//reset gyro angle to 0
     	//gyro.reset_gyro_angle();
     	
-    	//Start gyro-based PID controller
-    	driveTrain.controller.reset();
-    	driveTrain.controller.enable();
     	
     	//reset encoders to 0
     	driveTrain.leftEncoder.reset();
@@ -437,7 +433,6 @@ public class Robot extends IterativeRobot {
 	    	//nobody here but us chickens
 	    	break;
 	    case 0: //Just move to in front of the defense
-	    	driveTrain.controller.setSetpoint(0); 
 	    	if (driveTrain.getRightDistanceFt() > -1.5) {
 	    		driveTrain.drive(0.8, 0);
 	    	}
@@ -451,7 +446,6 @@ public class Robot extends IterativeRobot {
 	    case 1: //Case 0 + go over low bar
 	    	{		
 	    		Pneumatics.intakeDown();
-	    		driveTrain.controller.setSetpoint(0); 
 	    		if (driveTrain.getRightDistanceFt() > -14.5) {
 	        	driveTrain.drive(0.8, 0);
 	    		}
@@ -464,7 +458,6 @@ public class Robot extends IterativeRobot {
 	    	}    	
 	    	break;     	
 	    case 2: //Case 0 + go over rugged terrain
-	    	driveTrain.controller.setSetpoint(0); 
 	    	Pneumatics.intakeUp();
 	    	if (currentStep == 1) {
 	    	

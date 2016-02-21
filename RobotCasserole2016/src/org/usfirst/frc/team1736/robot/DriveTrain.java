@@ -59,8 +59,7 @@ public class DriveTrain extends RobotDrive { //Inherits methods from RobotDrive 
 	
 	public DriveTrain(SpeedController leftMotor_1, SpeedController leftMotor_2, 
 			SpeedController rightMotor_1, SpeedController rightMotor_2,
-			PowerDistributionPanel pdp, BatteryParamEstimator bpe, 
-			I2CGyro gyro)
+			PowerDistributionPanel pdp, BatteryParamEstimator bpe)
 	{
 		//Super Constructor
 		super(leftMotor_1, leftMotor_2, rightMotor_1, rightMotor_2);
