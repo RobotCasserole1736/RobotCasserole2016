@@ -562,8 +562,9 @@ public class Robot extends IterativeRobot {
     	prev_loop_start_timestamp = Timer.getFPGATimestamp();
     	loop_time_elapsed = 0;
     	
-    	//Test only
-    	SmartDashboard.putNumber("ShooterRPM", 0);
+    	//Kill off the motor PID's so they don't fight with the regular driving
+    	autopp.motors.lmpid.disable(); 
+    	autopp.motors.rmpid.disable();
     }
 
     /** 

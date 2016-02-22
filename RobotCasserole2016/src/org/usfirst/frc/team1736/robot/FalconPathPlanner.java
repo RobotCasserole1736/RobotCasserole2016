@@ -591,12 +591,21 @@ public class FalconPathPlanner
 
 	public void setPathBeta(double beta)
 	{
-		pathAlpha = beta;
+		pathBeta = beta; //derp
 	}
 
 	public void setPathTolerance(double tolerance)
 	{
-		pathAlpha = tolerance;
+		pathTolerance = tolerance; //derp
+	}
+	
+	//Expose that which is hidden. MUA HAHAHAHAHAHAH!
+	public void setVelocityAlpha(double alpha){
+		velocityAlpha = alpha;
+	}
+	
+	public void setVelocityBeta(double beta){
+		velocityBeta = beta;
 	}
 
 	/**
@@ -680,12 +689,9 @@ public class FalconPathPlanner
 
 		//create waypoint path
 		double[][] waypoints = new double[][]{
-				{1, 1},
-				{5, 1},
-				{9, 12},
-				{12, 9},
-				{15, 6},
-				{19, 12}
+			{0,0},
+			{18.33,0},
+			{22.6666,7.50555} //Jeremey's temp numbers for lining up the robot for a low-goal shot
 		}; 
 
 		double totalTime = 8; //seconds
@@ -693,6 +699,11 @@ public class FalconPathPlanner
 		double robotTrackWidth = 2; //distance between left and right wheels, feet
 
 		final FalconPathPlanner path = new FalconPathPlanner(waypoints);
+		
+		path.setPathAlpha(0.3);
+		path.setPathBeta(0.5);
+		path.setVelocityAlpha(0.05);
+		path.setVelocityBeta(0.8);
 		path.calculate(totalTime, timeStep, robotTrackWidth);
 
 		System.out.println("Time in ms: " + (System.currentTimeMillis()-start));

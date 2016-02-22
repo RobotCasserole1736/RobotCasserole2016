@@ -127,8 +127,7 @@ public class casserolePathAuto {
 		playbackActive = false; //set status to not running
 		motors.lmpid.setSetpoint(0); //zero out motor controllers
 		motors.rmpid.setSetpoint(0);
-		motors.lmpid.disable(); //Kill off the motor PID's so they don't fight with the regular driving
-		motors.rmpid.disable();
+		//Don't disable the PID's yet, it's important to keep them alive so they actually stop the wheels from turning.
 		shotTimer.stop(); //Stop and reset whatever shot timer might be running
 		shotTimer.reset();
 		timestep = 0; //reset time (just in case? probably not needed)
