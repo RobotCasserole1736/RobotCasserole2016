@@ -40,7 +40,7 @@ public class OttoShifter {
 		
 		StallCurrentDebounce = new DaBouncer();
 		
-		gear = true;
+		gear = false; //start in low gear
 		
 		VelDebounce.threshold = VAL_DEBOUNCE_THRESH_RPM;
 		VelDebounce.dbnc = VAL_DEBOUNCE_TIME_LOOPS;
