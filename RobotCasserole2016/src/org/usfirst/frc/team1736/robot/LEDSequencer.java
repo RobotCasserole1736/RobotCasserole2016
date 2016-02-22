@@ -488,14 +488,19 @@ public class LEDSequencer {
 }
 	//red alliance and robot casserole colors
 	public void redAlliance(){
-	for(int i = 0; i < NUM_LEDS_TOTAL; i++)
+	int index = 0;
+	int superiterlimit = (int)Math.round((Math.ceil((double)NUM_LEDS_TOTAL/5.0)*5));
+	for(int i = 0; i < superiterlimit; i++)
 	{	
-		if(i % 10 < 5){
-			ledStrips.setLEDColor((int)Math.round(led_counter + i)%NUM_LEDS_TOTAL, 0.9518387305, 0.0, 0.0);	
-		}
-		
-		else{
-			ledStrips.setLEDColor((int)Math.round(led_counter + i)%NUM_LEDS_TOTAL, 0.75, 0.75, 0.75);	
+		index = (int)Math.round(led_counter + i)%superiterlimit;  // Neelika "requested" we fix the mismatch in overall size of the LED stripes
+		if(index < NUM_LEDS_TOTAL){               //so we extend the iteration range outside the actual LED strip
+			if(i % 10 < 5){
+				ledStrips.setLEDColor(index, 0.9518387305, 0.0, 0.0);	
+			}
+			
+			else{
+				ledStrips.setLEDColor(index, 0.75, 0.75, 0.75);	
+			}
 		}
 		
 	}

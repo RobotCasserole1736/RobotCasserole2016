@@ -33,11 +33,11 @@ public class Pneumatics {
 	}
 	
 	public static void shiftToLowGear(){
-		shifterSolenoid.set(true);
+		shifterSolenoid.set(false);
 	}
 	
 	public static void shiftToHighGear(){
-		shifterSolenoid.set(false);
+		shifterSolenoid.set(true);
 	}
 	
 	public static void intakeUp(){
@@ -50,7 +50,7 @@ public class Pneumatics {
 	
 	public static boolean isHighGear()
 	{
-	    return !shifterSolenoid.get();//Note this is dependent upon whether solenoid engaged means high or low gear!   
+	    return shifterSolenoid.get();//Note this is dependent upon whether solenoid engaged means high or low gear!   
 	}
 	
 	public static boolean isIntakeDown(){
