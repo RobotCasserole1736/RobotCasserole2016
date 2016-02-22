@@ -294,6 +294,8 @@ public class Robot extends IterativeRobot {
     	autoChooser.addDefault("Do Nothing",-1);
     	SmartDashboard.putData("Auto Mode Chooser", autoChooser);
     	
+    	/* This will be disabled for competition to prevent anything freaky from happening, 
+    	 * but may be rolled back in after competition so the kids can demo awesome colors 
     	//LED Color Choose
     	colorChooser = new SendableChooser();
     	colorChooser.addObject("Solid Red", LEDPatterns.SOLID_RED);
@@ -319,6 +321,7 @@ public class Robot extends IterativeRobot {
     			//default
     	colorChooser.addDefault("Off", LEDPatterns.OFF);
     	SmartDashboard.putData("LED Pattern Chooser", colorChooser);
+    	*/
     	
     	//Other Peripherals
     	ds = DriverStation.getInstance();
@@ -373,9 +376,12 @@ public class Robot extends IterativeRobot {
     }
     
     public void disabledPeriodic() {
-    	//Debug only
-    	System.out.println("In Disabled");
-    	leds.sequencerPeriodic((LEDPatterns)colorChooser.getSelected());
+
+    	//set LED's to proper color
+    	leds.sequencerPeriodic(LEDPatterns.RED);
+    	
+    	//Keep SDB up to date even in disabled
+    	updateSmartDashboard();
     	
     }
     
@@ -393,10 +399,6 @@ public class Robot extends IterativeRobot {
     	Pneumatics.startCompressor();
 
     	autoMode = (int) autoChooser.getSelected();
-    	
-    	//reset gyro angle to 0
-    	//gyro.reset_gyro_angle();
-    	
     	
     	//reset encoders to 0
     	driveTrain.leftEncoder.reset();
@@ -424,7 +426,7 @@ public class Robot extends IterativeRobot {
     	prev_loop_start_timestamp = Timer.getFPGATimestamp();
     	
     	//Indicate auto w/ led's
-    	leds.sequencerPeriodic(LEDPatterns.PULSE_RED);
+    	leds.sequencerPeriodic(LEDPatterns.RUSTY_AUTO_RED);
     	
     
 	    switch(autoMode){
