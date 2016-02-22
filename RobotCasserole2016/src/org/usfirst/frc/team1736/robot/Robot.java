@@ -745,7 +745,11 @@ public class Robot extends IterativeRobot {
 										  intakeLauncherSM.intake.get(),
 										  leds.ledStrips.audioIn.getVoltage(),
 										  intakeLauncherSM.ballSensorState?1.0:0.0,
-										  intakeLauncherSM.curState.ordinal()
+										  intakeLauncherSM.curState.ordinal(),
+										  autopp.motors.lmpid.getSetpoint(),
+										  autopp.motors.rmpid.getSetpoint(),
+										  driveTrain.getLeftSpdFtPerSec(),
+										  driveTrain.getRightSpdFtPerSec()
 				    					 );
 	    	//Check for brownout. If browned out, force write data to log. Just in case we
 	    	//lose power and nasty things happen, at least we'll know how we died...
