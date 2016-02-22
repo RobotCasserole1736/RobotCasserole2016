@@ -23,13 +23,15 @@ public class OttoShifter {
 	boolean StallCurrentDebounceState;
 
 	
-	public boolean gear; //True is high and false is low
+	public boolean gear; //True is high and false is low. This is the main output
 	public DaBouncer VelDebounce;
 	public DaBouncer WheelAccelDebounce;
 	public DaBouncer VertAccelDebounce;
 	public DaBouncer CurrentDebounce;
 	
 	public DaBouncer StallCurrentDebounce;
+	
+	public GearStates curState;
 	
 	
 	OttoShifter(){
@@ -40,7 +42,9 @@ public class OttoShifter {
 		
 		StallCurrentDebounce = new DaBouncer();
 		
-		gear = false; //start in low gear
+		gear = false; //start in low gear - this is the main output
+		curState = GearStates.LOW_GEAR;
+		
 		
 		VelDebounce.threshold = VAL_DEBOUNCE_THRESH_RPM;
 		VelDebounce.dbnc = VAL_DEBOUNCE_TIME_LOOPS;
@@ -71,35 +75,43 @@ public class OttoShifter {
 		 break;
 	Didn't work- Riperino in Pepperino
 			*/ 
-		 
+		 GearStates temp_nextState = curState; //maintain prev state by default
 		 VelDebounceState = VelDebounce.BelowDebounce(VelocityValue_RPM); //rinse wash repeat for the other four
 		 WheelAccelDebounceState = WheelAccelDebounce.BelowDebounce(WheelAceelValue_RPMperS);
 		 VertAccelDebounceState = VertAccelDebounce.AboveDebounce(VertAccelValue_G);
 		 CurrentDebounceState = CurrentDebounce.AboveDebounce(CurrentValue_A);
 		 StallCurrentDebounceState = StallCurrentDebounce.AboveDebounce(CurrentValue_A);
 	 		 
-		 if (gear == true){ //Top Gear
-			 if (DriverUpshiftCmd == false || (VelDebounceState == true &&  //"ran into a wall" downshift
-					                           WheelAccelDebounceState == true && 
-					                           VertAccelDebounceState == true && 
-					                           CurrentDebounceState == true && 
-					                           AUTO_DNSHIFT_ENABLE == true)
-					                       || (StallCurrentDebounceState == true && //"Been pushing in high gear too long" downshift
-					                           AUTO_DNSHIFT_ENABLE == true)){
-				 gear = false;
+		 if (curState == GearStates.HIGH_GEAR){ //Top Gear
+			 gear = true; //output for this state
+			 if (( VelDebounceState == true &&  //"ran into a wall" downshift
+                   WheelAccelDebounceState == true && 
+                   VertAccelDebounceState == true && 
+                   CurrentDebounceState == true && 
+                   AUTO_DNSHIFT_ENABLE == true)
+               || (StallCurrentDebounceState == true && //"Been pushing in high gear too long" downshift
+                   AUTO_DNSHIFT_ENABLE == true)){
+				 temp_nextState = GearStates.LOW_AUTODNSHIFT;
 			 }
-			 else{
-				 gear = true;
+			 else if(DriverUpshiftCmd == false){
+				 temp_nextState = GearStates.LOW_GEAR;
 			 }
 			 			 
 		 }
-		 else{ //gear == false (low gear)
-			 
+		 else if(curState == GearStates.LOW_AUTODNSHIFT){
+			 gear = false; //output for this state
+			 if(DriverUpshiftCmd == false){
+				 temp_nextState = GearStates.LOW_GEAR;
+			 }
+		 }
+		 else{ //normal low gear
+			 gear = false; //output for this state
 			if (DriverUpshiftCmd == true){
-				gear = true;
+				temp_nextState = GearStates.HIGH_GEAR;
 			}
 			
 		 }
+		 curState = temp_nextState; //reassign state for next loop
 	 }
 		 
 }
