@@ -75,11 +75,11 @@ public class Robot extends IterativeRobot {
 	final static int DT_RB_PDP_CH = 1;
 	final static int DT_LF_PDP_CH = 15;
 	final static int DT_LB_PDP_CH = 14;
-	final static int INTAKE_PDP_CH = 2;
-	final static int SHOOTER_PDP_CH = 3;
-	final static int TAPE_PDP_CH = 4;
-	final static int WINCH_1_PDP_CH = 13;
-	final static int WINCH_2_PDP_CH = 12;
+	final static int INTAKE_PDP_CH = 13;
+	final static int SHOOTER_PDP_CH = 4;
+	final static int TAPE_PDP_CH = 5;
+	final static int WINCH_1_PDP_CH = 12;
+	final static int WINCH_2_PDP_CH = 3;
 	final static int SP_DB_ARM_PDP_CH = 11;
 	
 	//-Square joystick input?
@@ -580,35 +580,11 @@ public class Robot extends IterativeRobot {
         //Run Drivetrain with reversing
     	if(joy1.getRawAxis(XBOX_LTRIGGER_AXIS) > 0.5){ //reverse control
     		cmdInvCtrls = true;
-        	//driveTrain.arcadeDrive(-1 * joy1.getRawAxis(XBOX_LSTICK_YAXIS), joy1.getRawAxis(XBOX_RSTICK_XAXIS), squaredInputs);
+        	driveTrain.arcadeDrive(-1 * joy1.getRawAxis(XBOX_LSTICK_YAXIS), joy1.getRawAxis(XBOX_RSTICK_XAXIS), squaredInputs);
     	}
     	else{ //regular control
     		cmdInvCtrls = false;
-    		//driveTrain.arcadeDrive(joy1.getRawAxis(XBOX_LSTICK_YAXIS), joy1.getRawAxis(XBOX_RSTICK_XAXIS), squaredInputs);
-    	}
-    	
-    	autopp.motors.lmpid.enable();
-    	autopp.motors.rmpid.enable();
-    	//TEMP - override wheel speed to PID values
-    	if(joy1.getRawButton(XBOX_X_BUTTON)){
-    		autopp.motors.lmpid.setSetpoint(5);
-    		autopp.motors.rmpid.setSetpoint(5);
-    	}
-    	else if(joy1.getRawButton(XBOX_A_BUTTON)){
-    		autopp.motors.lmpid.setSetpoint(-5);
-    		autopp.motors.rmpid.setSetpoint(-5);
-    	}
-    	else if(joy1.getRawButton(XBOX_B_BUTTON)){
-    		autopp.motors.lmpid.setSetpoint(3);
-    		autopp.motors.rmpid.setSetpoint(3);
-    	}
-    	else if(joy1.getRawButton(XBOX_Y_BUTTON)){
-    		autopp.motors.lmpid.setSetpoint(1);
-    		autopp.motors.rmpid.setSetpoint(1);
-    	}
-    	else{
-    		autopp.motors.lmpid.setSetpoint(0);
-    		autopp.motors.rmpid.setSetpoint(0);
+    		driveTrain.arcadeDrive(joy1.getRawAxis(XBOX_LSTICK_YAXIS), joy1.getRawAxis(XBOX_RSTICK_XAXIS), squaredInputs);
     	}
     	
     		
