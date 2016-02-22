@@ -8,12 +8,13 @@ public class casserolePathAuto {
 	//Path Planner Constants
 	final double[][] waypoints_apchDfns = new double[][]{ // go up to defenses
 		{0,0},
-		{2,0}		
+		{-18.33,0},
+		{-22.6666,7.50555} //Jeremey's temp numbers for lining up the robot for a low-goal shot
 	};
 	
 	final double[][] waypoints_crsLwBr = new double[][]{ //cross low-bar defense
 		{0,0},
-		{5,0}		
+		{0,0}		
 	};
 	
 	final double[][] waypoints_crossShootHigh = new double[][]{ //cross and shoot
@@ -25,12 +26,12 @@ public class casserolePathAuto {
 		{0,0}
 	};
 	
-	final double totalPathPlannerTime_apchDfns = 2;
+	final double totalPathPlannerTime_apchDfns = 10;
 	final double totalPathPlannerTime_crsLwBr = 5;
 	final double totalPathPlannerTime_crossShootHigh = 10;
 	final double totalPathPlannerTime_modeNothing = 1;
 	
-	final double PLANNER_SAMPLE_RATE = 0.1; //100ms update rate 
+	final double PLANNER_SAMPLE_RATE_S = 0.02; //100ms update rate 
 	final double ROBOT_TRACK_WIDTH_FT = 1.9; //1.9ft wide tracks
 	
 	int timestep = 0;
@@ -76,20 +77,22 @@ public class casserolePathAuto {
 	public void calcPath(int auto_mode){
 		if(auto_mode == 0){
 			path = new FalconPathPlanner(waypoints_apchDfns);
-			path.calculate(totalPathPlannerTime_apchDfns, PLANNER_SAMPLE_RATE, ROBOT_TRACK_WIDTH_FT);
+			path.setPathBeta(0.5);
+			path.setPathAlpha(0.2);
+			path.calculate(totalPathPlannerTime_apchDfns, PLANNER_SAMPLE_RATE_S, ROBOT_TRACK_WIDTH_FT);
 		}
 		else if(auto_mode == 1){
 			path = new FalconPathPlanner(waypoints_crsLwBr);
-			path.calculate(totalPathPlannerTime_crsLwBr, PLANNER_SAMPLE_RATE, ROBOT_TRACK_WIDTH_FT);
+			path.calculate(totalPathPlannerTime_crsLwBr, PLANNER_SAMPLE_RATE_S, ROBOT_TRACK_WIDTH_FT);
 		}
 		else if(auto_mode == 2){
 			path = new FalconPathPlanner(waypoints_crossShootHigh);
-			path.calculate(totalPathPlannerTime_crossShootHigh, PLANNER_SAMPLE_RATE, ROBOT_TRACK_WIDTH_FT);
+			path.calculate(totalPathPlannerTime_crossShootHigh, PLANNER_SAMPLE_RATE_S, ROBOT_TRACK_WIDTH_FT);
 			shootHighGoal = true; //set that we want to shoot at the end of this auto routine
 		}
 		else{
 			path = new FalconPathPlanner(waypoints_modeNothing);
-			path.calculate(totalPathPlannerTime_modeNothing, PLANNER_SAMPLE_RATE, ROBOT_TRACK_WIDTH_FT);
+			path.calculate(totalPathPlannerTime_modeNothing, PLANNER_SAMPLE_RATE_S, ROBOT_TRACK_WIDTH_FT);
 		}
 	}
 	
@@ -99,6 +102,8 @@ public class casserolePathAuto {
 	 * @return
 	 */
 	public int startPlayback(){
+		System.out.println("Starting Path Planner");
+		dt.setSafetyEnabled(false);
 		timestep = 0; //reset timestamp
 		motors.lmpid.setSetpoint(0); //zero out motor controllers
 		motors.rmpid.setSetpoint(0);
@@ -107,7 +112,7 @@ public class casserolePathAuto {
 		timerThread = new java.util.Timer(); //create new thread for the playback function
 		shotTimer.reset(); //Make sure the shot timer is ready to be used (zeroed out)
 		playbackActive = true; //Mark that playback has begun (or, will begin shortly)
-		timerThread.schedule(new PathPlanningPlayback(this), 0L, (long) (PLANNER_SAMPLE_RATE)); //Kick off playback thread. Here we go!
+		timerThread.schedule(new PathPlanningPlayback(this), 0L, (long) ((double)PLANNER_SAMPLE_RATE_S*1000)); //Kick off playback thread. Here we go!
 		return 0;
 	}
 	
@@ -116,6 +121,7 @@ public class casserolePathAuto {
 	 * @return
 	 */
 	public int stopPlayback(){
+		System.out.println("Stopping Path Planner");
 		if(timerThread != null)
 			timerThread.cancel(); //kill thread, assuming it was running
 		playbackActive = false; //set status to not running
@@ -126,6 +132,7 @@ public class casserolePathAuto {
 		shotTimer.stop(); //Stop and reset whatever shot timer might be running
 		shotTimer.reset();
 		timestep = 0; //reset time (just in case? probably not needed)
+		dt.setSafetyEnabled(true);
 		return 0;
 	}
 	
@@ -141,8 +148,9 @@ public class casserolePathAuto {
 	 * Playback function = should be called 
 	 */
 	public void plannerStep(){
+		System.out.println("Running Planner Step " + timestep);
 		//detect end condition where path planner has finished playback
-		if(timestep > path.numFinalPoints){
+		if(timestep >= path.numFinalPoints){
 			shotTimer.start(); //only does something on the first call - make sure the shot timer is in fact running. Assumes it was reset at the start of path-planner auto
 			motors.lmpid.setSetpoint(0); //zero out motor controllers
 			motors.rmpid.setSetpoint(0);

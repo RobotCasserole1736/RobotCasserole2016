@@ -278,7 +278,6 @@ public class LEDSequencer {
 		}
 		
 		callCounter++;
-		System.out.println(ledStrips.getAudioLevel() + "  |  " + ledStrips.audioIn.getVoltage());
 	}
 	
 	public void twinkle(){

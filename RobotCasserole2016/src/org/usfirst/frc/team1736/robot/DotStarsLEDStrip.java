@@ -118,7 +118,6 @@ public class DotStarsLEDStrip {
 				int size = end_index - start_index;
 				byte[] tx_array = Arrays.copyOfRange(temp_ledBuff, start_index, end_index);
 				ret_val =  spi.write(tx_array, size);
-				System.out.println(ret_val + ", " + size);
 			}
 			
 		}

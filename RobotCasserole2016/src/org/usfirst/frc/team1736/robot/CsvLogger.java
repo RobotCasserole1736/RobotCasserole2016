@@ -94,7 +94,6 @@ public class CsvLogger {
 			return -1;
 		}
 			
-		System.out.println("Writing to log file.");
 		try {
 			
 			//Write user-defined data

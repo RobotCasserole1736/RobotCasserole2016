@@ -89,6 +89,9 @@ public class Robot extends IterativeRobot {
 	final static int BPE_length = 200; //Window length
 	final static double BPE_confidenceThresh_A = 10.0;
 	
+	//Path Planner
+	boolean alreadyStarted = false;
+	
 	
 	//Data Logging
 	static final boolean enable_logging = true; //Set to false to disable logging
@@ -437,6 +440,9 @@ public class Robot extends IterativeRobot {
     	//Calc a path
     	autopp.calcPath(0); //TEMP - just test with 0 for now
     	
+    	//path planner one-time call guard boolean
+    	alreadyStarted = false;
+    	
     }
 
     
@@ -449,7 +455,7 @@ public class Robot extends IterativeRobot {
     	prev_loop_start_timestamp = Timer.getFPGATimestamp();
     	
     	//Indicate auto w/ led's
-    	leds.sequencerPeriodic(LEDPatterns.RUSTY_AUTO_RED);
+    	leds.sequencerPeriodic(LEDPatterns.CASS);
     	
     
 	    switch(autoMode){
@@ -513,7 +519,10 @@ public class Robot extends IterativeRobot {
 	    	}
 	    	break; 
 	    case 3:
-	    	autopp.startPlayback();
+	    	if(!alreadyStarted){
+	    		autopp.startPlayback();
+	    		alreadyStarted = true;
+	    	}
 	    	break;
 	    }	
     	
@@ -571,12 +580,37 @@ public class Robot extends IterativeRobot {
         //Run Drivetrain with reversing
     	if(joy1.getRawAxis(XBOX_LTRIGGER_AXIS) > 0.5){ //reverse control
     		cmdInvCtrls = true;
-        	driveTrain.arcadeDrive(-1 * joy1.getRawAxis(XBOX_LSTICK_YAXIS), joy1.getRawAxis(XBOX_RSTICK_XAXIS), squaredInputs);
+        	//driveTrain.arcadeDrive(-1 * joy1.getRawAxis(XBOX_LSTICK_YAXIS), joy1.getRawAxis(XBOX_RSTICK_XAXIS), squaredInputs);
     	}
     	else{ //regular control
     		cmdInvCtrls = false;
-    		driveTrain.arcadeDrive(joy1.getRawAxis(XBOX_LSTICK_YAXIS), joy1.getRawAxis(XBOX_RSTICK_XAXIS), squaredInputs);
+    		//driveTrain.arcadeDrive(joy1.getRawAxis(XBOX_LSTICK_YAXIS), joy1.getRawAxis(XBOX_RSTICK_XAXIS), squaredInputs);
     	}
+    	
+    	autopp.motors.lmpid.enable();
+    	autopp.motors.rmpid.enable();
+    	//TEMP - override wheel speed to PID values
+    	if(joy1.getRawButton(XBOX_X_BUTTON)){
+    		autopp.motors.lmpid.setSetpoint(5);
+    		autopp.motors.rmpid.setSetpoint(5);
+    	}
+    	else if(joy1.getRawButton(XBOX_A_BUTTON)){
+    		autopp.motors.lmpid.setSetpoint(-5);
+    		autopp.motors.rmpid.setSetpoint(-5);
+    	}
+    	else if(joy1.getRawButton(XBOX_B_BUTTON)){
+    		autopp.motors.lmpid.setSetpoint(3);
+    		autopp.motors.rmpid.setSetpoint(3);
+    	}
+    	else if(joy1.getRawButton(XBOX_Y_BUTTON)){
+    		autopp.motors.lmpid.setSetpoint(1);
+    		autopp.motors.rmpid.setSetpoint(1);
+    	}
+    	else{
+    		autopp.motors.lmpid.setSetpoint(0);
+    		autopp.motors.rmpid.setSetpoint(0);
+    	}
+    	
     		
     	//Evaluate upshift/downshift need
     	double left_speed = Math.abs(driveTrain.getLeftWheelSpeedRPM());
@@ -585,12 +619,10 @@ public class Robot extends IterativeRobot {
     	shifter.OttoShifterPeriodic(net_speed, wheel_speed.calcDeriv(net_speed), Math.abs(accel_RIO.getX()), pdp.getTotalCurrent(), joy1.getRawButton(XBOX_LEFT_BUTTON), joy1.getRawButton(XBOX_RIGHT_BUTTON));
     	//Set pneumatics to select gear and activate driver 1 rumble if needed
     	if(shifter.gear){
-    		System.out.println("high_gear");
     		Pneumatics.shiftToHighGear();
     		joy1.setRumble(RumbleType.kLeftRumble, 0f);
     	}
     	else{
-    		System.out.println("low_gear");
     		Pneumatics.shiftToLowGear();
     		joy1.setRumble(RumbleType.kLeftRumble, 0.25f);
     	}

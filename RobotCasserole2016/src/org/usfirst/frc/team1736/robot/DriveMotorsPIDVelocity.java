@@ -26,10 +26,10 @@ public class DriveMotorsPIDVelocity {
 
 class LeftMotorPID extends PIDSubsystem{
 	
-	static double P = 0.07; 
-	static double I = 0.0001; 
-	static double D = 0.0001; 
-	static double F = 0.12;
+	static double P = -0.2; 
+	static double I = -0.1; 
+	static double D = -0.0001; 
+	static double F = -0.15;
 	
 	DriveTrain dt;
 	
@@ -68,10 +68,10 @@ class LeftMotorPID extends PIDSubsystem{
  */
 class RightMotorPID extends PIDSubsystem{
 	
-	static double P = 0.07; 
-	static double I = 0.0001; 
-	static double D = 0.0001; 
-	static double F = 0.12;
+	static double P = -0.2; 
+	static double I = -0.1; 
+	static double D = -0.0001; 
+	static double F = -0.15;
 	DriveTrain dt;
 	
 	
