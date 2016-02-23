@@ -24,17 +24,13 @@ public class casserolePathAuto {
 	final double[][] waypoints_crossShootHigh = new double[][]{ //cross and shoot
 		{0,0},
 		{17.33,0},
-		{19.1666,10.40555} //Jeremey's temp numbers for lining up the robot for a low-goal shot
-	};
-	final double[][] waypoints_modeNothing = new double[][]{ // do nothing
-		{0,0}
+		{18.9666,10.20555} //Jeremey's temp numbers for lining up the robot for a low-goal shot
 	};
 	
-	final double totalPathPlannerTime_apchDfns = 10;
+	final double totalPathPlannerTime_apchDfns = 5;
 	final double totalPathPlannerTime_crsLwBr = 5;
 	final double totalPathPlannerTime_crossShootLow = 10;
 	final double totalPathPlannerTime_crossShootHigh = 10;
-	final double totalPathPlannerTime_modeNothing = 1;
 	
 	final double PLANNER_SAMPLE_RATE_S = 0.02; //200ms update rate 
 	final double ROBOT_TRACK_WIDTH_FT = 1.9; //1.9ft wide tracks
@@ -57,6 +53,7 @@ public class casserolePathAuto {
 	
 	//Constraints
 	boolean invertSetpoints = false;
+	boolean cycleIntakeArm = false;
 	
 	//Playback thread
 	Timer timerThread;
@@ -97,6 +94,7 @@ public class casserolePathAuto {
 			invertSetpoints = false;
 			shootHighGoal = false;
 			shootLowGoal = false;
+			cycleIntakeArm = false;
 		}
 		else if(auto_mode == 1){
 			System.out.println("Calculating path CrossLowBar");
@@ -105,6 +103,7 @@ public class casserolePathAuto {
 			invertSetpoints = false;
 			shootHighGoal = false;
 			shootLowGoal = false;
+			cycleIntakeArm = false;
 		}
 		else if(auto_mode == 2){
 			System.out.println("Calculating path CrossShootLow");
@@ -117,6 +116,7 @@ public class casserolePathAuto {
 			invertSetpoints = false;
 			shootHighGoal = false;
 			shootLowGoal = true;
+			cycleIntakeArm = true;
 		}
 		else if(auto_mode == 3){
 			System.out.println("Calculating path CrossShootHigh");
@@ -129,14 +129,10 @@ public class casserolePathAuto {
 			invertSetpoints = true;
 			shootHighGoal = true;
 			shootLowGoal = false;
+			cycleIntakeArm = true;
 		}
 		else{
-			System.out.println("Calculating path Do Nothing");
-			path = new FalconPathPlanner(waypoints_modeNothing);
-			path.calculate(totalPathPlannerTime_modeNothing, PLANNER_SAMPLE_RATE_S, ROBOT_TRACK_WIDTH_FT);
-			invertSetpoints = false;
-			shootHighGoal = false;
-			shootLowGoal = false;
+			System.out.println("ERROR: bad path selected, tell software they did something wrong!!!");
 		}
 	}
 	
@@ -232,22 +228,24 @@ public class casserolePathAuto {
 				motors.rmpid.setSetpoint(path.smoothRightVelocity[timestep][1]);
 			}
 			
-			//Handle arm raise-lower events
-			if(timestep == intakeLowerTimeStep_crossShootLow){
-				System.out.println("Lowering Intake Arm");
-				Pneumatics.intakeDown();
-			}
-			if(timestep == intakeRaiseTimeStep_crossShootLow){
-				System.out.println("Raising Intake Arm");
-				Pneumatics.intakeUp();
-			}
-			if(timestep == intakeLowerTimeStep_crossShootHigh){
-				System.out.println("Lowering Intake Arm");
-				Pneumatics.intakeDown();
-			}
-			if(timestep == intakeRaiseTimeStep_crossShootHigh){
-				System.out.println("Raising Intake Arm");
-				Pneumatics.intakeUp();
+			if(cycleIntakeArm){
+				//Handle arm raise-lower events
+				if(timestep == intakeLowerTimeStep_crossShootLow){
+					System.out.println("Lowering Intake Arm");
+					Pneumatics.intakeDown();
+				}
+				if(timestep == intakeRaiseTimeStep_crossShootLow){
+					System.out.println("Raising Intake Arm");
+					Pneumatics.intakeUp();
+				}
+				if(timestep == intakeLowerTimeStep_crossShootHigh){
+					System.out.println("Lowering Intake Arm");
+					Pneumatics.intakeDown();
+				}
+				if(timestep == intakeRaiseTimeStep_crossShootHigh){
+					System.out.println("Raising Intake Arm");
+					Pneumatics.intakeUp();
+				}
 			}
 		}
 		

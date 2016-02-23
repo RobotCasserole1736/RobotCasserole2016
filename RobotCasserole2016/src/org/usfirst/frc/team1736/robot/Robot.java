@@ -302,10 +302,9 @@ public class Robot extends IterativeRobot {
     	//Stuff for Autonomous
     	autoChooser = new SendableChooser();
     	autoChooser.addObject("Drive Up To Defense (no cross)", 0);
-    	autoChooser.addObject("Cross Low Bar (encoders)", 1);
-    	autoChooser.addObject("Cross Uneven Defense (timer)",2);
-    	autoChooser.addObject("PathPlanner LowGoal",3);
-    	autoChooser.addObject("PathPlanner HighGoal",4);
+    	autoChooser.addObject("Cross Defense", 1);
+    	autoChooser.addObject("PathPlanner LowGoal",2);
+    	autoChooser.addObject("PathPlanner HighGoal - TURN ROBOT BACKWARD",3);
     	autoChooser.addDefault("Do Nothing",-1);
     	SmartDashboard.putData("Auto Mode Chooser", autoChooser);
     	
@@ -439,11 +438,8 @@ public class Robot extends IterativeRobot {
     	//Kill off any autonomous that may have been running
     	autopp.stopPlayback();
     	//Calc a path
-    	if(autoMode == 3){
-    		autopp.calcPath(2); //Path for Low-Goal path planner
-    	}
-    	else if(autoMode == 4){
-    		autopp.calcPath(3); //Path for High-Goal path planner
+    	if(autoMode != -1){
+    		autopp.calcPath(autoMode);
     	}
     	
     	//path planner one-time call guard boolean
@@ -463,69 +459,13 @@ public class Robot extends IterativeRobot {
     	//Indicate auto w/ led's
     	leds.sequencerPeriodic(LEDPatterns.CASS);
     	
-    
-	    switch(autoMode){
-	    case -1: 
-	    	//Do squatS
-	    	//nobody here but us chickens
-	    	break;
-	    case 0: //Just move to in front of the defense
-	    	if (driveTrain.getRightDistanceFt() > -1.5) {
-	    		driveTrain.drive(0.5, 0);
+    	if(autoMode == -1){
+	    	//Ensure safe state while not running
+	    	if(!autopp.isPlaybackActive()){
+	    		intakeLauncherSM.periodicStateMach(false, false, false, false, false);
 	    	}
-	    	if (driveTrain.getRightDistanceFt() < -1.5 && driveTrain.getRightDistanceFt() > -1.9) {
-	    		driveTrain.drive(.1, 0);    		
-	    	}
-	    	if (driveTrain.getRightDistanceFt() <= -1.9) {
-	    		driveTrain.drive(0, 0);
-	    	}   	
-	    	break;    	
-	    case 1: //Case 0 + go over low bar
-	    	{		
-	    		Pneumatics.intakeDown();
-	    		if (driveTrain.getRightDistanceFt() > -14.3) {
-	        	driveTrain.drive(0.8, 0);
-	    		}
-	        	if (driveTrain.getRightDistanceFt() < -14.3 && driveTrain.getRightDistanceFt() > -14.9) {
-	        		driveTrain.drive(.1, 0);    		
-	        	}
-	        	if (driveTrain.getRightDistanceFt() <= -14.9) {
-	        		driveTrain.drive(0, 0);
-	        	}   	
-	    	}    	
-	    	break;     	
-	    case 2: //Case 0 + go over rugged terrain
-	    	Pneumatics.intakeUp();
-	    	if (currentStep == 1) {
-	    	
-	    		if (driveTrain.getRightDistanceFt() > -1.5) {	    			
-	    			driveTrain.drive(0.8, 0);
-	    		}
-	        	if (driveTrain.getRightDistanceFt() < -1.5 && driveTrain.getRightDistanceFt() > -1.9) {
-	        		driveTrain.drive(.2, 0);    		
-	        	}
-	        	if (driveTrain.getRightDistanceFt() <= -1.9) {
-	        		driveTrain.drive(0, 0);
-	        	} 
-	        	currentStep = 2;
-	    	}    	
-	    	if (currentStep == 2)
-	    	{
-				autoTimer.reset();
-				autoTimer.start();
-				currentStep = 3;
-	    	}
-	    	if (currentStep == 3)
-	    	{
-	    		driveTrain.drive(0.8, 0);
-	    		if (autoTimer.get() >= 10) {
-	    			driveTrain.drive(0, 0);
-	    		}
-	    		
-	    	}
-	    	break; 
-	    case 3: //Either 3 or 4 should run path planner
-	    case 4:
+    	}
+    	else{
 	    	//call the start function once
 	    	if(!alreadyStarted){
 	    		autopp.startPlayback();
@@ -535,10 +475,8 @@ public class Robot extends IterativeRobot {
 	    	if(!autopp.isPlaybackActive()){
 	    		intakeLauncherSM.periodicStateMach(false, false, false, false, false);
 	    	}
-	    	
-	    	break;
-	    }	
-    	
+    	}
+
     	//Add autonomous code here
     	//Estimate battery Parameters
     	bpe.updateEstimate(pdp.getVoltage(), pdp.getTotalCurrent());
@@ -666,6 +604,9 @@ public class Robot extends IterativeRobot {
     	log_data();
     	updateSmartDashboard();
     	System.out.println(driveTrain.getMemes());
+    	
+    	//Turn rumble off
+    	joy1.setRumble(RumbleType.kRightRumble, (float) Math.min(1, Math.abs(accel_RIO.getZ() - 1)));
     	
     	//Execution time metric - this must be last! Even after memes!
     	loop_time_elapsed = Timer.getFPGATimestamp() - prev_loop_start_timestamp;
