@@ -8,19 +8,23 @@ public class casserolePathAuto {
 	//Path Planner Constants
 	final double[][] waypoints_apchDfns = new double[][]{ // go up to defenses
 		{0,0},
-		{-18.33,0},
-		{-22.6666,7.50555} //Jeremey's temp numbers for lining up the robot for a low-goal shot
+		{-4,0}
 	};
 	
 	final double[][] waypoints_crsLwBr = new double[][]{ //cross low-bar defense
 		{0,0},
-		{0,0}		
+		{-15,0}		
 	};
 	
+	final double[][] waypoints_crossShootLow = new double[][]{ //cross and shoot
+		{0,0},
+		{-17.33,0},
+		{-19.5666,11.20555} //Jeremey's temp numbers for lining up the robot for a low-goal shot
+	};
 	final double[][] waypoints_crossShootHigh = new double[][]{ //cross and shoot
 		{0,0},
-		{5,0},
-		{8,5} //Total guess for testing, we'll have to use Justin's points
+		{17.33,0},
+		{19.1666,10.40555} //Jeremey's temp numbers for lining up the robot for a low-goal shot
 	};
 	final double[][] waypoints_modeNothing = new double[][]{ // do nothing
 		{0,0}
@@ -28,11 +32,19 @@ public class casserolePathAuto {
 	
 	final double totalPathPlannerTime_apchDfns = 10;
 	final double totalPathPlannerTime_crsLwBr = 5;
+	final double totalPathPlannerTime_crossShootLow = 10;
 	final double totalPathPlannerTime_crossShootHigh = 10;
 	final double totalPathPlannerTime_modeNothing = 1;
 	
-	final double PLANNER_SAMPLE_RATE_S = 0.02; //100ms update rate 
+	final double PLANNER_SAMPLE_RATE_S = 0.02; //200ms update rate 
 	final double ROBOT_TRACK_WIDTH_FT = 1.9; //1.9ft wide tracks
+	
+	//THESE MUST CHANGE IF THE SAMPLE TIME OF THE PLAYBACk THREAD CHANGES
+	final int intakeLowerTimeStep_crossShootLow = 0;
+	final int intakeRaiseTimeStep_crossShootLow = 250;
+	//THESE MUST CHANGE IF THE SAMPLE TIME OF THE PLAYBACk THREAD CHANGES
+	final int intakeLowerTimeStep_crossShootHigh = 15;
+	final int intakeRaiseTimeStep_crossShootHigh = 250;
 	
 	int timestep = 0;
 	
@@ -43,6 +55,9 @@ public class casserolePathAuto {
 	DriveMotorsPIDVelocity motors;
 	IntakeLauncherStateMachine ilsm;
 	
+	//Constraints
+	boolean invertSetpoints = false;
+	
 	//Playback thread
 	Timer timerThread;
 	boolean playbackActive = false;
@@ -51,8 +66,8 @@ public class casserolePathAuto {
 	boolean shootHighGoal = false;
 	boolean shootLowGoal = false;
 	edu.wpi.first.wpilibj.Timer shotTimer;
-	final double HIGH_GOAL_SHOT_TIME_S = 2;
-	final double LOW_GOAL_SHOT_TIME_S = 8;
+	final double HIGH_GOAL_SHOT_TIME_S = 3.0;
+	final double LOW_GOAL_SHOT_TIME_S = 4.0;
 	
 	
 	/**
@@ -76,23 +91,52 @@ public class casserolePathAuto {
 	 */
 	public void calcPath(int auto_mode){
 		if(auto_mode == 0){
+			System.out.println("Calculating path Approach Defense");
 			path = new FalconPathPlanner(waypoints_apchDfns);
-			path.setPathBeta(0.5);
-			path.setPathAlpha(0.2);
 			path.calculate(totalPathPlannerTime_apchDfns, PLANNER_SAMPLE_RATE_S, ROBOT_TRACK_WIDTH_FT);
+			invertSetpoints = false;
+			shootHighGoal = false;
+			shootLowGoal = false;
 		}
 		else if(auto_mode == 1){
+			System.out.println("Calculating path CrossLowBar");
 			path = new FalconPathPlanner(waypoints_crsLwBr);
 			path.calculate(totalPathPlannerTime_crsLwBr, PLANNER_SAMPLE_RATE_S, ROBOT_TRACK_WIDTH_FT);
+			invertSetpoints = false;
+			shootHighGoal = false;
+			shootLowGoal = false;
 		}
 		else if(auto_mode == 2){
+			System.out.println("Calculating path CrossShootLow");
+			path = new FalconPathPlanner(waypoints_crossShootLow);
+			path.setPathBeta(0.6);
+			path.setPathAlpha(0.3);
+			path.setVelocityAlpha(0.01);
+			path.setVelocityBeta(0.8);
+			path.calculate(totalPathPlannerTime_crossShootLow, PLANNER_SAMPLE_RATE_S, ROBOT_TRACK_WIDTH_FT);
+			invertSetpoints = false;
+			shootHighGoal = false;
+			shootLowGoal = true;
+		}
+		else if(auto_mode == 3){
+			System.out.println("Calculating path CrossShootHigh");
 			path = new FalconPathPlanner(waypoints_crossShootHigh);
+			path.setPathBeta(0.6);
+			path.setPathAlpha(0.3);
+			path.setVelocityAlpha(0.01);
+			path.setVelocityBeta(0.8);
 			path.calculate(totalPathPlannerTime_crossShootHigh, PLANNER_SAMPLE_RATE_S, ROBOT_TRACK_WIDTH_FT);
-			shootHighGoal = true; //set that we want to shoot at the end of this auto routine
+			invertSetpoints = true;
+			shootHighGoal = true;
+			shootLowGoal = false;
 		}
 		else{
+			System.out.println("Calculating path Do Nothing");
 			path = new FalconPathPlanner(waypoints_modeNothing);
 			path.calculate(totalPathPlannerTime_modeNothing, PLANNER_SAMPLE_RATE_S, ROBOT_TRACK_WIDTH_FT);
+			invertSetpoints = false;
+			shootHighGoal = false;
+			shootLowGoal = false;
 		}
 	}
 	
@@ -131,6 +175,7 @@ public class casserolePathAuto {
 		shotTimer.stop(); //Stop and reset whatever shot timer might be running
 		shotTimer.reset();
 		timestep = 0; //reset time (just in case? probably not needed)
+		ilsm.periodicStateMach(false, false, false, false, false); //shut everything down
 		dt.setSafetyEnabled(true);
 		return 0;
 	}
@@ -150,25 +195,27 @@ public class casserolePathAuto {
 		System.out.println("Running Planner Step " + timestep);
 		//detect end condition where path planner has finished playback
 		if(timestep >= path.numFinalPoints){
-			shotTimer.start(); //only does something on the first call - make sure the shot timer is in fact running. Assumes it was reset at the start of path-planner auto
+			if(timestep == path.numFinalPoints){
+				shotTimer.start(); //only does something on the first call - make sure the shot timer is in fact running. Assumes it was reset at the start of path-planner auto
+			}
 			motors.lmpid.setSetpoint(0); //zero out motor controllers
 			motors.rmpid.setSetpoint(0);
 			if(shootHighGoal){ //high-goal end shot
 				if(shotTimer.get() > HIGH_GOAL_SHOT_TIME_S){
-					ilsm.periodicStateMach(false, false, false, false, false); //shut everything down
 					stopPlayback();
 				} 
 				else {
+					System.out.println("Commanding High-Goal Shot, " + (HIGH_GOAL_SHOT_TIME_S-shotTimer.get()) + " s remaining.");
 					ilsm.periodicStateMach(false, false, false, true, false); //command high-goal shot
 				}
 			}
 			else if(shootLowGoal){ //low-goal end shot
 				if(shotTimer.get() > LOW_GOAL_SHOT_TIME_S){
-					ilsm.periodicStateMach(false, false, false, false, false); //shut everything down
 					stopPlayback();
 				} 
 				else {
-					ilsm.periodicStateMach(true, false, false, false, false); //command low-goal shot (eject)
+					System.out.println("Commanding Low-Goal Shot, " + (LOW_GOAL_SHOT_TIME_S-shotTimer.get()) + " s remaining.");
+					ilsm.periodicStateMach(false, true, false, false, false); //command low-goal shot (eject)
 				}
 			}
 			else{ //no end shot
@@ -176,12 +223,35 @@ public class casserolePathAuto {
 			}
 		}
 		else{ //otherwise, continue playback
-			motors.lmpid.setSetpoint(path.smoothLeftVelocity[timestep][1]);
-			motors.rmpid.setSetpoint(path.smoothRightVelocity[timestep][1]);
-			timestep++;
-		}
-
+			if(invertSetpoints){
+				motors.lmpid.setSetpoint(-path.smoothLeftVelocity[timestep][1]);
+				motors.rmpid.setSetpoint(-path.smoothRightVelocity[timestep][1]);
+			}
+			else{
+				motors.lmpid.setSetpoint(path.smoothLeftVelocity[timestep][1]);
+				motors.rmpid.setSetpoint(path.smoothRightVelocity[timestep][1]);
+			}
 			
+			//Handle arm raise-lower events
+			if(timestep == intakeLowerTimeStep_crossShootLow){
+				System.out.println("Lowering Intake Arm");
+				Pneumatics.intakeDown();
+			}
+			if(timestep == intakeRaiseTimeStep_crossShootLow){
+				System.out.println("Raising Intake Arm");
+				Pneumatics.intakeUp();
+			}
+			if(timestep == intakeLowerTimeStep_crossShootHigh){
+				System.out.println("Lowering Intake Arm");
+				Pneumatics.intakeDown();
+			}
+			if(timestep == intakeRaiseTimeStep_crossShootHigh){
+				System.out.println("Raising Intake Arm");
+				Pneumatics.intakeUp();
+			}
+		}
+		
+		timestep++;
 	}
 	
 	//Java multithreading magic. Do not touch.

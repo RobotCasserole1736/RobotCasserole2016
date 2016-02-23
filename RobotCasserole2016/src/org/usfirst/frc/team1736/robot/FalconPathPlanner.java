@@ -700,9 +700,9 @@ public class FalconPathPlanner
 
 		final FalconPathPlanner path = new FalconPathPlanner(waypoints);
 		
+		path.setPathBeta(0.6);
 		path.setPathAlpha(0.3);
-		path.setPathBeta(0.5);
-		path.setVelocityAlpha(0.05);
+		path.setVelocityAlpha(0.01);
 		path.setVelocityBeta(0.8);
 		path.calculate(totalTime, timeStep, robotTrackWidth);
 

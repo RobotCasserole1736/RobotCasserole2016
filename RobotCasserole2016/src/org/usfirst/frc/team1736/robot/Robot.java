@@ -305,6 +305,7 @@ public class Robot extends IterativeRobot {
     	autoChooser.addObject("Cross Low Bar (encoders)", 1);
     	autoChooser.addObject("Cross Uneven Defense (timer)",2);
     	autoChooser.addObject("PathPlanner LowGoal",3);
+    	autoChooser.addObject("PathPlanner HighGoal",4);
     	autoChooser.addDefault("Do Nothing",-1);
     	SmartDashboard.putData("Auto Mode Chooser", autoChooser);
     	
@@ -438,7 +439,12 @@ public class Robot extends IterativeRobot {
     	//Kill off any autonomous that may have been running
     	autopp.stopPlayback();
     	//Calc a path
-    	autopp.calcPath(0); //TEMP - just test with 0 for now
+    	if(autoMode == 3){
+    		autopp.calcPath(2); //Path for Low-Goal path planner
+    	}
+    	else if(autoMode == 4){
+    		autopp.calcPath(3); //Path for High-Goal path planner
+    	}
     	
     	//path planner one-time call guard boolean
     	alreadyStarted = false;
@@ -518,11 +524,18 @@ public class Robot extends IterativeRobot {
 	    		
 	    	}
 	    	break; 
-	    case 3:
+	    case 3: //Either 3 or 4 should run path planner
+	    case 4:
+	    	//call the start function once
 	    	if(!alreadyStarted){
 	    		autopp.startPlayback();
 	    		alreadyStarted = true;
 	    	}
+	    	//Ensure safe state while not running
+	    	if(!autopp.isPlaybackActive()){
+	    		intakeLauncherSM.periodicStateMach(false, false, false, false, false);
+	    	}
+	    	
 	    	break;
 	    }	
     	
