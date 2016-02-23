@@ -390,6 +390,7 @@ public class Robot extends IterativeRobot {
     	
     	//Turn rumble off
     	joy1.setRumble(RumbleType.kLeftRumble, 0);
+    	joy1.setRumble(RumbleType.kRightRumble, 0);
     	
     	//Kill off any autonomous that may have been running
     	autopp.stopPlayback();

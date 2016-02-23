@@ -23,8 +23,8 @@ public class casserolePathAuto {
 	};
 	final double[][] waypoints_crossShootHigh = new double[][]{ //cross and shoot
 		{0,0},
-		{17.33,0},
-		{18.9666,10.20555} //Jeremey's temp numbers for lining up the robot for a low-goal shot
+		{18.13,0},
+		{18.9666,9.00555} //Jeremey's temp numbers for lining up the robot for a low-goal shot
 	};
 	
 	final double totalPathPlannerTime_apchDfns = 5;
