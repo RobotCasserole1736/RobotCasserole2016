@@ -11,7 +11,6 @@ public class DrawbridgeArmControls {
 	}
 	
 	public void	periodUptade(double armMotorCommand , boolean assistCommand){
-		RMotorController.set(armMotorCommand);
 		
 		if(assistCommand){
 			Pneumatics.extendDrawbridgeArmCylinder();
@@ -19,6 +18,7 @@ public class DrawbridgeArmControls {
 		}
 		else{
 			Pneumatics.retractDrawbridgeArmCylinder();
+			RMotorController.set(armMotorCommand);
 		}	
 	}
 }
