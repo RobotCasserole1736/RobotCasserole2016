@@ -517,6 +517,9 @@ public class Robot extends IterativeRobot {
     	//Kill off the motor PID's so they don't fight with the regular driving
     	autopp.motors.lmpid.disable(); 
     	autopp.motors.rmpid.disable();
+    	
+    	//get all the memes
+    	System.out.println(driveTrain.getMemes());
     }
 
     /** 
@@ -604,7 +607,6 @@ public class Robot extends IterativeRobot {
     	//Log data from this timestep
     	log_data();
     	updateSmartDashboard();
-    	System.out.println(driveTrain.getMemes());
     	
     	//Turn rumble off
     	joy1.setRumble(RumbleType.kRightRumble, (float) Math.min(1, Math.abs(accel_RIO.getZ() - 1)));
@@ -787,9 +789,6 @@ public class Robot extends IterativeRobot {
     	SmartDashboard.putNumber("Current Draw", pdp.getTotalCurrent());
     	SmartDashboard.putNumber("Avg Speed FTpS", Math.abs((driveTrain.getRightSpdFtPerSec() + driveTrain.getLeftSpdFtPerSec())/2.0));
     	SmartDashboard.putBoolean("Ball In CarryPos", intakeLauncherSM.ballSensorState);
-    	SmartDashboard.putNumber("SquishSensor Reading", launchMotor.getSquishSensorVal());
-    	SmartDashboard.putNumber("LeftFtpS", driveTrain.getLeftSpdFtPerSec());
-    	SmartDashboard.putNumber("RightFtpS", driveTrain.getRightSpdFtPerSec());
     	
     }
 }
