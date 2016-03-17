@@ -288,6 +288,9 @@ public class Robot extends IterativeRobot {
 	//Auto PathPlanner
 	casserolePathAuto autopp;
 	
+	//SDB Read counter in Disabled
+	int disabled_sbd_counter;
+	
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	// PUBLIC METHODS 
     ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -394,6 +397,8 @@ public class Robot extends IterativeRobot {
     	
     	//Kill off any autonomous that may have been running
     	autopp.stopPlayback();
+    	
+    	disabled_sbd_counter = 0;
 
     }
     
@@ -404,6 +409,15 @@ public class Robot extends IterativeRobot {
     	
     	//Keep SDB up to date even in disabled
     	updateSmartDashboard();
+    	
+    	//keep polling auto mode from the driver station
+    	if(disabled_sbd_counter == 25){
+    		autoMode = (int) autoChooser.getSelected();
+    		disabled_sbd_counter = 0;
+    	}
+    	else{
+    		disabled_sbd_counter = disabled_sbd_counter + 1;
+    	}
     	
     }
     
@@ -507,6 +521,9 @@ public class Robot extends IterativeRobot {
 
     	//Kill off any autonomous that may have been running
     	autopp.stopPlayback();
+    	
+    	//Turn the watchdog back on
+		driveTrain.setSafetyEnabled(true);
     	
     	//compressor starts automatically, but just in case...
     	Pneumatics.startCompressor();
@@ -793,6 +810,7 @@ public class Robot extends IterativeRobot {
     	SmartDashboard.putNumber("Current Draw", pdp.getTotalCurrent());
     	SmartDashboard.putNumber("Avg Speed FTpS", Math.abs((driveTrain.getRightSpdFtPerSec() + driveTrain.getLeftSpdFtPerSec())/2.0));
     	SmartDashboard.putBoolean("Ball In CarryPos", intakeLauncherSM.ballSensorState);
+    	SmartDashboard.putNumber("Selected Auto Mode", autoMode);
     	
     }
 }

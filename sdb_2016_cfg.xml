@@ -1,5 +1,8 @@
 <xml version="1.0">
 <dashboard>
+	<widget field="Selected Auto Mode" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="0" y="474"/>
+	</widget>
 	<widget field="useCamera1" type="Boolean" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
 		<location x="0" y="453"/>
 	</widget>
@@ -42,6 +45,7 @@
 		<location x="0" y="47"/>
 		<width>196</width>
 		<height>130</height>
+		<property name="Upper Limit" value="130.0"/>
 	</widget>
 	<widget field="Launch Motor Speed (RPM)" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.SimpleDial">
 		<location x="164" y="46"/>

@@ -172,7 +172,6 @@ public class casserolePathAuto {
 		shotTimer.reset();
 		timestep = 0; //reset time (just in case? probably not needed)
 		ilsm.periodicStateMach(false, false, false, false, false); //shut everything down
-		dt.setSafetyEnabled(true);
 		return 0;
 	}
 	
