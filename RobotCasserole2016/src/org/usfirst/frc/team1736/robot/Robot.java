@@ -430,6 +430,10 @@ public class Robot extends IterativeRobot {
     	prev_loop_start_timestamp = Timer.getFPGATimestamp();
     	loop_time_elapsed = 0;
     	
+    	//Display rear camera if doing high goal
+    	if(autoMode == 3)
+    		SmartDashboard.putBoolean("useCamera1", true);
+    	
     	//Raise intake to prevent damage in auto.
     	Pneumatics.intakeUp();
     	

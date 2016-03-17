@@ -75,8 +75,8 @@
 		<width>656</width>
 		<height>538</height>
 		<property name="Degrees Rotation" value="180"/>
-		<property name="Crosshair X" value="300"/>
-		<property name="Crosshair Y" value="111"/>
+		<property name="Crosshair X" value="274"/>
+		<property name="Crosshair Y" value="133"/>
 		<property name="Crosshair size" value="4"/>
 	</static-widget>
 	<widget field="DT Limiting Factor" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.SimpleDial">
