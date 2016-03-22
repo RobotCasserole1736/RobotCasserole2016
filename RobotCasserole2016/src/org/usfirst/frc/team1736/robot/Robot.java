@@ -30,6 +30,12 @@ public class Robot extends IterativeRobot {
 	//soon
 	final static boolean SINGLE_JOYSTICK_IS_BEST_JOYSTICK = false;
 	
+	// I'm a silly boy and Idk what I'm doing so I'm just gonna put these variables here, whoop whoop
+	int autoMode = 0;
+	SendableChooser autoChooser;
+	Timer autoTimer = new Timer();
+	int currentStep = 0;
+	
 	//-Controller Buttons
 	final static int XBOX_A_BUTTON = 1;
 	final static int XBOX_B_BUTTON = 2;
@@ -41,12 +47,6 @@ public class Robot extends IterativeRobot {
 	final static int XBOX_START_BUTTON = 8;
 	final static int XBOX_LSTICK_BUTTON = 9;
 	final static int XBOX_RSTICK_BUTTON = 10;
-	
-	// I'm a silly boy and Idk what I'm doing so I'm just gonna put these variables here, whoop whoop
-	int autoMode = 0;
-	SendableChooser autoChooser;
-	Timer autoTimer = new Timer();
-	int currentStep = 0;
 			
 	//-Controller Axes
 	final static int XBOX_LSTICK_XAXIS = 0;
@@ -91,7 +91,6 @@ public class Robot extends IterativeRobot {
 	
 	//Path Planner
 	boolean alreadyStarted = false;
-	
 	
 	//Data Logging
 	static final boolean enable_logging = true; //Set to false to disable logging
@@ -353,6 +352,7 @@ public class Robot extends IterativeRobot {
     	
     	//Drivetrain
     	driveTrain = new DriveTrain(L_Motor_1, L_Motor_2, R_Motor_1, R_Motor_2, pdp, bpe);
+    	System.out.println(driveTrain.getMemes());
     	shifter = new OttoShifter();
     	wheel_speed = new DerivativeCalculator();
     	
@@ -604,7 +604,6 @@ public class Robot extends IterativeRobot {
     	//Log data from this timestep
     	log_data();
     	updateSmartDashboard();
-    	System.out.println(driveTrain.getMemes());
     	
     	//Turn rumble off
     	joy1.setRumble(RumbleType.kRightRumble, (float) Math.min(1, Math.abs(accel_RIO.getZ() - 1)));
