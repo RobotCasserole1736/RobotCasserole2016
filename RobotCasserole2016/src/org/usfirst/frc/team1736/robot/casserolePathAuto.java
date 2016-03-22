@@ -18,13 +18,13 @@ public class casserolePathAuto {
 	
 	final double[][] waypoints_crossShootLow = new double[][]{ //cross and shoot
 		{0,0},
-		{-17.33,0},
-		{-19.5666,11.20555} //Jeremey's temp numbers for lining up the robot for a low-goal shot
+		{-17.83,0},
+		{-20.666,11.20555} //Jeremey's temp numbers for lining up the robot for a low-goal shot
 	};
 	final double[][] waypoints_crossShootHigh = new double[][]{ //cross and shoot
 		{0,0},
-		{18.13,0},
-		{18.9666,9.00555} //Jeremey's temp numbers for lining up the robot for a low-goal shot
+		{18.63,0},
+		{19.4666,9.00555} //Jeremey's temp numbers for lining up the robot for a low-goal shot
 	};
 	
 	final double totalPathPlannerTime_apchDfns = 5;
@@ -172,7 +172,6 @@ public class casserolePathAuto {
 		shotTimer.reset();
 		timestep = 0; //reset time (just in case? probably not needed)
 		ilsm.periodicStateMach(false, false, false, false, false); //shut everything down
-		dt.setSafetyEnabled(true);
 		return 0;
 	}
 	

@@ -1,68 +1,122 @@
 <xml version="1.0">
 <dashboard>
-	<widget field="SquishSensor Reading" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
-		<location x="0" y="118"/>
+	<widget field="Selected Auto Mode" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="0" y="474"/>
 	</widget>
-	<widget field="Ball In CarryPos" type="Boolean" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
-		<location x="0" y="47"/>
-	</widget>
-	<widget field="ShooterRPM" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
-		<location x="0" y="26"/>
+	<widget field="useCamera1" type="Boolean" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="0" y="453"/>
 	</widget>
 	<static-widget class="edu.wpi.first.smartdashboard.gui.elements.Label">
-		<location x="1030" y="11"/>
-		<property name="Text" value="Speed (Ft/S)"/>
+		<location x="1115" y="183"/>
+		<property name="Text" value="Speed (ft/s)"/>
 	</static-widget>
-	<widget field="Avg Speed FTpS" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.SimpleDial">
-		<location x="942" y="37"/>
-		<property name="Upper Limit" value="20.0"/>
-		<property name="Tick Interval" value="1.0"/>
-	</widget>
 	<static-widget class="edu.wpi.first.smartdashboard.gui.elements.Label">
-		<location x="409" y="17"/>
+		<location x="1107" y="327"/>
 		<property name="Text" value="Current Draw (A)"/>
 	</static-widget>
-	<widget field="Current Draw" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.SimpleDial">
-		<location x="323" y="30"/>
-		<property name="Upper Limit" value="200.0"/>
-	</widget>
 	<static-widget class="edu.wpi.first.smartdashboard.gui.elements.Label">
-		<location x="827" y="22"/>
-		<property name="Text" value="Shooter RPM"/>
+		<location x="1098" y="458"/>
+		<property name="Text" value="Drivetrain Limit Factor"/>
 	</static-widget>
 	<static-widget class="edu.wpi.first.smartdashboard.gui.elements.Label">
-		<location x="599" y="21"/>
-		<height>17</height>
+		<location x="50" y="13"/>
+		<property name="Text" value="Robot Connected"/>
+	</static-widget>
+	<static-widget class="edu.wpi.first.smartdashboard.gui.elements.Label">
+		<location x="208" y="181"/>
+		<property name="Text" value="Shooter Speed (RPM)"/>
+	</static-widget>
+	<static-widget class="edu.wpi.first.smartdashboard.gui.elements.Label">
+		<location x="109" y="295"/>
+		<property name="Text" value="Autonomous Mode Selector"/>
+	</static-widget>
+	<static-widget class="edu.wpi.first.smartdashboard.gui.elements.Label">
+		<location x="39" y="181"/>
 		<property name="Text" value="System Pressure (PSI)"/>
 	</static-widget>
-	<widget field="Launch Motor Speed (RPM)" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.SimpleDial">
-		<location x="731" y="38"/>
-		<property name="Upper Limit" value="6000.0"/>
-		<property name="Tick Interval" value="200.0"/>
+	<widget field="Match Time" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.FormattedField">
+		<location x="14" y="197"/>
+		<width>151</width>
+		<height>92</height>
+		<property name="Background" value="255.255.0.255"/>
+		<property name="Font Size" value="30"/>
 	</widget>
 	<widget field="Pneumatic System Pressure (PSI)" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.SimpleDial">
-		<location x="527" y="34"/>
+		<location x="0" y="47"/>
+		<width>196</width>
+		<height>130</height>
 		<property name="Upper Limit" value="130.0"/>
 	</widget>
-	<widget field="DT Limiting Factor" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
-		<location x="366" y="192"/>
+	<widget field="Launch Motor Speed (RPM)" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.SimpleDial">
+		<location x="164" y="46"/>
+		<width>204</width>
+		<height>130</height>
+		<property name="Upper Limit" value="6000.0"/>
+		<property name="Tick Interval" value="300.0"/>
 	</widget>
-	<widget field="IntakeShooter State" type="String" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
-		<location x="755" y="224"/>
-		<width>247</width>
+	<widget field="Gear" type="String" class="edu.wpi.first.smartdashboard.gui.elements.FormattedField">
+		<location x="181" y="203"/>
+		<width>194</width>
+		<height>71</height>
+		<property name="Background" value="0.204.255.255"/>
+		<property name="Font Size" value="25"/>
 	</widget>
-	<widget field="Launch Motor Stalled" type="Boolean" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
-		<location x="778" y="199"/>
+	<widget field="IntakeShooter State" type="String" class="edu.wpi.first.smartdashboard.gui.elements.FormattedField">
+		<location x="11" y="508"/>
+		<width>372</width>
+		<height>37</height>
+		<property name="Background" value="153.255.153.255"/>
+		<property name="Font Size" value="25"/>
 	</widget>
-	<widget field="Match Time" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
-		<location x="781" y="269"/>
+	<widget field="Current Draw" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.SimpleDial">
+		<location x="1053" y="200"/>
+		<width>187</width>
+		<height>121</height>
+		<property name="Upper Limit" value="300.0"/>
 	</widget>
-	<widget field="Gear" type="String" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
-		<location x="1013" y="203"/>
+	<static-widget class="edu.wpi.first.smartdashboard.gui.elements.MJPGStreamerViewerExtension">
+		<location x="396" y="10"/>
+		<width>656</width>
+		<height>538</height>
+		<property name="Degrees Rotation" value="180"/>
+		<property name="Crosshair X" value="285"/>
+		<property name="Crosshair Y" value="142"/>
+		<property name="Crosshair size" value="4"/>
+	</static-widget>
+	<widget field="DT Limiting Factor" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.SimpleDial">
+		<location x="1056" y="338"/>
+		<width>180</width>
+		<height>118</height>
+		<property name="Upper Limit" value="1.0"/>
+		<property name="Tick Interval" value="0.05"/>
+	</widget>
+	<widget field="Avg Speed FTpS" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.SimpleDial">
+		<location x="1053" y="65"/>
+		<width>179</width>
+		<height>112</height>
+		<property name="Upper Limit" value="30.0"/>
+		<property name="Tick Interval" value="5.0"/>
+	</widget>
+	<widget field="Ball In CarryPos" type="Boolean" class="edu.wpi.first.smartdashboard.gui.elements.BooleanBox">
+		<location x="148" y="1"/>
+		<width>131</width>
+		<height>39</height>
+		<property name="Color to show when false" value="204.204.204.255"/>
+	</widget>
+	<widget field="Launch Motor Stalled" type="Boolean" class="edu.wpi.first.smartdashboard.gui.elements.BooleanBox">
+		<location x="1071" y="4"/>
+		<width>155</width>
+		<height>42</height>
+		<property name="Color to show when true" value="255.0.0.255"/>
+		<property name="Color to show when false" value="204.204.204.255"/>
 	</widget>
 	<widget field="Auto Mode Chooser" type="String Chooser" class="edu.wpi.first.smartdashboard.gui.elements.Chooser">
-		<location x="3" y="5"/>
+		<location x="53" y="317"/>
 	</widget>
+	<static-widget class="edu.wpi.first.smartdashboard.gui.elements.ConnectionIndicator">
+		<location x="10" y="3"/>
+		<property name="Graphics" value="Rounded"/>
+	</static-widget>
 </dashboard>
 <live-window>
 </live-window>

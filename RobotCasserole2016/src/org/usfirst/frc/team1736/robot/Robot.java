@@ -287,6 +287,9 @@ public class Robot extends IterativeRobot {
 	//Auto PathPlanner
 	casserolePathAuto autopp;
 	
+	//SDB Read counter in Disabled
+	int disabled_sbd_counter;
+	
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	// PUBLIC METHODS 
     ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -394,6 +397,8 @@ public class Robot extends IterativeRobot {
     	
     	//Kill off any autonomous that may have been running
     	autopp.stopPlayback();
+    	
+    	disabled_sbd_counter = 0;
 
     }
     
@@ -404,6 +409,15 @@ public class Robot extends IterativeRobot {
     	
     	//Keep SDB up to date even in disabled
     	updateSmartDashboard();
+    	
+    	//keep polling auto mode from the driver station
+    	if(disabled_sbd_counter == 25){
+    		autoMode = (int) autoChooser.getSelected();
+    		disabled_sbd_counter = 0;
+    	}
+    	else{
+    		disabled_sbd_counter = disabled_sbd_counter + 1;
+    	}
     	
     }
     
@@ -429,6 +443,10 @@ public class Robot extends IterativeRobot {
     	//init the task timing things
     	prev_loop_start_timestamp = Timer.getFPGATimestamp();
     	loop_time_elapsed = 0;
+    	
+    	//Display rear camera if doing high goal
+    	if(autoMode == 3)
+    		SmartDashboard.putBoolean("useCamera1", true);
     	
     	//Raise intake to prevent damage in auto.
     	Pneumatics.intakeUp();
@@ -504,6 +522,9 @@ public class Robot extends IterativeRobot {
     	//Kill off any autonomous that may have been running
     	autopp.stopPlayback();
     	
+    	//Turn the watchdog back on
+		driveTrain.setSafetyEnabled(true);
+    	
     	//compressor starts automatically, but just in case...
     	Pneumatics.startCompressor();
     	
@@ -517,6 +538,9 @@ public class Robot extends IterativeRobot {
     	//Kill off the motor PID's so they don't fight with the regular driving
     	autopp.motors.lmpid.disable(); 
     	autopp.motors.rmpid.disable();
+    	
+    	//get all the memes
+    	System.out.println(driveTrain.getMemes());
     }
 
     /** 
@@ -786,9 +810,7 @@ public class Robot extends IterativeRobot {
     	SmartDashboard.putNumber("Current Draw", pdp.getTotalCurrent());
     	SmartDashboard.putNumber("Avg Speed FTpS", Math.abs((driveTrain.getRightSpdFtPerSec() + driveTrain.getLeftSpdFtPerSec())/2.0));
     	SmartDashboard.putBoolean("Ball In CarryPos", intakeLauncherSM.ballSensorState);
-    	SmartDashboard.putNumber("SquishSensor Reading", launchMotor.getSquishSensorVal());
-    	SmartDashboard.putNumber("LeftFtpS", driveTrain.getLeftSpdFtPerSec());
-    	SmartDashboard.putNumber("RightFtpS", driveTrain.getRightSpdFtPerSec());
+    	SmartDashboard.putNumber("Selected Auto Mode", autoMode);
     	
     }
 }
