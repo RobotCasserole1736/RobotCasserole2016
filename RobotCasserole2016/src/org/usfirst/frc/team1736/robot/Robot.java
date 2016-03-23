@@ -4,8 +4,6 @@ package org.usfirst.frc.team1736.robot;
 import edu.wpi.first.wpilibj.BuiltInAccelerometer;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.IterativeRobot;
-import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.Joystick.RumbleType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.PowerDistributionPanel;
 import edu.wpi.first.wpilibj.Timer;
@@ -27,7 +25,7 @@ public class Robot extends IterativeRobot {
 	
 	final static int JOY1_INT = 0;
 	final static int JOY2_INT = 1;
-	//soon
+	//soon(tm)
 	final static boolean SINGLE_JOYSTICK_IS_BEST_JOYSTICK = false;
 	
 	// I'm a silly boy and Idk what I'm doing so I'm just gonna put these variables here, whoop whoop
@@ -258,8 +256,8 @@ public class Robot extends IterativeRobot {
 	private double loop_time_elapsed = 0;
 	
 	//Joysticks
-	Joystick joy1;
-	Joystick joy2;
+	Xbox360Controller joy1;
+	Xbox360Controller joy2;
 	//Drive Train
 	DriveTrain driveTrain;
 	boolean cmdInvCtrls = false;
@@ -367,8 +365,8 @@ public class Robot extends IterativeRobot {
     	leds = new LEDSequencer();
 
     	//Joysticks
-    	joy1 = new Joystick(JOY1_INT);
-    	joy2 = new Joystick(JOY2_INT);
+    	joy1 = new Xbox360Controller(JOY1_INT);
+    	joy2 = new Xbox360Controller(JOY2_INT);
     	
     	//Ensure intake starts in proper position
     	Pneumatics.intakeUp();
@@ -392,8 +390,7 @@ public class Robot extends IterativeRobot {
     	Pneumatics.intakeUp();
     	
     	//Turn rumble off
-    	joy1.setRumble(RumbleType.kLeftRumble, 0);
-    	joy1.setRumble(RumbleType.kRightRumble, 0);
+    	joy1.rumbleOff();
     	
     	//Kill off any autonomous that may have been running
     	autopp.stopPlayback();
@@ -553,15 +550,14 @@ public class Robot extends IterativeRobot {
     	//Estimate battery Parameters
     	bpe.updateEstimate(pdp.getVoltage(), pdp.getTotalCurrent());
     	
-    	
         //Run Drivetrain with reversing
-    	if(joy1.getRawAxis(XBOX_LTRIGGER_AXIS) > 0.5){ //reverse control
+    	if(joy1.LTrigger() > 0.5){ //reverse control
     		cmdInvCtrls = true;
-        	driveTrain.arcadeDrive(-1 * joy1.getRawAxis(XBOX_LSTICK_YAXIS), joy1.getRawAxis(XBOX_RSTICK_XAXIS), squaredInputs);
+        	driveTrain.arcadeDrive(-1 * joy1.LStick_Y(), joy1.LStick_X(), squaredInputs);
     	}
     	else{ //regular control
     		cmdInvCtrls = false;
-    		driveTrain.arcadeDrive(joy1.getRawAxis(XBOX_LSTICK_YAXIS), joy1.getRawAxis(XBOX_RSTICK_XAXIS), squaredInputs);
+    		driveTrain.arcadeDrive(joy1.LStick_Y(), joy1.LStick_X(), squaredInputs);
     	}
     	
     		
@@ -569,48 +565,58 @@ public class Robot extends IterativeRobot {
     	double left_speed = Math.abs(driveTrain.getLeftWheelSpeedRPM());
     	double right_speed = Math.abs(driveTrain.getRightWheelSpeedRPM());
     	double net_speed = Math.min(left_speed,right_speed);
-    	shifter.OttoShifterPeriodic(net_speed, wheel_speed.calcDeriv(net_speed), Math.abs(accel_RIO.getX()), pdp.getTotalCurrent(), joy1.getRawButton(XBOX_LEFT_BUTTON), joy1.getRawButton(XBOX_RIGHT_BUTTON));
+    	shifter.OttoShifterPeriodic(net_speed, wheel_speed.calcDeriv(net_speed), Math.abs(accel_RIO.getX()), pdp.getTotalCurrent(), 
+    			joy1.LB(), joy1.RB());
     	//Set pneumatics to select gear and activate driver 1 rumble if needed
     	if(shifter.gear){
     		Pneumatics.shiftToHighGear();
-    		joy1.setRumble(RumbleType.kLeftRumble, 0f);
+    		joy1.setLeftRumble(0f);
     	}
     	else{
     		Pneumatics.shiftToLowGear();
-    		joy1.setRumble(RumbleType.kLeftRumble, 0.25f);
+    		joy1.setLeftRumble(0.25f);;
+    	}
+    	
+    	if(intakeLauncherSM.ballSensorState)
+    	{
+    		joy2.setLeftRumble(0.25f);
+    	}
+    	else
+    	{
+    		joy2.setLeftRumble(0f);
     	}
     	
     	//Update camera position
     	processCameraAngle();
     	
     	//Run climber
-    	Climber.periodicClimb(joy2.getRawButton(XBOX_START_BUTTON), joy2.getRawAxis(XBOX_LSTICK_YAXIS), joy2.getRawAxis(XBOX_RTRIGGER_AXIS));
+    	Climber.periodicClimb(joy2.StartButton(), joy2.LStick_Y(), joy2.RTrigger());
     	
     	//Drawbridge Arm controls algorithm
-    	DBAC.periodUptade(joy2.getRawAxis(XBOX_RSTICK_XAXIS), (joy2.getRawAxis(XBOX_LTRIGGER_AXIS)> 0.5));
+    	DBAC.periodUptade(joy2.RStick_X(), (joy2.LTrigger()> 0.5));
     	
     	//Intake/shooter controls
-    	intakeLauncherSM.periodicStateMach(joy2.getRawButton(XBOX_LEFT_BUTTON), 
-    									   joy2.getRawButton(XBOX_RIGHT_BUTTON), 
-    									   joy2.getRawButton(XBOX_X_BUTTON), 
-    									   joy2.getRawButton(XBOX_B_BUTTON), 
-    									   joy2.getRawButton(XBOX_BACK_BUTTON));
+    	intakeLauncherSM.periodicStateMach(joy2.LB(), 
+    									   joy2.RB(), 
+    									   joy2.X(), 
+    									   joy2.B(), 
+    									   joy2.BackButton());
     	
     	
     	
     	//Adjust intake position based on driver commands
     	//Default to up, unless the driver commands down
-    	if(joy2.getRawButton(XBOX_A_BUTTON))
+    	if(joy2.A())
     		Pneumatics.intakeDown();
     	else
     		Pneumatics.intakeUp();
     	
     	//Enable/Disable compressor based on driver commands
-    	if(joy1.getRawButton(XBOX_BACK_BUTTON))
+    	if(joy1.BackButton())
     	{
     		Pneumatics.startCompressor();
     	}
-    	if(joy1.getRawButton(XBOX_START_BUTTON))
+    	if(joy1.StartButton())
     	{
     		Pneumatics.stopCompressor();
     	}
@@ -630,7 +636,7 @@ public class Robot extends IterativeRobot {
     	updateSmartDashboard();
     	
     	//Turn rumble off
-    	joy1.setRumble(RumbleType.kRightRumble, (float) Math.min(1, Math.abs(accel_RIO.getZ() - 1)));
+    	joy1.setRightRumble((float) Math.min(1, Math.abs(accel_RIO.getZ() - 1)));
     	
     	//Execution time metric - this must be last! Even after memes!
     	loop_time_elapsed = Timer.getFPGATimestamp() - prev_loop_start_timestamp;
@@ -693,8 +699,8 @@ public class Robot extends IterativeRobot {
 	    								  bpe.getEstVoc(),
 	    								 (bpe.getConfidence()?1.0:0.0),
 	    								  bpe.getEstVsys(calcEstTotCurrentDraw()),
-				    			          joy1.getRawAxis(XBOX_LSTICK_YAXIS),
-				    			          joy1.getRawAxis(XBOX_RSTICK_XAXIS),
+				    			          joy1.LStick_Y(),
+				    			          joy1.RStick_X(),
 				    			         -driveTrain.leftMotor_1.get(),
 				    			          driveTrain.rightMotor_1.get(),
 				    			          driveTrain.getLeftMotorSpeedRadPerS()*9.5492, //report rate in RPM
@@ -708,7 +714,7 @@ public class Robot extends IterativeRobot {
 				    					  accel_RIO.getZ(),
 				    				      loop_time_elapsed*1000.0,
 				    					  csm.curCamPos.ordinal(),
-				    					 (joy2.getRawButton(XBOX_START_BUTTON)?1.0:0.0),
+				    					 (joy2.StartButton()?1.0:0.0),
 				    					  Climber.tapemotor.get(),
 				    					  Climber.winchmotor1.get(),
 				    					 (Climber.tapeTriggerState?1.0:0.0),
@@ -755,19 +761,19 @@ public class Robot extends IterativeRobot {
      */  
     private void processCameraAngle(){
     	
-    	if(joy1.getPOV(XBOX_DPAD_POV) == 0 || joy2.getPOV(XBOX_DPAD_POV) == 0){
+    	if(joy1.DPad() == 0 || joy2.DPad() == 0){
     		csm.setCameraPos(CamPos.DRIVE_FWD);
     		System.out.println("Set Cam Fwd");
     	}
-    	else if(joy1.getPOV(XBOX_DPAD_POV) == 180 || joy2.getPOV(XBOX_DPAD_POV) == 180){
+    	else if(joy1.DPad() == 180 || joy2.DPad() == 180){
     		csm.setCameraPos(CamPos.DRIVE_REV);
     		System.out.println("Set Cam Rev");
     	}
-    	else if(joy1.getPOV(XBOX_DPAD_POV) == 90 || joy2.getPOV(XBOX_DPAD_POV) == 90){
+    	else if(joy1.DPad() == 90 || joy2.DPad() == 90){
     		csm.setCameraPos(CamPos.SHOOT);
     		System.out.println("Set Cam Shoot");
     	}
-    	else if(joy1.getPOV(XBOX_DPAD_POV) == 270 || joy2.getPOV(XBOX_DPAD_POV) == 270){
+    	else if(joy1.DPad() == 270 || joy2.DPad() == 270){
     		csm.setCameraPos(CamPos.CLIMB);
     		System.out.println("Set Cam Climb");
     	}
