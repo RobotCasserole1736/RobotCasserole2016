@@ -113,8 +113,8 @@ public class LEDSequencer {
 			case BALLCARRY_FWD:
 				for(i = 0; i < NUM_LEDS_R; i++){
 					if((i % (2*STRIPE_WIDTH)) < STRIPE_WIDTH){
-						ledStrips.setLEDColor(i, 0.133, 0.765, 0.133);
-						ledStrips.setLEDColor(NUM_LEDS_TOTAL-i-1, 0.133, 0.765, 0.133);
+						ledStrips.setLEDColor(i, 0,1,0);
+						ledStrips.setLEDColor(NUM_LEDS_TOTAL-i-1, 0,1,0);
 					}
 					else{
 						ledStrips.setLEDColor(i, 0, 0, 0);
@@ -129,8 +129,8 @@ public class LEDSequencer {
 						ledStrips.setLEDColor(NUM_LEDS_TOTAL-i-1, 0, 0, 0);
 					}
 					else{
-						ledStrips.setLEDColor(i, 0.133, 0.765, 0.133);
-						ledStrips.setLEDColor(NUM_LEDS_TOTAL-i-1, 0.133, 0.765, 0.133);
+						ledStrips.setLEDColor(i, 0,1,0);
+						ledStrips.setLEDColor(NUM_LEDS_TOTAL-i-1, 0,1,0);
 					}
 				}
 				break;
