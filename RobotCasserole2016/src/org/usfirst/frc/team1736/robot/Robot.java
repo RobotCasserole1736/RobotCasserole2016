@@ -149,6 +149,7 @@ public class Robot extends IterativeRobot {
             "PathPlannerRDesSpd",
             "LeftDTGroundSpeed",
             "RightDTGroundSpeed",
+            "PathPlannerDesHeading",
             "HeadingErr",
             "ShooterPIDWatchdogCtr",
             "ShooterWatchdogTimeout"};
@@ -225,6 +226,7 @@ public class Robot extends IterativeRobot {
            "ft/s",
            "ft/s",
            "ft/s",
+           "deg",
            "deg",
            "count",
            "bit"};
@@ -766,6 +768,7 @@ public class Robot extends IterativeRobot {
 										  autopp.motors.rmpid.getSetpoint(),
 										  driveTrain.getLeftSpdFtPerSec(),
 										  driveTrain.getRightSpdFtPerSec(),
+										  autopp.pp_des_heading,
 										  autopp.angle_err_deg,
 										  launchMotor.wdog_ctr,
 										  wdog_timeout?1.0:0.0

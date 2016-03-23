@@ -72,8 +72,9 @@ public class casserolePathAuto {
 	final double HIGH_GOAL_SHOT_TIME_S = 3.0;
 	final double LOW_GOAL_SHOT_TIME_S = 4.0;
 	
-	//Internal variables
+	//State variables exposed to the outside
 	public double angle_err_deg;
+	public double pp_des_heading;
 	
 	
 	/**
@@ -88,6 +89,7 @@ public class casserolePathAuto {
 		shotTimer.reset();
 		motors = new DriveMotorsPIDVelocity(dt);
 		angle_err_deg = 0;
+		pp_des_heading = 0;
 	}
 	
 	
@@ -183,6 +185,7 @@ public class casserolePathAuto {
 		timestep = 0; //reset time (just in case? probably not needed)
 		ilsm.periodicStateMach(false, false, false, false, false); //shut everything down
 		angle_err_deg = 0; //no more error!
+		pp_des_heading = 0;
 		return 0;
 	}
 	
@@ -233,6 +236,7 @@ public class casserolePathAuto {
 			double right_motor_vel;
 			//Calculate the heading error, and adjust the left/right assigned velocities based on error and the P gain
 			//use proper inversion
+			pp_des_heading = path.heading[timestep][1];
 			if(invertSetpoints){
 				angle_err_deg = (gyro.getAngle() - -1*path.heading[timestep][1]);
 				left_motor_vel = -1*path.smoothLeftVelocity[timestep][1] + angle_err_deg*headingCorrectionPGain;
