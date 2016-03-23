@@ -52,8 +52,8 @@ public class Climb {
 		
 		if(cEn==1 && tapeTriggerState==false){
 			tapemotor.set(tapeExtend);
-			winchmotor1.set(-1*Math.pow(winch, 2));
-			winchmotor2.set(-1*Math.pow(winch, 2));
+			winchmotor1.set(Math.pow(winch, 2));
+			winchmotor2.set(Math.pow(winch, 2));
 		}
 		
 		if(cEn==0 && tapeTriggerState==false){
@@ -73,8 +73,8 @@ public class Climb {
 				tapeExtend=tapeExtend*0;
 			}
 			tapemotor.set(tapeExtend);
-			winchmotor1.set(-1*Math.pow(winch, 2));
-			winchmotor2.set(-1*Math.pow(winch, 2));
+			winchmotor1.set(Math.pow(winch, 2));
+			winchmotor2.set(Math.pow(winch, 2));
 		}
 		
 		
