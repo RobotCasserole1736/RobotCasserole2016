@@ -1,6 +1,7 @@
 
 package org.usfirst.frc.team1736.robot;
 
+import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 import edu.wpi.first.wpilibj.BuiltInAccelerometer;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.IterativeRobot;
@@ -8,6 +9,7 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Joystick.RumbleType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.PowerDistributionPanel;
+import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.VictorSP;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -143,7 +145,7 @@ public class Robot extends IterativeRobot {
             "WinchMotorCmd",
             "TapeMeasureLimitSw",
             "GyroMeasAngle",
-            "GyroStatus",
+            "GyroMeasRotation",
             "CompressorCurrent",
             "LaunchWheelCurrent",
             "LaunchWheelMotorCmd",
@@ -166,7 +168,8 @@ public class Robot extends IterativeRobot {
             "PathPlannerLDesSpd",
             "PathPlannerRDesSpd",
             "LeftDTGroundSpeed",
-            "RightDTGroundSpeed"};
+            "RightDTGroundSpeed",
+            "HeadingErr"};
 
     static final String[] units_fields = {"sec", //TIME must always be in sec
            "sec",
@@ -216,7 +219,7 @@ public class Robot extends IterativeRobot {
            "cmd",
            "bit",
            "deg",
-           "bit",
+           "deg/s",
            "A",
            "cmd",
            "A",
@@ -239,7 +242,8 @@ public class Robot extends IterativeRobot {
            "ft/s",
            "ft/s",
            "ft/s",
-           "ft/s"};
+           "ft/s",
+           "deg"};
 		
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	// CLASS OBJECTS
@@ -250,7 +254,7 @@ public class Robot extends IterativeRobot {
 	PowerDistributionPanel pdp;
 	BatteryParamEstimator bpe;
 	BuiltInAccelerometer accel_RIO;
-	//I2CGyro gyro;
+	ADXRS450_Gyro gyro;
 	
 	//Data Logger
 	CsvLogger logger = new CsvLogger();
@@ -365,6 +369,10 @@ public class Robot extends IterativeRobot {
     	intakeLauncherSM = new IntakeLauncherStateMachine(launchMotor);
     	DBAC = new DrawbridgeArmControls();
     	leds = new LEDSequencer();
+    	gyro = new ADXRS450_Gyro(SPI.Port.kOnboardCS0);
+    	
+    	//Cal Gyro at startup
+    	calGyro();
 
     	//Joysticks
     	joy1 = new Joystick(JOY1_INT);
@@ -375,7 +383,7 @@ public class Robot extends IterativeRobot {
     	
     	
     	//init pathPlanner
-    	autopp = new casserolePathAuto(driveTrain, intakeLauncherSM);
+    	autopp = new casserolePathAuto(driveTrain, intakeLauncherSM, gyro);
     }
     
     /**
@@ -439,6 +447,9 @@ public class Robot extends IterativeRobot {
     	//reset encoders to 0
     	driveTrain.leftEncoder.reset();
 		driveTrain.rightEncoder.reset();
+		
+		//Reset gyro to forward
+		gyro.reset();
 
     	//init the task timing things
     	prev_loop_start_timestamp = Timer.getFPGATimestamp();
@@ -506,6 +517,7 @@ public class Robot extends IterativeRobot {
     	
     	//Execution time metric - this must be last!
     	loop_time_elapsed = Timer.getFPGATimestamp() - prev_loop_start_timestamp;
+    	
     }
 
     
@@ -712,8 +724,8 @@ public class Robot extends IterativeRobot {
 				    					  Climber.tapemotor.get(),
 				    					  Climber.winchmotor1.get(),
 				    					 (Climber.tapeTriggerState?1.0:0.0),
-				    					 -1, //Gyro not installed
-				    					 -1, //Gyro not installed
+				    					  gyro.getAngle(),
+				    					  gyro.getRate(),
 				    					  Pneumatics.getCurrent(),
 				    					  launchMotor.getCurrent(),
 				    					  launchMotor.getMotorCmd(),
@@ -736,7 +748,8 @@ public class Robot extends IterativeRobot {
 										  autopp.motors.lmpid.getSetpoint(),
 										  autopp.motors.rmpid.getSetpoint(),
 										  driveTrain.getLeftSpdFtPerSec(),
-										  driveTrain.getRightSpdFtPerSec()
+										  driveTrain.getRightSpdFtPerSec(),
+										  autopp.angle_err_deg
 				    					 );
 	    	//Check for brownout. If browned out, force write data to log. Just in case we
 	    	//lose power and nasty things happen, at least we'll know how we died...
@@ -811,6 +824,18 @@ public class Robot extends IterativeRobot {
     	SmartDashboard.putNumber("Avg Speed FTpS", Math.abs((driveTrain.getRightSpdFtPerSec() + driveTrain.getLeftSpdFtPerSec())/2.0));
     	SmartDashboard.putBoolean("Ball In CarryPos", intakeLauncherSM.ballSensorState);
     	SmartDashboard.putNumber("Selected Auto Mode", autoMode);
+    	
+    }
+    
+    /*Call the gyro calibration routine, and change LED colors to ensure people know not to touch the robot.
+     * 
+     */
+    private void calGyro(){
+    	leds.sequencerPeriodic(LEDPatterns.RAINBOW);
+    	System.out.println("Calibrating gyro, DO NOT TOUCH ROBOT!!!");
+    	gyro.calibrate();
+    	System.out.println("Done calibrating. woot!");
+    	leds.sequencerPeriodic(LEDPatterns.OFF);
     	
     }
 }
