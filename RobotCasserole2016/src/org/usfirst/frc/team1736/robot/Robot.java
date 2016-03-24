@@ -34,29 +34,6 @@ public class Robot extends IterativeRobot {
 	Timer autoTimer = new Timer();
 	int currentStep = 0;
 	
-	//-Controller Buttons
-	final static int XBOX_A_BUTTON = 1;
-	final static int XBOX_B_BUTTON = 2;
-	final static int XBOX_X_BUTTON = 3;
-	final static int XBOX_Y_BUTTON = 4;
-	final static int XBOX_LEFT_BUTTON = 5;
-	final static int XBOX_RIGHT_BUTTON = 6;
-	final static int XBOX_BACK_BUTTON = 7;
-	final static int XBOX_START_BUTTON = 8;
-	final static int XBOX_LSTICK_BUTTON = 9;
-	final static int XBOX_RSTICK_BUTTON = 10;
-			
-	//-Controller Axes
-	final static int XBOX_LSTICK_XAXIS = 0;
-	final static int XBOX_LSTICK_YAXIS = 1;
-	final static int XBOX_LTRIGGER_AXIS = 2;
-	final static int XBOX_RTRIGGER_AXIS = 3;
-	final static int XBOX_RSTICK_XAXIS = 4;
-	final static int XBOX_RSTICK_YAXIS = 5;
-	
-	//-Controller D-Pad POV Hat
-	final static int XBOX_DPAD_POV = 0;
-	
 	//-Vision
 	final static String[] GRIPArgs = new String[] {
 	        "/usr/local/frc/JRE/bin/java", "-jar",
@@ -389,8 +366,9 @@ public class Robot extends IterativeRobot {
     	//Set intake state to up - intake automatically goes up, this is just a safety so it stays up when re-enabled
     	Pneumatics.intakeUp();
     	
-    	//Turn rumble off
+    	//Turn rumble off for both controllers
     	joy1.rumbleOff();
+    	joy2.rumbleOff();
     	
     	//Kill off any autonomous that may have been running
     	autopp.stopPlayback();
@@ -553,11 +531,11 @@ public class Robot extends IterativeRobot {
         //Run Drivetrain with reversing
     	if(joy1.LTrigger() > 0.5){ //reverse control
     		cmdInvCtrls = true;
-        	driveTrain.arcadeDrive(-1 * joy1.LStick_Y(), joy1.LStick_X(), squaredInputs);
+        	driveTrain.arcadeDrive(-1 * joy1.LStick_Y(), joy1.RStick_X(), squaredInputs);
     	}
     	else{ //regular control
     		cmdInvCtrls = false;
-    		driveTrain.arcadeDrive(joy1.LStick_Y(), joy1.LStick_X(), squaredInputs);
+    		driveTrain.arcadeDrive(joy1.LStick_Y(), joy1.RStick_X(), squaredInputs);
     	}
     	
     		
@@ -574,7 +552,7 @@ public class Robot extends IterativeRobot {
     	}
     	else{
     		Pneumatics.shiftToLowGear();
-    		joy1.setLeftRumble(0.25f);;
+    		joy1.setLeftRumble(0.25f);
     	}
     	
     	if(intakeLauncherSM.ballSensorState)
