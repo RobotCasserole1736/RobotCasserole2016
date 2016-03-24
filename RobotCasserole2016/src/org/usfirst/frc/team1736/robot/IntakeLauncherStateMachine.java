@@ -4,6 +4,7 @@
 package org.usfirst.frc.team1736.robot;
 
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj.Talon;
 import edu.wpi.first.wpilibj.Timer;
 
@@ -12,6 +13,9 @@ import edu.wpi.first.wpilibj.Timer;
  *
  */
 public class IntakeLauncherStateMachine {
+	
+	//SmartDashboard Preferences
+	Preferences prefs;
 	
 	//State variables
 	public IntLncState curState;
@@ -26,10 +30,14 @@ public class IntakeLauncherStateMachine {
 	private static final IntLncState initState = IntLncState.STOPPED_NO_BALL;
 	public static final double INTAKE_IN_SPEED = 1.0;
 	public static final double INTAKE_EJECT_SPEED = -1.0;
-	public static final double INTAKE_RETRACT_SPEED = -0.40;
-	public static final double INTAKE_MIN_RETRACT_TIME_MS = 400;
-	public static final double INTAKE_MAX_RETRACT_TIME_MS = 900;
-	public static final double LAUNCH_SPEED_RPM = 4050; 
+	public static double INTAKE_RETRACT_SPEED;
+	public static final double INTAKE_RETRACT_SPEED_DEFAULTVAL = -0.4;
+	public static double INTAKE_MIN_RETRACT_TIME_MS;
+	public static final double INTAKE_MIN_RETRACT_TIME_MS_DEFAULTVAL = 400;
+	public static double INTAKE_MAX_RETRACT_TIME_MS;
+	public static final double INTAKE_MAX_RETRACT_TIME_MS_DEFAULTVAL = 900;
+	public static double LAUNCH_SPEED_RPM;
+	public static final double LAUNCH_SPEED_RPM_DEFAULTVAL = 4050;
 	public static final double INTAKE_LAUNCH_FEED_SPEED = 0.8;
 	public static final double LAUNCH_SPEED_ERR_LMT_RPM = 200;
 	public static final double MIN_LAUNCH_TIME_THRESH_MS = 1500;
@@ -83,6 +91,11 @@ public class IntakeLauncherStateMachine {
 		
 		stateTimer = new Timer();
 		encFailedTimer = new Timer();
+		
+		INTAKE_RETRACT_SPEED = prefs.getDouble("IntakeRetractSpeed", INTAKE_RETRACT_SPEED_DEFAULTVAL);
+		INTAKE_MIN_RETRACT_TIME_MS = prefs.getDouble("IntakeMinRetractTimeMs", INTAKE_MIN_RETRACT_TIME_MS_DEFAULTVAL);
+		INTAKE_MAX_RETRACT_TIME_MS = prefs.getDouble("IntakeMaxRetractTimeMs", INTAKE_MAX_RETRACT_TIME_MS_DEFAULTVAL);
+		LAUNCH_SPEED_RPM = prefs.getDouble("LaunchSpeedRPM", LAUNCH_SPEED_RPM_DEFAULTVAL);
 	}
 	
 	void periodicStateMach(boolean intakeCmded, 
@@ -90,6 +103,12 @@ public class IntakeLauncherStateMachine {
 			              boolean prepToLaunchCmded, 
 			              boolean launchCmded, 
 			              boolean intakeOvdCmded){
+		
+		//Update SmartDashboard modifiable preferences
+		INTAKE_RETRACT_SPEED = prefs.getDouble("IntakeRetractSpeed", INTAKE_RETRACT_SPEED_DEFAULTVAL);
+		INTAKE_MIN_RETRACT_TIME_MS = prefs.getDouble("IntakeMinRetractTimeMs", INTAKE_MIN_RETRACT_TIME_MS_DEFAULTVAL);
+		INTAKE_MAX_RETRACT_TIME_MS = prefs.getDouble("IntakeMaxRetractTimeMs", INTAKE_MAX_RETRACT_TIME_MS_DEFAULTVAL);
+		LAUNCH_SPEED_RPM = prefs.getDouble("LaunchSpeedRPM", LAUNCH_SPEED_RPM_DEFAULTVAL);
 		
 		//Step 0 - process inputs. Mostly these are arguments
 		dbncBallSensor();
