@@ -824,6 +824,7 @@ public class Robot extends IterativeRobot {
     	SmartDashboard.putNumber("Avg Speed FTpS", Math.abs((driveTrain.getRightSpdFtPerSec() + driveTrain.getLeftSpdFtPerSec())/2.0));
     	SmartDashboard.putBoolean("Ball In CarryPos", intakeLauncherSM.ballSensorState);
     	SmartDashboard.putNumber("Selected Auto Mode", autoMode);
+    	SmartDashboard.putNumber("Measured Robot Pose Angle", gyro.getAngle());
     	
     }
     
