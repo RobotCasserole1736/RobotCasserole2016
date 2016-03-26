@@ -396,7 +396,6 @@ public class Robot extends IterativeRobot {
     	
     }
     
-    
     /**
      * This function is called once right before the start of autonomous
      */
@@ -537,7 +536,6 @@ public class Robot extends IterativeRobot {
     		cmdInvCtrls = false;
     		driveTrain.arcadeDrive(joy1.LStick_Y(), joy1.RStick_X(), squaredInputs);
     	}
-    	
     		
     	//Evaluate upshift/downshift need
     	double left_speed = Math.abs(driveTrain.getLeftWheelSpeedRPM());
@@ -555,13 +553,30 @@ public class Robot extends IterativeRobot {
     		joy1.setLeftRumble(0.25f);
     	}
     	
+    	//Set joy2 rumble and LEDPattern based on ball carry sensor
     	if(intakeLauncherSM.ballSensorState)
     	{
     		joy2.setLeftRumble(0.25f);
+    		//Set LED's to indicate current driver fwd direction while carrying a ball
+    		if(cmdInvCtrls)
+    		{
+    			leds.sequencerPeriodic(LEDPatterns.BALLCARRY_BACK);
+    		}
+    		else
+    		{
+    			leds.sequencerPeriodic(LEDPatterns.BALLCARRY_FWD);
+    		}
     	}
     	else
     	{
     		joy2.setLeftRumble(0f);
+    		//Set LED's to indicate current driver fwd direction
+        	if(cmdInvCtrls){
+        		leds.sequencerPeriodic(LEDPatterns.STRIPES_REV);
+        	}
+        	else{
+        		leds.sequencerPeriodic(LEDPatterns.STRIPES_FWD);
+        	}
     	}
     	
     	//Update camera position
@@ -599,13 +614,6 @@ public class Robot extends IterativeRobot {
     		Pneumatics.stopCompressor();
     	}
     	
-    	//Set LED's to indicate current driver fwd direction
-    	if(cmdInvCtrls){
-    		leds.sequencerPeriodic(LEDPatterns.STRIPES_REV);
-    	}
-    	else{
-    		leds.sequencerPeriodic(LEDPatterns.STRIPES_FWD);
-    	}
     	//Update SmDB cam pos.
 		SmartDashboard.putBoolean("useCamera1", cmdInvCtrls);
     	

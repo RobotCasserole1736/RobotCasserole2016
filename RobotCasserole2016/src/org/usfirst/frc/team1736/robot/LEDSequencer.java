@@ -110,6 +110,30 @@ public class LEDSequencer {
 					}
 				}
 				break;
+			case BALLCARRY_FWD:
+				for(i = 0; i < NUM_LEDS_R; i++){
+					if((i % (2*STRIPE_WIDTH)) < STRIPE_WIDTH){
+						ledStrips.setLEDColor(i, 0.133, 0.765, 0.133);
+						ledStrips.setLEDColor(NUM_LEDS_TOTAL-i-1, 0, 1, 0);
+					}
+					else{
+						ledStrips.setLEDColor(i, 0, 0, 0);
+						ledStrips.setLEDColor(NUM_LEDS_TOTAL-i-1, 0, 0, 0);
+					}
+				}
+				break;
+			case BALLCARRY_BACK:
+				for(i = 0; i < NUM_LEDS_R; i++){
+					if((i % (2*STRIPE_WIDTH)) < STRIPE_WIDTH){
+						ledStrips.setLEDColor(i, 0, 0, 0);
+						ledStrips.setLEDColor(NUM_LEDS_TOTAL-i-1, 0, 0, 0);
+					}
+					else{
+						ledStrips.setLEDColor(i, 0.133, 0.765, 0.133);
+						ledStrips.setLEDColor(NUM_LEDS_TOTAL-i-1, 0, 1, 0);
+					}
+				}
+				break;
 			
 			//Classy refinement.
 			case TWINKLE_WEIRD:
@@ -450,6 +474,27 @@ public class LEDSequencer {
 			
 		}
 		led_counter = (led_counter + 0.25); 
+	}
+	public void ballCarry_fwd()
+	{
+		for(int i = 0; i < NUM_LEDS_TOTAL; i++)
+		{
+			if(i % 2 == 0)
+			{
+				ledStrips.setLEDColor(0, 0, 0, 0);
+			}
+			else
+			{
+				
+			}
+		}
+	}
+	public void ballCarry_back()
+	{
+		for(int i = 0; i < NUM_LEDS_TOTAL; i++)
+		{
+			
+		}
 	}
 	public void disabledStuff(){
 		for(int i = 0; i < NUM_LEDS_TOTAL; i++)
