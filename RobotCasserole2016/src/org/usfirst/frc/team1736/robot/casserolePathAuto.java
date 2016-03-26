@@ -3,6 +3,8 @@ package org.usfirst.frc.team1736.robot;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import edu.wpi.first.wpilibj.ADXRS450_Gyro;
+
 public class casserolePathAuto {
 
 	//Path Planner Constants
@@ -27,6 +29,9 @@ public class casserolePathAuto {
 		{19.4666,9.00555} //Jeremey's temp numbers for lining up the robot for a low-goal shot
 	};
 	
+	//Gyro heading compensation gain
+	final double headingCorrectionPGain = 0.0;
+	
 	final double totalPathPlannerTime_apchDfns = 5;
 	final double totalPathPlannerTime_crsLwBr = 5;
 	final double totalPathPlannerTime_crossShootLow = 10;
@@ -50,6 +55,7 @@ public class casserolePathAuto {
 	DriveTrain dt;
 	DriveMotorsPIDVelocity motors;
 	IntakeLauncherStateMachine ilsm;
+	ADXRS450_Gyro gyro;
 	
 	//Constraints
 	boolean invertSetpoints = false;
@@ -66,18 +72,22 @@ public class casserolePathAuto {
 	final double HIGH_GOAL_SHOT_TIME_S = 3.0;
 	final double LOW_GOAL_SHOT_TIME_S = 4.0;
 	
+	//Internal variables
+	public double angle_err_deg;
+	
 	
 	/**
 	 * Constructor
 	 * 
 	 */
-	casserolePathAuto(DriveTrain dt_in, IntakeLauncherStateMachine ilsm_in){
+	casserolePathAuto(DriveTrain dt_in, IntakeLauncherStateMachine ilsm_in, ADXRS450_Gyro gyro_in){
 		dt = dt_in;
 		ilsm = ilsm_in;
+		gyro = gyro_in;
 		shotTimer = new edu.wpi.first.wpilibj.Timer();
 		shotTimer.reset();
 		motors = new DriveMotorsPIDVelocity(dt);
-		
+		angle_err_deg = 0;
 	}
 	
 	
@@ -172,6 +182,7 @@ public class casserolePathAuto {
 		shotTimer.reset();
 		timestep = 0; //reset time (just in case? probably not needed)
 		ilsm.periodicStateMach(false, false, false, false, false); //shut everything down
+		angle_err_deg = 0; //no more error!
 		return 0;
 	}
 	
@@ -218,14 +229,24 @@ public class casserolePathAuto {
 			}
 		}
 		else{ //otherwise, continue playback
+			double left_motor_vel;
+			double right_motor_vel;
+			//Calculate the heading error, and adjust the left/right assigned velocities based on error and the P gain
+			//use proper inversion
 			if(invertSetpoints){
-				motors.lmpid.setSetpoint(-path.smoothLeftVelocity[timestep][1]);
-				motors.rmpid.setSetpoint(-path.smoothRightVelocity[timestep][1]);
+				angle_err_deg = (gyro.getAngle() - -1*path.heading[timestep][1]);
+				left_motor_vel = -1*path.smoothLeftVelocity[timestep][1] + angle_err_deg*headingCorrectionPGain;
+				right_motor_vel = -1*path.smoothRightVelocity[timestep][1] - angle_err_deg*headingCorrectionPGain;
 			}
 			else{
-				motors.lmpid.setSetpoint(path.smoothLeftVelocity[timestep][1]);
-				motors.rmpid.setSetpoint(path.smoothRightVelocity[timestep][1]);
+				angle_err_deg = (gyro.getAngle() - path.heading[timestep][1]);
+				left_motor_vel = path.smoothLeftVelocity[timestep][1] + angle_err_deg*headingCorrectionPGain;
+				right_motor_vel = path.smoothRightVelocity[timestep][1] - angle_err_deg*headingCorrectionPGain;
 			}
+			
+			//command the motors
+			motors.lmpid.setSetpoint(left_motor_vel);
+			motors.rmpid.setSetpoint(right_motor_vel);
 			
 			if(cycleIntakeArm){
 				//Handle arm raise-lower events

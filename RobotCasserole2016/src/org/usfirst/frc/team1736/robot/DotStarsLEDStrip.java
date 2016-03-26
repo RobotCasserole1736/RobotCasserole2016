@@ -85,8 +85,8 @@ public class DotStarsLEDStrip {
 		//mark buffer as not-yet-written-to-the-LEDs
 		newBuffer = true;
 		
-		//Initialize SPI coms on the onboard, chip-select 0. No chip select used, though.
-		spi = new SPI(SPI.Port.kOnboardCS0);
+		//Initialize SPI coms on the Offboard port
+		spi = new SPI(SPI.Port.kMXP);
 		spi.setMSBFirst();
 		spi.setClockActiveLow();
 		spi.setClockRate(SPI_CLK_RATE); 
