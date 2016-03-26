@@ -130,7 +130,7 @@ public class LEDSequencer {
 					}
 					else{
 						ledStrips.setLEDColor(i, 0.133, 0.765, 0.133);
-						ledStrips.setLEDColor(NUM_LEDS_TOTAL-i-1, 0, 1, 0);
+						ledStrips.setLEDColor(NUM_LEDS_TOTAL-i-1, 0.133, 0.765, 0.133);
 					}
 				}
 				break;
