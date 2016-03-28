@@ -23,6 +23,13 @@ public class Shooter extends PIDSubsystem {
 	double filtered_act_speed = 0;
 	double motorCmd = 0;
 	
+	//Watchdog - try to catch when this thread just stops working. This variable will
+	//be set to zero in the methods called periodically here, but incrimented externally.
+	//When it gets to high, it is assumed this module has crashed and should be restarted 
+	//That functionality is still in the works, but the variable has been added for logging
+	//purposes.
+	volatile public int wdog_ctr;
+	
 	public Shooter() {
 		super("ShooterPID", P, I, D); //we don't need to WPILIB feed forward. we do feed fowrard ourselfs cuz they were silly with their implementation.
 		shooterController = new CANTalon(SHOOTER_CHANNEL);
@@ -37,6 +44,8 @@ public class Shooter extends PIDSubsystem {
 		
 		//Squish sensor - a force sensor that registers how much the ball is compressing
 		squishSensor = new AnalogInput(SQUISH_SENSOR_PORT);
+		
+		wdog_ctr = 0;
 	}
 	
 	/**
@@ -121,6 +130,8 @@ public class Shooter extends PIDSubsystem {
 		double cmd = Math.max(Math.min(arg0 + F*getDesSpeed(), 1), 0);
 		shooterController.set(cmd);	
 		motorCmd = cmd;
+		wdog_ctr = 0;
+		
 	}
 
 	@Override

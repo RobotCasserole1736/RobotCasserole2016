@@ -66,6 +66,10 @@ public class Robot extends IterativeRobot {
 	final static int BPE_length = 200; //Window length
 	final static double BPE_confidenceThresh_A = 10.0;
 	
+	//Shooter Watchdog
+	final static int WDOG_LIMIT = 20;
+	boolean wdog_timeout = false;
+	
 	//Path Planner
 	boolean alreadyStarted = false;
 	
@@ -143,7 +147,9 @@ public class Robot extends IterativeRobot {
             "PathPlannerRDesSpd",
             "LeftDTGroundSpeed",
             "RightDTGroundSpeed",
-            "HeadingErr"};
+            "HeadingErr",
+            "ShooterPIDWatchdogCtr",
+            "ShooterWatchdogTimeout"};
 
     static final String[] units_fields = {"sec", //TIME must always be in sec
            "sec",
@@ -217,7 +223,9 @@ public class Robot extends IterativeRobot {
            "ft/s",
            "ft/s",
            "ft/s",
-           "deg"};
+           "deg",
+           "count",
+           "bit"};
 		
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	// CLASS OBJECTS
@@ -460,6 +468,9 @@ public class Robot extends IterativeRobot {
     	//Execution time metric - this must be first!
     	prev_loop_start_timestamp = Timer.getFPGATimestamp();
     	
+    	//Keep SDB up to date
+    	updateSmartDashboard();
+    	
     	//Indicate auto w/ led's
     	leds.sequencerPeriodic(LEDPatterns.CASS);
     	
@@ -535,6 +546,17 @@ public class Robot extends IterativeRobot {
     public void teleopPeriodic() {
     	//Execution time metric - this must be first!
     	prev_loop_start_timestamp = Timer.getFPGATimestamp();
+    	
+    	//increment the shooter watchdog in an attempt to catch if its PID thread dies.
+    	launchMotor.wdog_ctr = launchMotor.wdog_ctr + 1;
+    	if(launchMotor.wdog_ctr > WDOG_LIMIT){
+    		launchMotor.disable();
+    		launchMotor.enable(); //If the watchdog gets too loud, reset the launch motor in a last-ditch attempt...
+    		wdog_timeout = true;
+    	}
+    	else{
+    		wdog_timeout = false;
+    	}
     	
     	//Estimate battery Parameters
     	bpe.updateEstimate(pdp.getVoltage(), pdp.getTotalCurrent());
@@ -741,7 +763,9 @@ public class Robot extends IterativeRobot {
 										  autopp.motors.rmpid.getSetpoint(),
 										  driveTrain.getLeftSpdFtPerSec(),
 										  driveTrain.getRightSpdFtPerSec(),
-										  autopp.angle_err_deg
+										  autopp.angle_err_deg,
+										  launchMotor.wdog_ctr,
+										  wdog_timeout?1.0:0.0
 				    					 );
 	    	//Check for brownout. If browned out, force write data to log. Just in case we
 	    	//lose power and nasty things happen, at least we'll know how we died...
@@ -816,7 +840,7 @@ public class Robot extends IterativeRobot {
     	SmartDashboard.putNumber("Avg Speed FTpS", Math.abs((driveTrain.getRightSpdFtPerSec() + driveTrain.getLeftSpdFtPerSec())/2.0));
     	SmartDashboard.putBoolean("Ball In CarryPos", intakeLauncherSM.ballSensorState);
     	SmartDashboard.putNumber("Selected Auto Mode", autoMode);
-    	SmartDashboard.putNumber("Measured Robot Pose Angle", gyro.getAngle());
+    	SmartDashboard.putNumber("Measured Robot Pose Angle", Math.round(gyro.getAngle()) % 360);
     	
     }
     
