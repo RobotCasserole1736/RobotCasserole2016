@@ -233,10 +233,11 @@ public class casserolePathAuto {
 			double right_motor_vel;
 			//Calculate the heading error, and adjust the left/right assigned velocities based on error and the P gain
 			//use proper inversion
+
 			if(invertSetpoints){
-				angle_err_deg = (gyro.getAngle() - -1*path.heading[timestep][1]);
-				left_motor_vel = -1*path.smoothLeftVelocity[timestep][1] + angle_err_deg*headingCorrectionPGain;
-				right_motor_vel = -1*path.smoothRightVelocity[timestep][1] - angle_err_deg*headingCorrectionPGain;
+				angle_err_deg = -1*(gyro.getAngle() - path.heading[timestep][1]);
+				left_motor_vel = -1*(path.smoothLeftVelocity[timestep][1] + angle_err_deg*headingCorrectionPGain);
+				right_motor_vel = -1*(path.smoothRightVelocity[timestep][1] - angle_err_deg*headingCorrectionPGain);
 			}
 			else{
 				angle_err_deg = (gyro.getAngle() - path.heading[timestep][1]);
