@@ -69,6 +69,8 @@ public class Robot extends IterativeRobot {
 	//Shooter Watchdog
 	final static int WDOG_LIMIT = 20;
 	boolean wdog_timeout = false;
+	final static int RESET_ATTEMPT_LIMIT = 5;
+	int resets_attempted =0;
 	
 	//Path Planner
 	boolean alreadyStarted = false;
@@ -549,10 +551,11 @@ public class Robot extends IterativeRobot {
     	
     	//increment the shooter watchdog in an attempt to catch if its PID thread dies.
     	launchMotor.wdog_ctr = launchMotor.wdog_ctr + 1;
-    	if(launchMotor.wdog_ctr > WDOG_LIMIT){
+    	if(launchMotor.wdog_ctr > WDOG_LIMIT && resets_attempted < RESET_ATTEMPT_LIMIT){ //don't reset too many times, just in case so we don't lock out processor on this
     		launchMotor.disable();
     		launchMotor.enable(); //If the watchdog gets too loud, reset the launch motor in a last-ditch attempt...
     		wdog_timeout = true;
+    		resets_attempted = resets_attempted + 1;
     	}
     	else{
     		wdog_timeout = false;
