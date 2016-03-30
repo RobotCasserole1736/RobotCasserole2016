@@ -238,7 +238,7 @@ public class Robot extends IterativeRobot {
 	PowerDistributionPanel pdp;
 	BatteryParamEstimator bpe;
 	BuiltInAccelerometer accel_RIO;
-	ADXRS450_Gyro gyro;
+	//ADXRS450_Gyro gyro;
 	
 	//Data Logger
 	CsvLogger logger = new CsvLogger();
@@ -354,7 +354,7 @@ public class Robot extends IterativeRobot {
     	intakeLauncherSM = new IntakeLauncherStateMachine(launchMotor);
     	DBAC = new DrawbridgeArmControls();
     	leds = new LEDSequencer();
-    	gyro = new ADXRS450_Gyro(SPI.Port.kOnboardCS0);
+    	//gyro = new ADXRS450_Gyro(SPI.Port.kOnboardCS0);
     	
     	//Cal Gyro at startup
     	calGyro();
@@ -368,7 +368,7 @@ public class Robot extends IterativeRobot {
     	
     	
     	//init pathPlanner
-    	autopp = new casserolePathAuto(driveTrain, intakeLauncherSM, gyro);
+    	autopp = new casserolePathAuto(driveTrain, intakeLauncherSM);
     }
     
     /**
@@ -433,7 +433,7 @@ public class Robot extends IterativeRobot {
 		driveTrain.rightEncoder.reset();
 		
 		//Reset gyro to forward
-		gyro.reset();
+		//gyro.reset();
 
     	//init the task timing things
     	prev_loop_start_timestamp = Timer.getFPGATimestamp();
@@ -741,8 +741,8 @@ public class Robot extends IterativeRobot {
 				    					  Climber.tapemotor.get(),
 				    					  Climber.winchmotor1.get(),
 				    					 (Climber.tapeTriggerState?1.0:0.0),
-				    					  gyro.getAngle(),
-				    					  gyro.getRate(),
+				    					  -1,
+				    					  -1,
 				    					  Pneumatics.getCurrent(),
 				    					  launchMotor.getCurrent(),
 				    					  launchMotor.getMotorCmd(),
@@ -843,7 +843,7 @@ public class Robot extends IterativeRobot {
     	SmartDashboard.putNumber("Avg Speed FTpS", Math.abs((driveTrain.getRightSpdFtPerSec() + driveTrain.getLeftSpdFtPerSec())/2.0));
     	SmartDashboard.putBoolean("Ball In CarryPos", intakeLauncherSM.ballSensorState);
     	SmartDashboard.putNumber("Selected Auto Mode", autoMode);
-    	SmartDashboard.putNumber("Measured Robot Pose Angle", Math.round(gyro.getAngle()) % 360);
+    	SmartDashboard.putNumber("Measured Robot Pose Angle", 0);
     	
     }
     
@@ -853,7 +853,7 @@ public class Robot extends IterativeRobot {
     private void calGyro(){
     	leds.sequencerPeriodic(LEDPatterns.RAINBOW);
     	System.out.println("Calibrating gyro, DO NOT TOUCH ROBOT!!!");
-    	gyro.calibrate();
+    	//gyro.calibrate();
     	System.out.println("Done calibrating. woot!");
     	leds.sequencerPeriodic(LEDPatterns.OFF);
     	

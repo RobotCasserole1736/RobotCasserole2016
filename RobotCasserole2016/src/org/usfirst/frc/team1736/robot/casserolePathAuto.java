@@ -55,7 +55,7 @@ public class casserolePathAuto {
 	DriveTrain dt;
 	DriveMotorsPIDVelocity motors;
 	IntakeLauncherStateMachine ilsm;
-	ADXRS450_Gyro gyro;
+	//ADXRS450_Gyro gyro;
 	
 	//Constraints
 	boolean invertSetpoints = false;
@@ -80,10 +80,10 @@ public class casserolePathAuto {
 	 * Constructor
 	 * 
 	 */
-	casserolePathAuto(DriveTrain dt_in, IntakeLauncherStateMachine ilsm_in, ADXRS450_Gyro gyro_in){
+	casserolePathAuto(DriveTrain dt_in, IntakeLauncherStateMachine ilsm_in){
 		dt = dt_in;
 		ilsm = ilsm_in;
-		gyro = gyro_in;
+		//gyro = gyro_in;
 		shotTimer = new edu.wpi.first.wpilibj.Timer();
 		shotTimer.reset();
 		motors = new DriveMotorsPIDVelocity(dt);
@@ -234,12 +234,14 @@ public class casserolePathAuto {
 			//Calculate the heading error, and adjust the left/right assigned velocities based on error and the P gain
 			//use proper inversion
 			if(invertSetpoints){
-				angle_err_deg = (gyro.getAngle() - -1*path.heading[timestep][1]);
+				//angle_err_deg = (gyro.getAngle() - -1*path.heading[timestep][1]);
+				angle_err_deg = 0;
 				left_motor_vel = -1*path.smoothLeftVelocity[timestep][1] + angle_err_deg*headingCorrectionPGain;
 				right_motor_vel = -1*path.smoothRightVelocity[timestep][1] - angle_err_deg*headingCorrectionPGain;
 			}
 			else{
-				angle_err_deg = (gyro.getAngle() - path.heading[timestep][1]);
+				//angle_err_deg = (gyro.getAngle() - path.heading[timestep][1]);
+				angle_err_deg = 0;
 				left_motor_vel = path.smoothLeftVelocity[timestep][1] + angle_err_deg*headingCorrectionPGain;
 				right_motor_vel = path.smoothRightVelocity[timestep][1] - angle_err_deg*headingCorrectionPGain;
 			}

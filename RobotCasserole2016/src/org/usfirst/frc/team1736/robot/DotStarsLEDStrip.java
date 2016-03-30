@@ -86,7 +86,7 @@ public class DotStarsLEDStrip {
 		newBuffer = true;
 		
 		//Initialize SPI coms on the Offboard port
-		spi = new SPI(SPI.Port.kMXP);
+		spi = new SPI(SPI.Port.kOnboardCS0);
 		spi.setMSBFirst();
 		spi.setClockActiveLow();
 		spi.setClockRate(SPI_CLK_RATE); 
