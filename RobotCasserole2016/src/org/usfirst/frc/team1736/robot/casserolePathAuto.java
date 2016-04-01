@@ -31,20 +31,22 @@ public class casserolePathAuto {
 	final double[][] waypoints_crossTestTune = new double[][]{ //cross and shoot?
 		{0,0},
 		{1,0},
-		{4,4},
-		{4,5}
+		{4,3},
+		{4,4}
 	};
 	
 	
 	
 	//Gyro heading compensation gain
 	private double headingCorrectionPGain;
+	//Gyro fudge factor
+	final double gyroFudgeFactor = 1.125; //9/8 cuz gyro is silly
 	
 	final double totalPathPlannerTime_apchDfns = 5;
 	final double totalPathPlannerTime_crsLwBr = 5;
 	final double totalPathPlannerTime_crossShootLow = 10;
 	final double totalPathPlannerTime_crossShootHigh = 10;
-	final double totalPathPlannerTime_crossTestTune = 3.5; //change this to 10 once real points are added
+	final double totalPathPlannerTime_crossTestTune = 9; //change this to 10 once real points are added
 	
 	final double PLANNER_SAMPLE_RATE_S = 0.02; //200ms update rate 
 	final double ROBOT_TRACK_WIDTH_FT = 1.9; //1.9ft wide tracks
@@ -162,8 +164,8 @@ public class casserolePathAuto {
 		else if(auto_mode == 4){
 			System.out.println("Calculating path CrossTestTune");
 			path = new FalconPathPlanner(waypoints_crossTestTune);
-			path.setPathBeta(0.6);
-			path.setPathAlpha(0.1);
+			path.setPathBeta(0.1);
+			path.setPathAlpha(0.5);
 			path.setVelocityAlpha(0.01);
 			path.setVelocityBeta(0.8);
 			path.calculate(totalPathPlannerTime_crossTestTune, PLANNER_SAMPLE_RATE_S, ROBOT_TRACK_WIDTH_FT);
@@ -171,7 +173,7 @@ public class casserolePathAuto {
 			shootHighGoal = false; //set this to true once real points are added
 			shootLowGoal = false;
 			cycleIntakeArm = false; //set this to true once real points are added
-			headingCorrectionPGain = 0.01; //guess at gain, which adds/removes 20% of full motor scale at at 20 degree error (agressive, but hopefully reasonable?)
+			headingCorrectionPGain = 0.07; 
 		}
 		else{
 			System.out.println("ERROR: bad path selected, tell software they did something wrong!!!");
@@ -277,12 +279,12 @@ public class casserolePathAuto {
 
 			
 			if(invertSetpoints){ //high goal shot
-				angle_err_deg = (gyro.getAngle() - path.heading[timestep][1]);
+				angle_err_deg = (gyro.getAngle()*gyroFudgeFactor - path.heading[timestep][1]);
 				left_motor_vel = -1*(path.smoothLeftVelocity[timestep][1] + angle_err_deg*headingCorrectionPGain);
 				right_motor_vel = -1*(path.smoothRightVelocity[timestep][1] - angle_err_deg*headingCorrectionPGain);
 			}
 			else{
-				angle_err_deg = (gyro.getAngle() - path.heading[timestep][1]);
+				angle_err_deg = (gyro.getAngle()*gyroFudgeFactor - path.heading[timestep][1]);
 				left_motor_vel = path.smoothLeftVelocity[timestep][1] + angle_err_deg*headingCorrectionPGain;
 				right_motor_vel = path.smoothRightVelocity[timestep][1] - angle_err_deg*headingCorrectionPGain;
 			}

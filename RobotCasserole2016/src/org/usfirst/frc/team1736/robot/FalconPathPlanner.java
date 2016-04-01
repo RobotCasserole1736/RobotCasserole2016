@@ -691,8 +691,8 @@ public class FalconPathPlanner
 		double[][] waypoints = new double[][]{
 			{0,0},
 			{1,0},
-			{4,4},
-			{4,5}
+			{4,3},
+			{4,4}
 		}; 
 
 		double totalTime = 3.5; //seconds
@@ -701,8 +701,8 @@ public class FalconPathPlanner
 
 		final FalconPathPlanner path = new FalconPathPlanner(waypoints);
 		
-		path.setPathBeta(0.6);
-		path.setPathAlpha(0.1);
+		path.setPathBeta(0.1);
+		path.setPathAlpha(0.5);
 		path.setVelocityAlpha(0.01);
 		path.setVelocityBeta(0.8);
 		path.calculate(totalTime, timeStep, robotTrackWidth);

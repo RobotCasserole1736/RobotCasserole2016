@@ -401,7 +401,7 @@ public class Robot extends IterativeRobot {
     public void disabledPeriodic() {
 
     	//set LED's to proper color
-    	leds.sequencerPeriodic(LEDPatterns.RED);
+    	leds.sequencerPeriodic(LEDPatterns.VOLUME_CTRL1);
     	
     	//Keep SDB up to date even in disabled
     	updateSmartDashboard();
