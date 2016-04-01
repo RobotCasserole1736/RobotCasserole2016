@@ -298,11 +298,12 @@ public class Robot extends IterativeRobot {
     	autoChooser.addObject("Cross Defense", 1);
     	autoChooser.addObject("PathPlanner LowGoal",2);
     	autoChooser.addObject("PathPlanner HighGoal - TURN ROBOT BACKWARD",3);
+    	autoChooser.addObject("PathPlanner GyroHighGoal TEST ONLY",4);
     	autoChooser.addDefault("Do Nothing",-1);
     	SmartDashboard.putData("Auto Mode Chooser", autoChooser);
     	
     	/* This will be disabled for competition to prevent anything freaky from happening, 
-    	 * but may be rolled back in after competition so the kids can demo awesome colors 
+    	 * but may be rolled back in after competition so the kids can demo awesome colors
     	//LED Color Choose
     	colorChooser = new SendableChooser();
     	colorChooser.addObject("Solid Red", LEDPatterns.SOLID_RED);

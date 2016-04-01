@@ -21,21 +21,30 @@ public class casserolePathAuto {
 	final double[][] waypoints_crossShootLow = new double[][]{ //cross and shoot
 		{0,0},
 		{-17.83,0},
-		{-20.666,11.20555} //Jeremey's temp numbers for lining up the robot for a low-goal shot
+		{-20.666,11.20555}
 	};
 	final double[][] waypoints_crossShootHigh = new double[][]{ //cross and shoot
 		{0,0},
 		{18.63,0},
-		{19.4666,9.00555} //Jeremey's temp numbers for lining up the robot for a low-goal shot
+		{19.4666,9.00555}
+	};
+	final double[][] waypoints_crossTestTune = new double[][]{ //cross and shoot?
+		{0,0},
+		{1,0},
+		{4,4},
+		{4,5}
 	};
 	
+	
+	
 	//Gyro heading compensation gain
-	final double headingCorrectionPGain = 0.0;
+	private double headingCorrectionPGain;
 	
 	final double totalPathPlannerTime_apchDfns = 5;
 	final double totalPathPlannerTime_crsLwBr = 5;
 	final double totalPathPlannerTime_crossShootLow = 10;
 	final double totalPathPlannerTime_crossShootHigh = 10;
+	final double totalPathPlannerTime_crossTestTune = 3.5; //change this to 10 once real points are added
 	
 	final double PLANNER_SAMPLE_RATE_S = 0.02; //200ms update rate 
 	final double ROBOT_TRACK_WIDTH_FT = 1.9; //1.9ft wide tracks
@@ -46,6 +55,9 @@ public class casserolePathAuto {
 	//THESE MUST CHANGE IF THE SAMPLE TIME OF THE PLAYBACk THREAD CHANGES
 	final int intakeLowerTimeStep_crossShootHigh = 15;
 	final int intakeRaiseTimeStep_crossShootHigh = 250;
+	//THESE MUST CHANGE IF THE SAMPLE TIME OF THE PLAYBACk THREAD CHANGES
+	final int intakeLowerTimeStep_crossTestTune = 15;
+	final int intakeRaiseTimeStep_crossTestTune = 250;
 	
 	int timestep = 0;
 	
@@ -107,6 +119,7 @@ public class casserolePathAuto {
 			shootHighGoal = false;
 			shootLowGoal = false;
 			cycleIntakeArm = false;
+			headingCorrectionPGain = 0.0;
 		}
 		else if(auto_mode == 1){
 			System.out.println("Calculating path CrossLowBar");
@@ -116,6 +129,7 @@ public class casserolePathAuto {
 			shootHighGoal = false;
 			shootLowGoal = false;
 			cycleIntakeArm = false;
+			headingCorrectionPGain = 0.0;
 		}
 		else if(auto_mode == 2){
 			System.out.println("Calculating path CrossShootLow");
@@ -129,6 +143,7 @@ public class casserolePathAuto {
 			shootHighGoal = false;
 			shootLowGoal = true;
 			cycleIntakeArm = true;
+			headingCorrectionPGain = 0.0;
 		}
 		else if(auto_mode == 3){
 			System.out.println("Calculating path CrossShootHigh");
@@ -142,6 +157,21 @@ public class casserolePathAuto {
 			shootHighGoal = true;
 			shootLowGoal = false;
 			cycleIntakeArm = true;
+			headingCorrectionPGain = 0.0;
+		}
+		else if(auto_mode == 4){
+			System.out.println("Calculating path CrossTestTune");
+			path = new FalconPathPlanner(waypoints_crossTestTune);
+			path.setPathBeta(0.6);
+			path.setPathAlpha(0.1);
+			path.setVelocityAlpha(0.01);
+			path.setVelocityBeta(0.8);
+			path.calculate(totalPathPlannerTime_crossTestTune, PLANNER_SAMPLE_RATE_S, ROBOT_TRACK_WIDTH_FT);
+			invertSetpoints = true;
+			shootHighGoal = false; //set this to true once real points are added
+			shootLowGoal = false;
+			cycleIntakeArm = false; //set this to true once real points are added
+			headingCorrectionPGain = 0.01; //guess at gain, which adds/removes 20% of full motor scale at at 20 degree error (agressive, but hopefully reasonable?)
 		}
 		else{
 			System.out.println("ERROR: bad path selected, tell software they did something wrong!!!");
@@ -236,10 +266,18 @@ public class casserolePathAuto {
 			double right_motor_vel;
 			//Calculate the heading error, and adjust the left/right assigned velocities based on error and the P gain
 			//use proper inversion
-			pp_des_heading = path.heading[timestep][1];
-
+			//Due to the way the path planner is returning angle for our given points, I have this hacky way of getting error. No idea if it works.
+			//Not enought time to make everything right. Just need to make it work.
 			if(invertSetpoints){
-				angle_err_deg = -1*(gyro.getAngle() - path.heading[timestep][1]);
+				pp_des_heading = path.heading[timestep][1]; //high goal shot
+			} 
+			else {
+				pp_des_heading = 180.0 - path.heading[timestep][1]; //low-goal setpoints seem to cause heading to be backward and offset by 180 from what the gyro actually reads??
+			}
+
+			
+			if(invertSetpoints){ //high goal shot
+				angle_err_deg = (gyro.getAngle() - path.heading[timestep][1]);
 				left_motor_vel = -1*(path.smoothLeftVelocity[timestep][1] + angle_err_deg*headingCorrectionPGain);
 				right_motor_vel = -1*(path.smoothRightVelocity[timestep][1] - angle_err_deg*headingCorrectionPGain);
 			}

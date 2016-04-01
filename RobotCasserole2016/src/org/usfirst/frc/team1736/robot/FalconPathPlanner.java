@@ -690,18 +690,19 @@ public class FalconPathPlanner
 		//create waypoint path
 		double[][] waypoints = new double[][]{
 			{0,0},
-			{18.33,0},
-			{22.6666,7.50555} //Jeremey's temp numbers for lining up the robot for a low-goal shot
+			{1,0},
+			{4,4},
+			{4,5}
 		}; 
 
-		double totalTime = 8; //seconds
-		double timeStep = 0.1; //period of control loop on Rio, seconds
+		double totalTime = 3.5; //seconds
+		double timeStep = 0.02; //period of control loop on Rio, seconds
 		double robotTrackWidth = 2; //distance between left and right wheels, feet
 
 		final FalconPathPlanner path = new FalconPathPlanner(waypoints);
 		
 		path.setPathBeta(0.6);
-		path.setPathAlpha(0.3);
+		path.setPathAlpha(0.1);
 		path.setVelocityAlpha(0.01);
 		path.setVelocityBeta(0.8);
 		path.calculate(totalTime, timeStep, robotTrackWidth);
