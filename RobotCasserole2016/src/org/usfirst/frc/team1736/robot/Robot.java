@@ -298,7 +298,7 @@ public class Robot extends IterativeRobot {
     	autoChooser.addObject("Cross Defense", 1);
     	autoChooser.addObject("PathPlanner LowGoal",2);
     	autoChooser.addObject("PathPlanner HighGoal - TURN ROBOT BACKWARD",3);
-    	autoChooser.addObject("PathPlanner GyroHighGoal TEST ONLY",4);
+    	autoChooser.addObject("PathPlanner GyroHighGoal",4);
     	autoChooser.addDefault("Do Nothing",-1);
     	SmartDashboard.putData("Auto Mode Chooser", autoChooser);
     	

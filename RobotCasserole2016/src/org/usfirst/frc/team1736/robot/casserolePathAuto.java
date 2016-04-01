@@ -28,11 +28,10 @@ public class casserolePathAuto {
 		{18.63,0},
 		{19.4666,9.00555}
 	};
-	final double[][] waypoints_crossTestTune = new double[][]{ //cross and shoot?
+	final double[][] waypoints_HighGoalGyro = new double[][]{ //cross and shoot?
 		{0,0},
-		{1,0},
-		{4,3},
-		{4,4}
+		{18.875,0},
+		{21.46,4.475}
 	};
 	
 	
@@ -46,7 +45,7 @@ public class casserolePathAuto {
 	final double totalPathPlannerTime_crsLwBr = 5;
 	final double totalPathPlannerTime_crossShootLow = 10;
 	final double totalPathPlannerTime_crossShootHigh = 10;
-	final double totalPathPlannerTime_crossTestTune = 9; //change this to 10 once real points are added
+	final double totalPathPlannerTime_HighGoalGyro = 10; //change this to 10 once real points are added
 	
 	final double PLANNER_SAMPLE_RATE_S = 0.02; //200ms update rate 
 	final double ROBOT_TRACK_WIDTH_FT = 1.9; //1.9ft wide tracks
@@ -58,8 +57,8 @@ public class casserolePathAuto {
 	final int intakeLowerTimeStep_crossShootHigh = 15;
 	final int intakeRaiseTimeStep_crossShootHigh = 250;
 	//THESE MUST CHANGE IF THE SAMPLE TIME OF THE PLAYBACk THREAD CHANGES
-	final int intakeLowerTimeStep_crossTestTune = 15;
-	final int intakeRaiseTimeStep_crossTestTune = 250;
+	final int intakeLowerTimeStep_HighGoalGyro = 15;
+	final int intakeRaiseTimeStep_HighGoalGyro = 250;
 	
 	int timestep = 0;
 	
@@ -162,17 +161,17 @@ public class casserolePathAuto {
 			headingCorrectionPGain = 0.0;
 		}
 		else if(auto_mode == 4){
-			System.out.println("Calculating path CrossTestTune");
-			path = new FalconPathPlanner(waypoints_crossTestTune);
+			System.out.println("Calculating path HighGoalGyro");
+			path = new FalconPathPlanner(waypoints_HighGoalGyro);
 			path.setPathBeta(0.1);
 			path.setPathAlpha(0.5);
 			path.setVelocityAlpha(0.01);
 			path.setVelocityBeta(0.8);
-			path.calculate(totalPathPlannerTime_crossTestTune, PLANNER_SAMPLE_RATE_S, ROBOT_TRACK_WIDTH_FT);
+			path.calculate(totalPathPlannerTime_HighGoalGyro, PLANNER_SAMPLE_RATE_S, ROBOT_TRACK_WIDTH_FT);
 			invertSetpoints = true;
-			shootHighGoal = false; //set this to true once real points are added
+			shootHighGoal = true; 
 			shootLowGoal = false;
-			cycleIntakeArm = false; //set this to true once real points are added
+			cycleIntakeArm = true; 
 			headingCorrectionPGain = 0.07; 
 		}
 		else{
