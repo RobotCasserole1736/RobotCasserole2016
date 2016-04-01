@@ -37,7 +37,7 @@ public class IntakeLauncherStateMachine {
 	public static double INTAKE_MAX_RETRACT_TIME_MS;
 	public static final double INTAKE_MAX_RETRACT_TIME_MS_DEFAULTVAL = 900;
 	public static double LAUNCH_SPEED_RPM;
-	public static final double LAUNCH_SPEED_RPM_DEFAULTVAL = 4075;
+	public static final double LAUNCH_SPEED_RPM_DEFAULTVAL = 4050;
 	public static final double INTAKE_LAUNCH_FEED_SPEED = 0.8;
 	public static final double LAUNCH_SPEED_ERR_LMT_RPM = 200;
 	public static final double MIN_LAUNCH_TIME_THRESH_MS = 1500;
