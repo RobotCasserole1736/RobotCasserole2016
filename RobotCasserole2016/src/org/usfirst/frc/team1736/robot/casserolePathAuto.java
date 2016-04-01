@@ -30,8 +30,8 @@ public class casserolePathAuto {
 	};
 	final double[][] waypoints_HighGoalGyro = new double[][]{ //cross and shoot?
 		{0,0},
-		{17.875,0},
-		{20.46,4.475}
+		{17.375,0},
+		{20.21,4.908}
 	};
 	
 	
@@ -172,7 +172,7 @@ public class casserolePathAuto {
 			shootHighGoal = true; 
 			shootLowGoal = false;
 			cycleIntakeArm = true; 
-			headingCorrectionPGain = 0.07; 
+			headingCorrectionPGain = 0.14; 
 		}
 		else{
 			System.out.println("ERROR: bad path selected, tell software they did something wrong!!!");
