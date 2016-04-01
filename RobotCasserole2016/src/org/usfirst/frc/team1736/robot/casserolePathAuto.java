@@ -30,8 +30,8 @@ public class casserolePathAuto {
 	};
 	final double[][] waypoints_HighGoalGyro = new double[][]{ //cross and shoot?
 		{0,0},
-		{18.875,0},
-		{21.46,4.475}
+		{17.875,0},
+		{20.46,4.475}
 	};
 	
 	
