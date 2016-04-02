@@ -37,7 +37,7 @@ public class IntakeLauncherStateMachine {
 	public static double INTAKE_MAX_RETRACT_TIME_MS;
 	public static final double INTAKE_MAX_RETRACT_TIME_MS_DEFAULTVAL = 900;
 	public static double LAUNCH_SPEED_RPM;
-	public static final double LAUNCH_SPEED_RPM_DEFAULTVAL = 4050;
+	public static final double LAUNCH_SPEED_RPM_DEFAULTVAL = 4175;
 	public static final double INTAKE_LAUNCH_FEED_SPEED = 0.8;
 	public static final double LAUNCH_SPEED_ERR_LMT_RPM = 200;
 	public static final double MIN_LAUNCH_TIME_THRESH_MS = 1500;
@@ -103,7 +103,8 @@ public class IntakeLauncherStateMachine {
 		INTAKE_MAX_RETRACT_TIME_MS = prefs.getDouble("IntakeMaxRetractTimeMs", INTAKE_MAX_RETRACT_TIME_MS_DEFAULTVAL);
 		if(!prefs.containsKey("LaunchSpeedRPM"))
 			prefs.putDouble("LaunchSpeedRPM", LAUNCH_SPEED_RPM_DEFAULTVAL);
-		LAUNCH_SPEED_RPM = prefs.getDouble("LaunchSpeedRPM", LAUNCH_SPEED_RPM_DEFAULTVAL);
+		//LAUNCH_SPEED_RPM = prefs.getDouble("LaunchSpeedRPM", LAUNCH_SPEED_RPM_DEFAULTVAL);
+		LAUNCH_SPEED_RPM = LAUNCH_SPEED_RPM_DEFAULTVAL;
 	}
 	
 	void periodicStateMach(boolean intakeCmded, 
@@ -116,7 +117,7 @@ public class IntakeLauncherStateMachine {
 		INTAKE_RETRACT_SPEED = prefs.getDouble("IntakeRetractSpeed", INTAKE_RETRACT_SPEED_DEFAULTVAL);
 		INTAKE_MIN_RETRACT_TIME_MS = prefs.getDouble("IntakeMinRetractTimeMs", INTAKE_MIN_RETRACT_TIME_MS_DEFAULTVAL);
 		INTAKE_MAX_RETRACT_TIME_MS = prefs.getDouble("IntakeMaxRetractTimeMs", INTAKE_MAX_RETRACT_TIME_MS_DEFAULTVAL);
-		LAUNCH_SPEED_RPM = prefs.getDouble("LaunchSpeedRPM", LAUNCH_SPEED_RPM_DEFAULTVAL);
+		//LAUNCH_SPEED_RPM = prefs.getDouble("LaunchSpeedRPM", LAUNCH_SPEED_RPM_DEFAULTVAL);
 		
 		//Step 0 - process inputs. Mostly these are arguments
 		dbncBallSensor();
