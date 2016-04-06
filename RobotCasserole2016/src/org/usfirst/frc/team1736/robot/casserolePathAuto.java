@@ -55,11 +55,11 @@ public class casserolePathAuto {
 	final int intakeRaiseTimeStep_crossShootLow = 250;
 	//THESE MUST CHANGE IF THE SAMPLE TIME OF THE PLAYBACk THREAD CHANGES
 	final int intakeLowerTimeStep_crossShootHigh = 15;
-	final int intakeRaiseTimeStep_crossShootHigh = 250;
+	final int intakeRaiseTimeStep_crossShootHigh = 175;
 	//THESE MUST CHANGE IF THE SAMPLE TIME OF THE PLAYBACk THREAD CHANGES
+/**TOM CHANGED THIS!!!!!!!!!!!!!! up there^^^            it was 250 and too late so it hit the wall       */  
 	final int intakeLowerTimeStep_HighGoalGyro = 15;
 	final int intakeRaiseTimeStep_HighGoalGyro = 250;
-	
 	int timestep = 0;
 	
 	FalconPathPlanner path;
