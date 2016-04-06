@@ -48,6 +48,15 @@ public class Shooter extends PIDSubsystem {
 		wdog_ctr = 0;
 	}
 	
+	public double getBallEnergy()
+	{
+		if(getDesSpeed() > 0)
+		{
+			
+		}
+		return 0;
+	}
+	
 	/**
 	 * Set a new desired speed for the launch motor in RPM
 	 * @param speed - setpoint to command the motor to in RPM
