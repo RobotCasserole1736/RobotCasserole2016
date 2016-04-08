@@ -33,6 +33,7 @@ public class Robot extends IterativeRobot {
 	// I'm a silly boy and Idk what I'm doing so I'm just gonna put these variables here, whoop whoop
 	int autoMode = 0;
 	SendableChooser autoChooser;
+	SendableChooser ballChooser;
 	Timer autoTimer = new Timer();
 	int currentStep = 0;
 	
@@ -302,6 +303,12 @@ public class Robot extends IterativeRobot {
     	autoChooser.addDefault("Do Nothing",-1);
     	SmartDashboard.putData("Auto Mode Chooser", autoChooser);
     	
+    	// Ball Chooser
+    	ballChooser = new SendableChooser();
+    	ballChooser.addDefault("old", 0);
+    	ballChooser.addObject("new", 1);
+    	SmartDashboard.putData("Ball Chooser", ballChooser);
+    	
     	/* This will be disabled for competition to prevent anything freaky from happening, 
     	 * but may be rolled back in after competition so the kids can demo awesome colors
     	//LED Color Choose
@@ -432,6 +439,9 @@ public class Robot extends IterativeRobot {
     	Pneumatics.startCompressor();
 
     	autoMode = (int) autoChooser.getSelected();
+    	
+    	int ballmode = (int) ballChooser.getSelected();
+    	intakeLauncherSM.setBallType(ballmode, true);
     	
     	//reset encoders to 0
     	driveTrain.leftEncoder.reset();
@@ -565,6 +575,10 @@ public class Robot extends IterativeRobot {
     	else{
     		wdog_timeout = false;
     	}
+    	
+    	// set the ball state
+    	int ballmode = (int) ballChooser.getSelected();
+    	intakeLauncherSM.setBallType(ballmode, false);
     	
     	//Estimate battery Parameters
     	bpe.updateEstimate(pdp.getVoltage(), pdp.getTotalCurrent());
