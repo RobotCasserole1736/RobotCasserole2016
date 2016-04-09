@@ -1,5 +1,9 @@
 <xml version="1.0">
 <dashboard>
+	<static-widget class="edu.wpi.first.smartdashboard.gui.elements.Label">
+		<location x="1280" y="110"/>
+		<property name="Text" value="Ball Selector"/>
+	</static-widget>
 	<widget field="Selected Auto Mode" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.FormattedField">
 		<location x="0" y="474"/>
 		<width>145</width>
@@ -91,15 +95,6 @@
 		<height>121</height>
 		<property name="Upper Limit" value="300.0"/>
 	</widget>
-	<static-widget class="edu.wpi.first.smartdashboard.gui.elements.MJPGStreamerViewerExtension">
-		<location x="396" y="10"/>
-		<width>656</width>
-		<height>538</height>
-		<property name="Degrees Rotation" value="180"/>
-		<property name="Crosshair X" value="285"/>
-		<property name="Crosshair Y" value="142"/>
-		<property name="Crosshair size" value="4"/>
-	</static-widget>
 	<widget field="DT Limiting Factor" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.SimpleDial">
 		<location x="1056" y="338"/>
 		<width>180</width>
@@ -129,6 +124,9 @@
 	</widget>
 	<widget field="Auto Mode Chooser" type="String Chooser" class="edu.wpi.first.smartdashboard.gui.elements.Chooser">
 		<location x="53" y="317"/>
+	</widget>
+	<widget field="Ball Chooser" type="String Chooser" class="edu.wpi.first.smartdashboard.gui.elements.Chooser">
+		<location x="1280" y="150"/>
 	</widget>
 	<static-widget class="edu.wpi.first.smartdashboard.gui.elements.ConnectionIndicator">
 		<location x="10" y="3"/>
