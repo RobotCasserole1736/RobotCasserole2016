@@ -58,6 +58,14 @@ public class Robot extends IterativeRobot {
 	final static int WINCH_1_PDP_CH = 12;
 	final static int WINCH_2_PDP_CH = 3;
 	final static int SP_DB_ARM_PDP_CH = 11;
+	//unused pdb channels
+	final static int UNUSED_2 = 2;
+	final static int UNUSED_6 = 6;
+	final static int UNUSED_7 = 7;
+	final static int UNUSED_8 = 8;
+	final static int UNUSED_9 = 9;
+	final static int UNUSED_10 =10;
+	
 	
 	//-Square joystick input?
 	final static boolean squaredInputs = true;
@@ -152,8 +160,15 @@ public class Robot extends IterativeRobot {
             "PathPlannerDesHeading",
             "HeadingErr",
             "ShooterPIDWatchdogCtr",
-            "ShooterWatchdogTimeout"};
-
+            "ShooterWatchdogTimeout",
+            "PdbUnused2Current",
+            "PdbUnused6Current",
+            "PdbUnused7Current",
+            "PdbUnused8Current",
+            "PdbUnused9Current",
+            "PdbUnsued10Current",
+            };
+			
     static final String[] units_fields = {"sec", //TIME must always be in sec
            "sec",
            "bit",
@@ -229,7 +244,14 @@ public class Robot extends IterativeRobot {
            "deg",
            "deg",
            "count",
-           "bit"};
+           "bit",
+           "A",
+           "A",
+           "A",
+           "A",
+           "A",
+           "A"
+           };
 		
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	// CLASS OBJECTS
@@ -774,7 +796,13 @@ public class Robot extends IterativeRobot {
 										  autopp.pp_des_heading,
 										  autopp.angle_err_deg,
 										  launchMotor.wdog_ctr,
-										  wdog_timeout?1.0:0.0
+										  wdog_timeout?1.0:0.0,
+										  pdp.getCurrent(UNUSED_2),
+										  pdp.getCurrent(UNUSED_6),
+										  pdp.getCurrent(UNUSED_7),
+										  pdp.getCurrent(UNUSED_8),
+										  pdp.getCurrent(UNUSED_9),
+										  pdp.getCurrent(UNUSED_10)
 				    					 );
 	    	//Check for brownout. If browned out, force write data to log. Just in case we
 	    	//lose power and nasty things happen, at least we'll know how we died...
