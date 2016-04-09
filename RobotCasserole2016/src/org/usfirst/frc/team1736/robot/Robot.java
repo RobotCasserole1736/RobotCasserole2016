@@ -273,6 +273,9 @@ public class Robot extends IterativeRobot {
 	//Joysticks
 	Xbox360Controller joy1;
 	Xbox360Controller joy2;
+	//Slow Turn Button
+	boolean lastJoy1RightStickPressed = false;
+	double driverTurnMultiplier = 1;
 	//Drive Train
 	DriveTrain driveTrain;
 	boolean cmdInvCtrls = false;
@@ -417,6 +420,7 @@ public class Robot extends IterativeRobot {
     	autopp.stopPlayback();
     	
     	disabled_sbd_counter = 0;
+    	driverTurnMultiplier = 1.0;
 
     }
     
@@ -594,13 +598,27 @@ public class Robot extends IterativeRobot {
         //Run Drivetrain with reversing
     	if(joy1.LTrigger() > 0.5){ //reverse control
     		cmdInvCtrls = true;
-        	driveTrain.arcadeDrive(-1 * joy1.LStick_Y(), joy1.RStick_X(), squaredInputs);
+        	driveTrain.arcadeDrive(-1 * joy1.LStick_Y(), joy1.RStick_X() * driverTurnMultiplier, squaredInputs);
     	}
     	else{ //regular control
     		cmdInvCtrls = false;
-    		driveTrain.arcadeDrive(joy1.LStick_Y(), joy1.RStick_X(), squaredInputs);
+    		driveTrain.arcadeDrive(joy1.LStick_Y(), joy1.RStick_X() * driverTurnMultiplier, squaredInputs);
     	}
-    		
+    	if (joy1.RStickButton() && !lastJoy1RightStickPressed)
+    	{
+    		if (driverTurnMultiplier < 1)
+    		{
+    			driverTurnMultiplier = 1;
+    			joy1.setRightRumble(0f);
+    		}
+    		else 
+    		{
+    			driverTurnMultiplier = 0.5;
+    			joy1.setRightRumble(0.5f);
+    			
+    		}    		
+    	}
+    	lastJoy1RightStickPressed = joy1.RStickButton();
     	//Evaluate upshift/downshift need
     	double left_speed = Math.abs(driveTrain.getLeftWheelSpeedRPM());
     	double right_speed = Math.abs(driveTrain.getRightWheelSpeedRPM());
