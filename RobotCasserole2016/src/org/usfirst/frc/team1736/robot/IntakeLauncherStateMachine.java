@@ -4,6 +4,7 @@
 package org.usfirst.frc.team1736.robot;
 
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj.Talon;
 import edu.wpi.first.wpilibj.Timer;
@@ -73,6 +74,9 @@ public class IntakeLauncherStateMachine {
 	Timer stateTimer;
 	Timer encFailedTimer;
 	
+	//Encoder
+	Encoder intakeEncoder;
+	
 	
 	
 	
@@ -107,7 +111,9 @@ public class IntakeLauncherStateMachine {
 		if(!prefs.containsKey("LaunchSpeedRPM"))
 			prefs.putDouble("LaunchSpeedRPM", LAUNCH_SPEED_RPM_DEFAULTVAL);
 		//LAUNCH_SPEED_RPM = prefs.getDouble("LaunchSpeedRPM", LAUNCH_SPEED_RPM_DEFAULTVAL);
-		LAUNCH_SPEED_RPM = LAUNCH_SPEED_RPM_DEFAULTVAL;
+		LAUNCH_SPEED_RPM = LAUNCH_SPEED_RPM_DEFAULTVAL; 
+		
+		intakeEncoder = new Encoder(5, 6);
 	}
 	
 	void periodicStateMach(boolean intakeCmded, 
@@ -366,5 +372,9 @@ public class IntakeLauncherStateMachine {
 			LAUNCH_SPEED_RPM= LAUNCH_SPEED_RPM_DEFAULTVAL;
 		else 
 			LAUNCH_SPEED_RPM= LAUNCH_SPEED_RPM_NEWBALL;
+	}
+	
+	public int getEncoderValue() {
+		return intakeEncoder.get();
 	}
 }
