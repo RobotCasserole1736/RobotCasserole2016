@@ -14,6 +14,15 @@ public class Shooter extends PIDSubsystem {
 	static double D = 0.00004; 
 	int SHOOTER_CHANNEL = 1; //CMG - confirmed 2/2/2016
 	
+	//Aaron's neat and very directly named variables
+	double[] wheelValArray = new double[20];
+	int shooterLoops = 0;
+	double prevAverageWheelVal = 0;
+	boolean peakMet = false;
+	boolean troughMet = false;
+	double peak = 0;
+	double trough = 0;
+	
 	//Squish sensor cal
 	AnalogInput squishSensor;
 	private static final int SQUISH_SENSOR_PORT = 0;
@@ -24,8 +33,8 @@ public class Shooter extends PIDSubsystem {
 	double motorCmd = 0;
 	
 	//Watchdog - try to catch when this thread just stops working. This variable will
-	//be set to zero in the methods called periodically here, but incrimented externally.
-	//When it gets to high, it is assumed this module has crashed and should be restarted 
+	//be set to zero in the methods called periodically here, but incremented externally.
+	//When it gets too high, it is assumed this module has crashed and should be restarted 
 	//That functionality is still in the works, but the variable has been added for logging
 	//purposes.
 	volatile public int wdog_ctr;
@@ -48,13 +57,83 @@ public class Shooter extends PIDSubsystem {
 		wdog_ctr = 0;
 	}
 	
-	public double getBallEnergy()
+	public void calcBallEnergy()
 	{
 		if(getDesSpeed() > 0)
 		{
+			//Section to handle continuous averaging frame
+			if(shooterLoops < wheelValArray.length)
+			{
+				//Logic should be such that wheelValArray[0] should contain the oldest value recorded in the array, I think
+				wheelValArray[(wheelValArray.length - 1) - shooterLoops] = getActSpeed();
+			}
+			else
+			{
+				//This bit should move all previously recorded values up a step and make room for the next value to be averaged
+				for(int i = (wheelValArray.length - 2); i >= 0; i--)
+				{
+					wheelValArray[i] = wheelValArray[i + 1];
+				}
+				wheelValArray[wheelValArray.length - 1] = getActSpeed(); //Sets wheelValArray[4] to the newest recorded actual speed from the encoder
+			}
+			//Section to handle averaging for smoothing of function values
+			if(prevAverageWheelVal > averageWheelVal() && !peakMet) //Presumably a sign that a peak has been met, and the slope is on a decline
+			{
+				//Iterate through and set peak to highest value in the array
+				for(int i=0;i < wheelValArray.length;i++)
+				{
+					double a = wheelValArray[i];
+					if(peak >= a)
+					{
+						peak = a;
+					}
+				}
+				peakMet = true;
+			}
+			
+			//Same deal for trough
+			if(peakMet && !troughMet && prevAverageWheelVal < averageWheelVal())
+			{
+				for(int i=0;i < wheelValArray.length;i++)
+				{
+					double a = wheelValArray[i];
+					if(trough <= a)
+					{
+						trough = a;
+					}
+				}
+				troughMet = true;
+			}
+			
+			if(peakMet && troughMet)
+			{
+				
+			}
+			
+			prevAverageWheelVal = averageWheelVal();
+			shooterLoops++;
+		}
+		else
+		{
+			//Reset values!
+			shooterLoops = 0;
+			peak = 0;
+			trough = 0;
+			peakMet = false;
+			troughMet = false;
 			
 		}
-		return 0;
+	}
+	
+	//Section to handle averaging for smoothing of function values
+	public double averageWheelVal()
+	{
+		double averageVal = 0;
+		for(int i=0;i < wheelValArray.length;i++)
+		{
+			averageVal += wheelValArray[i];
+		}
+		return (averageVal / wheelValArray.length);
 	}
 	
 	/**
