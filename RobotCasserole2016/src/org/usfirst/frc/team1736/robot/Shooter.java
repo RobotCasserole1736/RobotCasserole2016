@@ -83,7 +83,7 @@ public class Shooter extends PIDSubsystem {
 				for(int i=0;i < wheelValArray.length;i++)
 				{
 					double a = wheelValArray[i];
-					if(peak >= a)
+					if(a >= peak)
 					{
 						peak = a;
 					}
@@ -97,7 +97,7 @@ public class Shooter extends PIDSubsystem {
 				for(int i=0;i < wheelValArray.length;i++)
 				{
 					double a = wheelValArray[i];
-					if(trough <= a)
+					if(a <= trough)
 					{
 						trough = a;
 					}
