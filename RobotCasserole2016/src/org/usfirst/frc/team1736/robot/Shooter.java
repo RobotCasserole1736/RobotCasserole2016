@@ -14,7 +14,7 @@ public class Shooter extends PIDSubsystem {
 	static double D = 0.00004; 
 	int SHOOTER_CHANNEL = 1; //CMG - confirmed 2/2/2016
 	
-	//Aaron's neat and very directly named variables
+	//Aaron's neat variables for ball velocity estimation
 	double[] wheelValArray = new double[20];
 	int shooterLoops = 0;
 	double prevAverageWheelVal = 0;
@@ -22,6 +22,8 @@ public class Shooter extends PIDSubsystem {
 	boolean troughMet = false;
 	double peak = 0;
 	double trough = 0;
+	double shooterMomentOfInertia = 1;
+	double massOfBoulder = 0.294835; //Andymark says ball is 0.65 pounds. This value is 0.65lbs converted to kg
 	
 	//Squish sensor cal
 	AnalogInput squishSensor;
@@ -57,7 +59,7 @@ public class Shooter extends PIDSubsystem {
 		wdog_ctr = 0;
 	}
 	
-	public void calcBallEnergy()
+	public double getEstBallVelocity()
 	{
 		if(getDesSpeed() > 0)
 		{
@@ -107,11 +109,18 @@ public class Shooter extends PIDSubsystem {
 			
 			if(peakMet && troughMet)
 			{
-				
+				//Calculations as per physics
+				double omega = Math.pow((peak/(2*Math.PI)), 2) - Math.pow((trough/(2*Math.PI)), 2);
+				double deltaKE_rot = shooterMomentOfInertia*omega/2;
+				double ballEstVelocity = Math.sqrt(2*deltaKE_rot/massOfBoulder);
+				return ballEstVelocity;
 			}
-			
-			prevAverageWheelVal = averageWheelVal();
-			shooterLoops++;
+			else 
+			{
+				prevAverageWheelVal = averageWheelVal();
+				shooterLoops++;
+				return 0;
+			}
 		}
 		else
 		{
@@ -121,6 +130,7 @@ public class Shooter extends PIDSubsystem {
 			trough = 0;
 			peakMet = false;
 			troughMet = false;
+			return 0;
 			
 		}
 	}
