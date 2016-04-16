@@ -309,6 +309,9 @@ public class Robot extends IterativeRobot {
 	//SDB Read counter in Disabled
 	int disabled_sbd_counter;
 	
+	//ball tune selector state
+	int ballmode;
+	
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	// PUBLIC METHODS 
     ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -443,9 +446,10 @@ public class Robot extends IterativeRobot {
     	//Keep SDB up to date even in disabled
     	updateSmartDashboard();
     	
-    	//keep polling auto mode from the driver station
+    	//keep polling auto & ball mode from the driver station
     	if(disabled_sbd_counter == 25){
     		autoMode = (int) autoChooser.getSelected();
+    		ballmode = (int) ballChooser.getSelected();
     		disabled_sbd_counter = 0;
     	}
     	else{
@@ -468,7 +472,7 @@ public class Robot extends IterativeRobot {
 
     	autoMode = (int) autoChooser.getSelected();
     	
-    	int ballmode = (int) ballChooser.getSelected();
+    	ballmode = (int) ballChooser.getSelected();
     	intakeLauncherSM.setBallType(ballmode, true);
     	
     	//reset encoders to 0
@@ -605,7 +609,7 @@ public class Robot extends IterativeRobot {
     	}
     	
     	// set the ball state
-    	int ballmode = (int) ballChooser.getSelected();
+    	ballmode = (int) ballChooser.getSelected();
     	intakeLauncherSM.setBallType(ballmode, false);
     	
     	//Estimate battery Parameters
