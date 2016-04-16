@@ -15,9 +15,6 @@ import edu.wpi.first.wpilibj.Timer;
  */
 public class IntakeLauncherStateMachine {
 	
-	//SmartDashboard Preferences
-	Preferences prefs = Preferences.getInstance();
-	
 	//State variables
 	public IntLncState curState;
 	private IntLncState nextState;
@@ -99,18 +96,10 @@ public class IntakeLauncherStateMachine {
 		stateTimer = new Timer();
 		encFailedTimer = new Timer();
 		
-		if(!prefs.containsKey("IntakeRetractSpeed"))
-			prefs.putDouble("IntakeRetractSpeed", INTAKE_RETRACT_SPEED_DEFAULTVAL);
-		INTAKE_RETRACT_SPEED = prefs.getDouble("IntakeRetractSpeed", INTAKE_RETRACT_SPEED_DEFAULTVAL);
-		if(!prefs.containsKey("IntakeMinRetractTimeMs"))
-			prefs.putDouble("IntakeMinRetractTimeMs", INTAKE_MIN_RETRACT_TIME_MS_DEFAULTVAL);
-		INTAKE_MIN_RETRACT_TIME_MS = prefs.getDouble("IntakeMinRetractTimeMs", INTAKE_MIN_RETRACT_TIME_MS_DEFAULTVAL);
-		if(!prefs.containsKey("IntakeMaxRetractTimeMs"))
-			prefs.putDouble("IntakeMaxRetractTimeMs", INTAKE_MAX_RETRACT_TIME_MS_DEFAULTVAL);
-		INTAKE_MAX_RETRACT_TIME_MS = prefs.getDouble("IntakeMaxRetractTimeMs", INTAKE_MAX_RETRACT_TIME_MS_DEFAULTVAL);
-		if(!prefs.containsKey("LaunchSpeedRPM"))
-			prefs.putDouble("LaunchSpeedRPM", LAUNCH_SPEED_RPM_DEFAULTVAL);
-		//LAUNCH_SPEED_RPM = prefs.getDouble("LaunchSpeedRPM", LAUNCH_SPEED_RPM_DEFAULTVAL);
+		//leave values at default
+		INTAKE_RETRACT_SPEED = INTAKE_RETRACT_SPEED_DEFAULTVAL;
+		INTAKE_MIN_RETRACT_TIME_MS = INTAKE_MIN_RETRACT_TIME_MS_DEFAULTVAL;
+		INTAKE_MAX_RETRACT_TIME_MS = INTAKE_MAX_RETRACT_TIME_MS_DEFAULTVAL;
 		LAUNCH_SPEED_RPM = LAUNCH_SPEED_RPM_DEFAULTVAL; 
 		
 		intakeEncoder = new Encoder(5, 6);
@@ -121,12 +110,6 @@ public class IntakeLauncherStateMachine {
 			              boolean prepToLaunchCmded, 
 			              boolean launchCmded, 
 			              boolean intakeOvdCmded){
-		
-		//Update SmartDashboard modifiable preferences
-		INTAKE_RETRACT_SPEED = prefs.getDouble("IntakeRetractSpeed", INTAKE_RETRACT_SPEED_DEFAULTVAL);
-		INTAKE_MIN_RETRACT_TIME_MS = prefs.getDouble("IntakeMinRetractTimeMs", INTAKE_MIN_RETRACT_TIME_MS_DEFAULTVAL);
-		INTAKE_MAX_RETRACT_TIME_MS = prefs.getDouble("IntakeMaxRetractTimeMs", INTAKE_MAX_RETRACT_TIME_MS_DEFAULTVAL);
-		//LAUNCH_SPEED_RPM = prefs.getDouble("LaunchSpeedRPM", LAUNCH_SPEED_RPM_DEFAULTVAL);
 		
 		//Step 0 - process inputs. Mostly these are arguments
 		dbncBallSensor();
