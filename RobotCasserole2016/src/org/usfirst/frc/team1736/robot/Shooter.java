@@ -130,8 +130,7 @@ public class Shooter extends PIDSubsystem {
 			trough = 0;
 			peakMet = false;
 			troughMet = false;
-			return 0;
-			
+			return 0;	
 		}
 	}
 	
