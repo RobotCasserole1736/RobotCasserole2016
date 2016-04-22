@@ -771,7 +771,8 @@ public class Robot extends IterativeRobot {
 										  autopp.pp_des_heading,
 										  autopp.angle_err_deg,
 										  launchMotor.wdog_ctr,
-										  wdog_timeout?1.0:0.0
+										  wdog_timeout?1.0:0.0,
+										  launchMotor.getEstBallVelocity()
 				    					 );
 	    	//Check for brownout. If browned out, force write data to log. Just in case we
 	    	//lose power and nasty things happen, at least we'll know how we died...

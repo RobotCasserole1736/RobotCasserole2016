@@ -20,14 +20,19 @@ public class Shooter extends PIDSubsystem {
 	double prevAverageWheelVal = 0;
 	boolean peakMet = false;
 	boolean troughMet = false;
+	boolean calculatedShotVel = false;
 	double peak = 0;
 	double trough = 0;
-	double shooterMomentOfInertia = 1;
+	double shooterMomentOfInertia = 0.004801512; //More to be calculated
+	//All parts modeled as if they are cylinders (I = m*(R^2)/2)
+	//Factored into Moment of Inertia:
+	//Wheel * 4: mass = 0.24kg: radius = 0.1 meters
+	//Axle: mass = 0.084kg: radius = 0.006 meters
 	double massOfBoulder = 0.294835; //Andymark says ball is 0.65 pounds. This value is 0.65lbs converted to kg
 	double ballEstVelocity = 0;
 	
 	//Squish sensor cal
-	AnalogInput squishSensor;
+	AnalogInput squishSensor;	
 	private static final int SQUISH_SENSOR_PORT = 0;
 	private double squishSensorZeroOffsetPoint = 0;
 	private double squishSensorOffsetGain = 0;
@@ -108,12 +113,13 @@ public class Shooter extends PIDSubsystem {
 				troughMet = true;
 			}
 			
-			if(peakMet && troughMet)
+			if(peakMet && troughMet && !calculatedShotVel)
 			{
 				//Calculations as per physics
 				double omega = Math.pow((peak*(Math.PI/30)), 2) - Math.pow((trough*(Math.PI/30)), 2); //omega calculation and conversion from rev/min to rad/sec
-				double deltaKE_rot = shooterMomentOfInertia*omega/4; //Additional division by 2 to account for energy lost in making ball rotate.
-				ballEstVelocity = Math.sqrt(2*deltaKE_rot/massOfBoulder);
+				double deltaKE_rot = shooterMomentOfInertia*omega*0.5; //Additional division by 2 to account for energy lost in making ball rotate.
+				ballEstVelocity = Math.sqrt(5*deltaKE_rot/massOfBoulder);
+				calculatedShotVel = true;
 				return ballEstVelocity; 
 			}
 			else 
@@ -132,6 +138,7 @@ public class Shooter extends PIDSubsystem {
 			peakMet = false;
 			troughMet = false;
 			ballEstVelocity = 0;
+			calculatedShotVel = false;
 			return ballEstVelocity;
 		}
 	}
