@@ -445,6 +445,8 @@ public class Robot extends IterativeRobot {
     	
     	//Keep SDB up to date even in disabled
     	updateSmartDashboard();
+    	SmartDashboard.putData("Ball Chooser", ballChooser);
+    	SmartDashboard.putData("Auto Mode Chooser", autoChooser);
     	
     	//keep polling auto & ball mode from the driver station
     	if(disabled_sbd_counter == 25){
@@ -480,8 +482,14 @@ public class Robot extends IterativeRobot {
 		driveTrain.rightEncoder.reset();
 		
 		//Reset gyro to forward
-		gyro.reset();
-
+		//be careful just in case the init fails
+		try{
+			gyro.reset();
+		} catch(Exception e){
+			//gyro is broken, don't try to use it.
+			gyro = null;
+		}
+		
     	//init the task timing things
     	prev_loop_start_timestamp = Timer.getFPGATimestamp();
     	loop_time_elapsed = 0;
@@ -634,7 +642,7 @@ public class Robot extends IterativeRobot {
     		else 
     		{
     			driverTurnMultiplier = 0.5;
-    			joy1.setRightRumble(0.5f);
+    			joy1.setRightRumble(1.0f);
     			
     		}    		
     	}
@@ -723,9 +731,6 @@ public class Robot extends IterativeRobot {
     	log_data();
     	updateSmartDashboard();
     	
-    	//Turn rumble off
-    	joy1.setRightRumble((float) Math.min(1, Math.abs(accel_RIO.getZ() - 1)));
-    	
     	//Execution time metric - this must be last! Even after memes!
     	loop_time_elapsed = Timer.getFPGATimestamp() - prev_loop_start_timestamp;
     }
@@ -805,9 +810,9 @@ public class Robot extends IterativeRobot {
 				    					 (joy2.StartButton()?1.0:0.0),
 				    					  Climber.tapemotor.get(),
 				    					  Climber.winchmotor1.get(),
-				    					 (Climber.tapeTriggerState?1.0:0.0),
-				    					  gyro.getAngle(),
-				    					  gyro.getRate(),
+				    					 (Climber.tapeTriggerState?1.0:0.0), 
+				    					 (gyro != null)?gyro.getAngle():0, //protect against non-existant gyro
+				    		             (gyro != null)?gyro.getRate():0,
 				    					  Pneumatics.getCurrent(),
 				    					  launchMotor.getCurrent(),
 				    					  launchMotor.getMotorCmd(),
@@ -916,7 +921,10 @@ public class Robot extends IterativeRobot {
     	SmartDashboard.putNumber("Avg Speed FTpS", Math.abs((driveTrain.getRightSpdFtPerSec() + driveTrain.getLeftSpdFtPerSec())/2.0));
     	SmartDashboard.putBoolean("Ball In CarryPos", intakeLauncherSM.ballSensorState);
     	SmartDashboard.putNumber("Selected Auto Mode", autoMode);
-    	SmartDashboard.putNumber("Measured Robot Pose Angle", Math.round(gyro.getAngle()) % 360);
+    	if(gyro != null)
+    	{
+    		SmartDashboard.putNumber("Measured Robot Pose Angle", Math.round(gyro.getAngle()) % 360);
+    	}
     	
     }
     

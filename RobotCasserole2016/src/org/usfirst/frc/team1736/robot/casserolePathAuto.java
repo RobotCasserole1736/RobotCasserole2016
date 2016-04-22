@@ -278,12 +278,18 @@ public class casserolePathAuto {
 
 			
 			if(invertSetpoints){ //high goal shot
-				angle_err_deg = (gyro.getAngle()*gyroFudgeFactor - path.heading[timestep][1]);
+				if(gyro != null)
+					angle_err_deg = (gyro.getAngle()*gyroFudgeFactor - path.heading[timestep][1]);
+				else
+					angle_err_deg = 0;
 				left_motor_vel = -1*(path.smoothLeftVelocity[timestep][1] + angle_err_deg*headingCorrectionPGain);
 				right_motor_vel = -1*(path.smoothRightVelocity[timestep][1] - angle_err_deg*headingCorrectionPGain);
 			}
 			else{
-				angle_err_deg = (gyro.getAngle()*gyroFudgeFactor - path.heading[timestep][1]);
+				if(gyro != null)
+					angle_err_deg = (gyro.getAngle()*gyroFudgeFactor - path.heading[timestep][1]);
+				else
+					angle_err_deg = 0;
 				left_motor_vel = path.smoothLeftVelocity[timestep][1] + angle_err_deg*headingCorrectionPGain;
 				right_motor_vel = path.smoothRightVelocity[timestep][1] - angle_err_deg*headingCorrectionPGain;
 			}
