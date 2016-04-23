@@ -168,7 +168,8 @@ public class Robot extends IterativeRobot {
             "PdbUnused8Current",
             "PdbUnused9Current",
             "PdbUnsued10Current",
-            "EncoderValue"
+            "EncoderValue",
+            "LaunchMotorEstBallVel"
             };
 			
     static final String[] units_fields = {"sec", //TIME must always be in sec
@@ -253,7 +254,8 @@ public class Robot extends IterativeRobot {
            "A",
            "A",
            "A",
-           "count"
+           "count",
+           "m/s"
            };
 		
 	///////////////////////////////////////////////////////////////////////////////////////////////
@@ -847,6 +849,7 @@ public class Robot extends IterativeRobot {
 										  pdp.getCurrent(UNUSED_9),
 										  pdp.getCurrent(UNUSED_10),
 										  intakeLauncherSM.getEncoderValue()
+										  launchMotor.getEstBallVelocity()
 				    					 );
 	    	//Check for brownout. If browned out, force write data to log. Just in case we
 	    	//lose power and nasty things happen, at least we'll know how we died...
