@@ -118,7 +118,7 @@ public class Shooter extends PIDSubsystem {
 				//Calculations as per physics
 				double omega = Math.pow((peak*(Math.PI/30)), 2) - Math.pow((trough*(Math.PI/30)), 2); //omega calculation and conversion from rev/min to rad/sec
 				double deltaKE_rot = shooterMomentOfInertia*omega*0.5; //Additional division by 2 to account for energy lost in making ball rotate.
-				ballEstVelocity = Math.sqrt(5*deltaKE_rot/massOfBoulder);
+				ballEstVelocity = Math.sqrt((10*deltaKE_rot)/(7*massOfBoulder)); //Fixed calculation woo
 				calculatedShotVel = true;
 				return ballEstVelocity; 
 			}
