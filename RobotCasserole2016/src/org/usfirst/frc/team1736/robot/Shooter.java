@@ -15,7 +15,7 @@ public class Shooter extends PIDSubsystem {
 	int SHOOTER_CHANNEL = 1; //CMG - confirmed 2/2/2016
 	
 	//Aaron's neat variables for ball velocity estimation
-	double[] wheelValArray = new double[20];
+	double[] wheelValArray = new double[5];
 	int shooterLoops = 0;
 	double prevAverageWheelVal = 0;
 	boolean peakMet = false;
