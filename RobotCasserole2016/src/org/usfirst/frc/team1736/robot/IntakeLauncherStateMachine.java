@@ -21,28 +21,21 @@ public class IntakeLauncherStateMachine {
 	
 	//Public Outputs - read these to set motor values
 	public double shooterCmd_RPM;
-	public double intakeCmd;
 	public boolean launchEncoderFailed;
 	
 	//Tune Params
 	private static final IntLncState initState = IntLncState.STOPPED_NO_BALL;
-	public static final double INTAKE_IN_SPEED = 1.0;
-	public static final double INTAKE_EJECT_SPEED = -1.0;
-	public static double INTAKE_RETRACT_SPEED;
-	public static final double INTAKE_RETRACT_SPEED_DEFAULTVAL = -0.4;
-	public static double INTAKE_MIN_RETRACT_TIME_MS;
-	public static final double INTAKE_MIN_RETRACT_TIME_MS_DEFAULTVAL = 400;
-	public static double INTAKE_MAX_RETRACT_TIME_MS;
-	public static final double INTAKE_MAX_RETRACT_TIME_MS_DEFAULTVAL = 900;
 	public static double LAUNCH_SPEED_RPM;
 	public static final double LAUNCH_SPEED_RPM_DEFAULTVAL = 4050;
 	public static final double LAUNCH_SPEED_RPM_AUTO_DEFAULTVAL = 4050;
 	public static final double LAUNCH_SPEED_RPM_NEWBALL = 4175;
 	public static final double LAUNCH_SPEED_RPM_AUTO_NEWBALL = 4175;
-	public static final double INTAKE_LAUNCH_FEED_SPEED = 0.8;
 	public static final double LAUNCH_SPEED_ERR_LMT_RPM = 200;
 	public static final double MIN_LAUNCH_TIME_THRESH_MS = 1500;
 	public static final double SPOOLDOWN_THRESH_RPM = 100;
+	
+	public static final double INTAKE_RETRACT_TIMEOUT_MS = 5000; //retract cannot take longer than this many ms.
+	public static final double INTAKE_ERR_LIMIT_DEG = 10; //retract until we are within this many degrees of setpoint.
 	
 	public static final double LAUNCH_MOTOR_I_MIN_THRESH_A = 5;
 	public static final double LAUNCH_MOTOR_I_MAX_THRESH_A = 20;
@@ -55,24 +48,20 @@ public class IntakeLauncherStateMachine {
 	public boolean ballSensorState;
 	public final int BALL_SENSOR_RISING_DBNC_LOOPS = 25;
 	public final int BALL_SENSOR_FALLING_DBNC_LOOPS = 60;
-	
-	//intake motor
-	Talon intake;
-	
+
 	//launch motor object & diagnostics - from outside
 	Shooter shooter;
     MotorDiagnostic shooterDiagnostics;
 	
 	//IDs
-	final static int intake_ID = 5;
 	final static int ballSensor_ID = 4;
 	
 	//State Transition Timers
 	Timer stateTimer;
 	Timer encFailedTimer;
-	
-	//Encoder
-	Encoder intakeEncoder;
+
+	//Closed-loop control intake mechanism
+	ClosedLoopIntake intake;
 	
 	
 	
@@ -81,7 +70,7 @@ public class IntakeLauncherStateMachine {
 		curState = initState;
 		launchEncoderFailed = false;
 		
-		intake = new Talon(intake_ID);
+		intake = new ClosedLoopIntake();
 		ballSensor = new DigitalInput(ballSensor_ID);
 		
 		sensorOnDebounce = new DaBouncer();
@@ -97,12 +86,8 @@ public class IntakeLauncherStateMachine {
 		encFailedTimer = new Timer();
 		
 		//leave values at default
-		INTAKE_RETRACT_SPEED = INTAKE_RETRACT_SPEED_DEFAULTVAL;
-		INTAKE_MIN_RETRACT_TIME_MS = INTAKE_MIN_RETRACT_TIME_MS_DEFAULTVAL;
-		INTAKE_MAX_RETRACT_TIME_MS = INTAKE_MAX_RETRACT_TIME_MS_DEFAULTVAL;
 		LAUNCH_SPEED_RPM = LAUNCH_SPEED_RPM_DEFAULTVAL; 
-		
-		intakeEncoder = new Encoder(5, 6);
+
 	}
 	
 	void periodicStateMach(boolean intakeCmded, 
@@ -175,9 +160,9 @@ public class IntakeLauncherStateMachine {
 				
 				break;
 			case RETRACT:
-				//Retract for at least min and at most max retract time
-				//But stop retracting if the ball sensor state goes low between min and max times
-				if((stateTimer.get()*1000 >= INTAKE_MIN_RETRACT_TIME_MS && !ballSensorState) || stateTimer.get()*1000 >= INTAKE_MAX_RETRACT_TIME_MS){
+				//Retract using closed loop mechanism
+				//Transition when error is below limit or timeout is hit
+				if(stateTimer.get()*1000 > INTAKE_RETRACT_TIMEOUT_MS || Math.abs(intake.getPIDController().getError()) < INTAKE_ERR_LIMIT_DEG){
 					nextState = IntLncState.WAIT_FOR_SPOOLUP;
 					stateTimer.stop();
 					encFailedTimer.reset(); //start up the timer to ensure encoder hasn't failed.
@@ -235,57 +220,57 @@ public class IntakeLauncherStateMachine {
 		switch(curState){
 		case STOPPED_NO_BALL:
 			shooterCmd_RPM = 0;
-			intakeCmd = 0;
+
 			
 			break;
 		case INTAKE:
 			shooterCmd_RPM = 0;
-			intakeCmd = INTAKE_IN_SPEED;
+
 			
 			break;
 		case EJECT:
 			shooterCmd_RPM = 0;
-			intakeCmd = INTAKE_EJECT_SPEED;
+			
 			
 			break;
 		case INTAKE_OVD:
 			shooterCmd_RPM = 0;
-			intakeCmd = INTAKE_IN_SPEED;
+
 			
 			break;
 		case CARRY_BALL:
 			shooterCmd_RPM = 0;
-			intakeCmd = 0;
+
 			
 			break;
 		case CARRY_BALL_OVD:
 			shooterCmd_RPM = 0;
-			intakeCmd = 0;
+
 			
 			break;
 		case RETRACT:
 			shooterCmd_RPM = 0;
-			intakeCmd = INTAKE_RETRACT_SPEED;
+
 			
 			break;
 		case WAIT_FOR_SPOOLUP:
 			shooterCmd_RPM = LAUNCH_SPEED_RPM;
-			intakeCmd = 0;
+
 			
 			break;
 		case WAIT_FOR_LAUNCH:
 			shooterCmd_RPM = LAUNCH_SPEED_RPM;
-			intakeCmd = 0;
+
 			
 			break;
 		case LAUNCH:
 			shooterCmd_RPM = LAUNCH_SPEED_RPM;
-			intakeCmd = INTAKE_LAUNCH_FEED_SPEED;
+
 			
 			break;
 		case WAIT_FOR_SPOOLDOWN:
 			shooterCmd_RPM = 0;
-			intakeCmd = 0;
+
 			
 			break;
 		default:
@@ -294,13 +279,15 @@ public class IntakeLauncherStateMachine {
 		}
 		
 		
-		//STEP 3 - Prep for Next Loop
+		//STEP 3 - Prep for Next Loop	
+		//Update the closed-loop intake state
+		//Intake runs in its own thread, so no need to do anything except give it the new state
+		intake.next_state = nextState;
+		
 		//make the next-state the current state
 		curState = nextState;
 		
 		//Set 4 - Set Outputs
-		// intake motor
-		intake.set(intakeCmd);
 		
     	// launch motor,but override to zero if stall detected.
     	shooterDiagnostics.eval(shooter.getActSpeed(), shooter.getCurrent(), shooter.getMotorCmd());
