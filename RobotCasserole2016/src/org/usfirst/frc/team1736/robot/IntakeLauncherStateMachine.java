@@ -344,7 +344,7 @@ public class IntakeLauncherStateMachine {
 			LAUNCH_SPEED_RPM= LAUNCH_SPEED_RPM_NEWBALL;
 	}
 	
-	public int getEncoderValue() {
-		return intakeEncoder.get();
+	public double getEncoderValue() {
+		return intake.intake_encoder.getDistance();
 	}
 }

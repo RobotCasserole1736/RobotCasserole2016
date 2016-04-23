@@ -150,6 +150,8 @@ public class Robot extends IterativeRobot {
             "SquishSensorReading",
             "AutonomousStep",
             "ShooterMotorStalled",
+            "IntakeActualAngle",
+            "IntakeDesiredAngle",
             "IntakeMotorCmd",
             "AudioInVoltage",
             "BallInCarry",
@@ -236,6 +238,8 @@ public class Robot extends IterativeRobot {
            "val",
            "val",
            "bit",
+           "deg",
+           "deg",
            "cmd",
            "V",
            "bit",
@@ -830,7 +834,9 @@ public class Robot extends IterativeRobot {
     									  launchMotor.getSquishSensorVal(),
     									  currentStep,
     									  intakeLauncherSM.shooterDiagnostics.motorStalled?1.0:0.0,
-										  intakeLauncherSM.intake.get(),
+										  intakeLauncherSM.intake.intake_encoder.getDistance(),
+										  intakeLauncherSM.intake.getSetpoint(),
+										  intakeLauncherSM.intake.intake_motor.get(),
 										  leds.ledStrips.audioIn.getVoltage(),
 										  intakeLauncherSM.ballSensorState?1.0:0.0,
 										  intakeLauncherSM.curState.ordinal(),
@@ -848,7 +854,7 @@ public class Robot extends IterativeRobot {
 										  pdp.getCurrent(UNUSED_8),
 										  pdp.getCurrent(UNUSED_9),
 										  pdp.getCurrent(UNUSED_10),
-										  intakeLauncherSM.getEncoderValue()
+										  intakeLauncherSM.getEncoderValue(),
 										  launchMotor.getEstBallVelocity()
 				    					 );
 	    	//Check for brownout. If browned out, force write data to log. Just in case we
