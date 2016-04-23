@@ -23,11 +23,11 @@ public class Shooter extends PIDSubsystem {
 	boolean calculatedShotVel = false;
 	double peak = 0;
 	double trough = 0;
-	double shooterMomentOfInertia = 0.004801512; //More to be calculated
-	//All parts modeled as if they are cylinders (I = m*(R^2)/2)
-	//Factored into Moment of Inertia:
-	//Wheel * 4: mass = 0.24kg: radius = 0.1 meters
-	//Axle: mass = 0.084kg: radius = 0.006 meters
+	double shooterMomentOfInertia = 0.004801512; //More to be calculated..?
+		//All parts modeled as if they are cylinders (I = m*(R^2)/2)
+		//Factored into Moment of Inertia:
+		//Wheel * 4: mass = 0.24kg: radius = 0.1 meters
+		//Axle: mass = 0.084kg: radius = 0.006 meters
 	double massOfBoulder = 0.294835; //Andymark says ball is 0.65 pounds. This value is 0.65lbs converted to kg
 	double ballEstVelocity = 0;
 	
