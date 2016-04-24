@@ -81,9 +81,14 @@ public class casserolePathAuto {
 	//End-of-path event variables
 	boolean shootHighGoal = false;
 	boolean shootLowGoal = false;
+	boolean shootHighAndRetreat = false;
 	edu.wpi.first.wpilibj.Timer shotTimer;
 	final double HIGH_GOAL_SHOT_TIME_S = 3.0;
 	final double LOW_GOAL_SHOT_TIME_S = 4.0;
+	
+	boolean shooterSpeedTroughHit = false;
+	boolean shooterSpeedFirstPeakHit = false;
+	boolean shooterSpeedSecondPeakHit = false;
 	
 	//State variables exposed to the outside
 	public double angle_err_deg;
@@ -118,6 +123,7 @@ public class casserolePathAuto {
 			path.calculate(totalPathPlannerTime_apchDfns, PLANNER_SAMPLE_RATE_S, ROBOT_TRACK_WIDTH_FT);
 			invertSetpoints = false;
 			shootHighGoal = false;
+			shootHighAndRetreat = false;
 			shootLowGoal = false;
 			cycleIntakeArm = false;
 			headingCorrectionPGain = 0.0;
@@ -128,6 +134,7 @@ public class casserolePathAuto {
 			path.calculate(totalPathPlannerTime_crsLwBr, PLANNER_SAMPLE_RATE_S, ROBOT_TRACK_WIDTH_FT);
 			invertSetpoints = false;
 			shootHighGoal = false;
+			shootHighAndRetreat = false;
 			shootLowGoal = false;
 			cycleIntakeArm = false;
 			headingCorrectionPGain = 0.0;
@@ -142,6 +149,7 @@ public class casserolePathAuto {
 			path.calculate(totalPathPlannerTime_crossShootLow, PLANNER_SAMPLE_RATE_S, ROBOT_TRACK_WIDTH_FT);
 			invertSetpoints = false;
 			shootHighGoal = false;
+			shootHighAndRetreat = false;
 			shootLowGoal = true;
 			cycleIntakeArm = true;
 			headingCorrectionPGain = 0.0;
@@ -156,6 +164,7 @@ public class casserolePathAuto {
 			path.calculate(totalPathPlannerTime_crossShootHigh, PLANNER_SAMPLE_RATE_S, ROBOT_TRACK_WIDTH_FT);
 			invertSetpoints = true;
 			shootHighGoal = true;
+			shootHighAndRetreat = false;
 			shootLowGoal = false;
 			cycleIntakeArm = true;
 			headingCorrectionPGain = 0.0;
@@ -169,7 +178,8 @@ public class casserolePathAuto {
 			path.setVelocityBeta(0.8);
 			path.calculate(totalPathPlannerTime_HighGoalGyro, PLANNER_SAMPLE_RATE_S, ROBOT_TRACK_WIDTH_FT);
 			invertSetpoints = true;
-			shootHighGoal = true; 
+			shootHighGoal = false; 
+			shootHighAndRetreat = true;
 			shootLowGoal = false;
 			cycleIntakeArm = true; 
 			headingCorrectionPGain = 0.14; 
@@ -237,15 +247,19 @@ public class casserolePathAuto {
 		if(timestep >= path.numFinalPoints){
 			if(timestep == path.numFinalPoints){
 				shotTimer.start(); //only does something on the first call - make sure the shot timer is in fact running. Assumes it was reset at the start of path-planner auto
+				shooterSpeedTroughHit = false; //reset retreat state variables
+				shooterSpeedFirstPeakHit = false;
+				shooterSpeedSecondPeakHit = false;
+				
 			}
-			motors.lmpid.setSetpoint(0); //zero out motor controllers
-			motors.rmpid.setSetpoint(0);
 			if(shootHighGoal){ //high-goal end shot
 				if(shotTimer.get() > HIGH_GOAL_SHOT_TIME_S){
 					stopPlayback();
 				} 
 				else {
 					System.out.println("Commanding High-Goal Shot, " + (HIGH_GOAL_SHOT_TIME_S-shotTimer.get()) + " s remaining.");
+					motors.lmpid.setSetpoint(0); //zero out motor controllers
+					motors.rmpid.setSetpoint(0);
 					ilsm.periodicStateMach(false, false, false, true, false); //command high-goal shot
 				}
 			}
@@ -255,8 +269,49 @@ public class casserolePathAuto {
 				} 
 				else {
 					System.out.println("Commanding Low-Goal Shot, " + (LOW_GOAL_SHOT_TIME_S-shotTimer.get()) + " s remaining.");
+					motors.lmpid.setSetpoint(0); //zero out motor controllers
+					motors.rmpid.setSetpoint(0);
 					ilsm.periodicStateMach(false, true, false, false, false); //command low-goal shot (eject)
 				}
+			}
+			else if (shootHighAndRetreat){
+				
+				if(shooterSpeedSecondPeakHit == true && timestep < path.numFinalPoints){ //we've been through a full shot, RETREAT!
+					double left_motor_vel;
+					double right_motor_vel;
+
+					//run planner path inverted.
+					left_motor_vel = (path.smoothLeftVelocity[(int) (path.numFinalPoints - timestep)][1])*2; //go back at double speed, just cuz.
+					right_motor_vel = (path.smoothRightVelocity[(int) (path.numFinalPoints - timestep)][1])*2; //thinking about this, it might cause us to cross midline in auto? hopefully not. software can be scary sometimes.
+					//command the motors
+					motors.lmpid.setSetpoint(left_motor_vel);
+					motors.rmpid.setSetpoint(right_motor_vel);
+				} 
+				else if (shooterSpeedSecondPeakHit == false) {
+					System.out.println("Commanding High-Goal Shot, " + (HIGH_GOAL_SHOT_TIME_S-shotTimer.get()) + " s remaining.");
+					motors.lmpid.setSetpoint(0); //zero out motor controllers
+					motors.rmpid.setSetpoint(0);
+					ilsm.periodicStateMach(false, false, false, true, false); //command high-goal shot
+					
+					//logic to detect shot occurring. build up peak-trough-peak pattern
+					if(ilsm.shooter.getActSpeed() > IntakeLauncherStateMachine.LAUNCH_SPEED_RPM - 200 && shooterSpeedFirstPeakHit == false){
+						shooterSpeedFirstPeakHit = true;
+					}
+					if(ilsm.shooter.getActSpeed() < IntakeLauncherStateMachine.LAUNCH_SPEED_RPM - 500 && shooterSpeedFirstPeakHit == true && shooterSpeedTroughHit == false){
+						shooterSpeedTroughHit = true;
+					}
+					if(ilsm.shooter.getActSpeed() > IntakeLauncherStateMachine.LAUNCH_SPEED_RPM  - 200 && shooterSpeedFirstPeakHit == true && shooterSpeedTroughHit == true && shooterSpeedSecondPeakHit == false){
+						shooterSpeedSecondPeakHit = true;
+						//no shot
+						ilsm.periodicStateMach(false, false, false, false, false);
+						timestep = 0; //reset timestep
+					}
+				}
+				else{
+					//no idea how we'd get this far, the retreat takes so long. No matter. If we get here, just stop and wait for teleop to start.
+					stopPlayback(); 
+				}
+				
 			}
 			else{ //no end shot
 				stopPlayback(); 
