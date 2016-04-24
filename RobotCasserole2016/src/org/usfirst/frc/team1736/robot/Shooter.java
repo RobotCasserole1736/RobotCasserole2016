@@ -15,7 +15,7 @@ public class Shooter extends PIDSubsystem {
 	int SHOOTER_CHANNEL = 1; //CMG - confirmed 2/2/2016
 	
 	//Aaron's neat variables for ball velocity estimation
-	double[] wheelValArray = new double[20];
+	double[] wheelValArray = new double[5];
 	int shooterLoops = 0;
 	double prevAverageWheelVal = 0;
 	boolean peakMet = false;
@@ -23,11 +23,11 @@ public class Shooter extends PIDSubsystem {
 	boolean calculatedShotVel = false;
 	double peak = 0;
 	double trough = 0;
-	double shooterMomentOfInertia = 0.004801512; //More to be calculated
-	//All parts modeled as if they are cylinders (I = m*(R^2)/2)
-	//Factored into Moment of Inertia:
-	//Wheel * 4: mass = 0.24kg: radius = 0.1 meters
-	//Axle: mass = 0.084kg: radius = 0.006 meters
+	double shooterMomentOfInertia = 0.004801512; //More to be calculated..?
+		//All parts modeled as if they are cylinders (I = m*(R^2)/2)
+		//Factored into Moment of Inertia:
+		//Wheel * 4: mass = 0.24kg: radius = 0.1 meters
+		//Axle: mass = 0.084kg: radius = 0.006 meters
 	double massOfBoulder = 0.294835; //Andymark says ball is 0.65 pounds. This value is 0.65lbs converted to kg
 	double ballEstVelocity = 0;
 	
@@ -118,7 +118,7 @@ public class Shooter extends PIDSubsystem {
 				//Calculations as per physics
 				double omega = Math.pow((peak*(Math.PI/30)), 2) - Math.pow((trough*(Math.PI/30)), 2); //omega calculation and conversion from rev/min to rad/sec
 				double deltaKE_rot = shooterMomentOfInertia*omega*0.5; //Additional division by 2 to account for energy lost in making ball rotate.
-				ballEstVelocity = Math.sqrt(5*deltaKE_rot/massOfBoulder);
+				ballEstVelocity = Math.sqrt((10*deltaKE_rot)/(7*massOfBoulder)); //Fixed calculation woo
 				calculatedShotVel = true;
 				return ballEstVelocity; 
 			}
