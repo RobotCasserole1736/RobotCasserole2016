@@ -1,5 +1,12 @@
 <xml version="1.0">
 <dashboard>
+	<widget field="Intake Encoder Count" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.FormattedField">
+		<location x="7" y="483"/>
+		<width>215</width>
+		<height>46</height>
+		<property name="Foreground" value="153.0.102.255"/>
+		<property name="Font Size" value="25"/>
+	</widget>
 	<static-widget class="edu.wpi.first.smartdashboard.gui.elements.Label">
 		<location x="1126" y="551"/>
 		<property name="Text" value="Ball Selector"/>
