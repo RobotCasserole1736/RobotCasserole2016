@@ -101,7 +101,7 @@ public class IntakeLauncherStateMachine {
 		INTAKE_MAX_RETRACT_TIME_MS = INTAKE_MAX_RETRACT_TIME_MS_DEFAULTVAL;
 		LAUNCH_SPEED_RPM = LAUNCH_SPEED_RPM_DEFAULTVAL; 
 		
-		intakeEncoder = new Encoder(5, 6);
+		intakeEncoder = new Encoder(6, 7);
 	}
 	
 	void periodicStateMach(boolean intakeCmded, 
