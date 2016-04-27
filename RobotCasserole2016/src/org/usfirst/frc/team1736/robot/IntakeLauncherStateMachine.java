@@ -28,7 +28,7 @@ public class IntakeLauncherStateMachine {
 	public static final double INTAKE_IN_SPEED = 1.0;
 	public static final double INTAKE_EJECT_SPEED = -1.0;
 	public static double INTAKE_RETRACT_SPEED;
-	public static final double INTAKE_RETRACT_SPEED_DEFAULTVAL = -0.4;
+	public static final double INTAKE_RETRACT_SPEED_DEFAULTVAL = -0.45;
 	public static double INTAKE_MIN_RETRACT_TIME_MS;
 	public static final double INTAKE_MIN_RETRACT_TIME_MS_DEFAULTVAL = 400;
 	public static double INTAKE_MAX_RETRACT_TIME_MS;
