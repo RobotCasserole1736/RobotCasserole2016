@@ -8,7 +8,15 @@
 		<location x="0" y="474"/>
 		<width>145</width>
 		<height>29</height>
-	</widget>
+	</widget>	<static-widget class="edu.wpi.first.smartdashboard.gui.elements.MJPGStreamerViewerExtension">
+		<location x="396" y="10"/>
+		<width>656</width>
+		<height>538</height>
+		<property name="Degrees Rotation" value="180"/>
+		<property name="Crosshair X" value="285"/>
+		<property name="Crosshair Y" value="142"/>
+		<property name="Crosshair size" value="4"/>
+	</static-widget>
 	<widget field="Measured Robot Pose Angle" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.FormattedField">
 		<location x="157" y="441"/>
 		<width>206</width>
