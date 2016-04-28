@@ -161,7 +161,7 @@ public class IntakeLauncherStateMachine {
 			case RETRACT:
 				//Retract using closed loop mechanism
 				//Transition when error is below limit or timeout is hit
-				if(stateTimer.get()*1000 > INTAKE_RETRACT_TIMEOUT_MS || Math.abs(intake.getPIDController().getError()) < INTAKE_ERR_LIMIT_DEG){
+				if(stateTimer.get()*1000 > INTAKE_RETRACT_TIMEOUT_MS || (Math.abs(intake.getPIDController().getError() < INTAKE_ERR_LIMIT_DEG && Math.abs(intake.getPIDController().getError()) ){
 					nextState = IntLncState.WAIT_FOR_SPOOLUP;
 					stateTimer.stop();
 					encFailedTimer.reset(); //start up the timer to ensure encoder hasn't failed.
