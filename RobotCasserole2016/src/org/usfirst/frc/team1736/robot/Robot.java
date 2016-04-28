@@ -647,7 +647,7 @@ public class Robot extends IterativeRobot {
     		}
     		else 
     		{
-    			driverTurnMultiplier = 0.5;
+    			driverTurnMultiplier = 0.75;
     			joy1.setRightRumble(1.0f);
     			
     		}    		
