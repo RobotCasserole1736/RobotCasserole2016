@@ -21,7 +21,7 @@
 		<width>656</width>
 		<height>538</height>
 		<property name="Degrees Rotation" value="180"/>
-		<property name="Crosshair X" value="285"/>
+		<property name="Crosshair X" value="295"/>
 		<property name="Crosshair Y" value="142"/>
 		<property name="Crosshair size" value="4"/>
 	</static-widget>
