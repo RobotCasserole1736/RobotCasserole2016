@@ -1,11 +1,10 @@
 <xml version="1.0">
 <dashboard>
-	<widget field="Intake Encoder Count" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.FormattedField">
-		<location x="7" y="483"/>
-		<width>215</width>
-		<height>46</height>
-		<property name="Foreground" value="153.0.102.255"/>
-		<property name="Font Size" value="25"/>
+	<widget field="Intake Angle Desired Pos" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="29" y="501"/>
+	</widget>
+	<widget field="Intake Angle Actual  Pos" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="34" y="473"/>
 	</widget>
 	<static-widget class="edu.wpi.first.smartdashboard.gui.elements.Label">
 		<location x="1126" y="551"/>
@@ -143,4 +142,5 @@
 </dashboard>
 <live-window>
 </live-window>
+	<hidden field="Intake Encoder Count"/>
 </xml>
