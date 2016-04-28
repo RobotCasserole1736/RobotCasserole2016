@@ -34,6 +34,7 @@ public class IntakeLauncherStateMachine {
 	public static final double SPOOLDOWN_THRESH_RPM = 100;
 	
 	public static final double INTAKE_RETRACT_TIMEOUT_MS = 5000; //retract cannot take longer than this many ms.
+	public static final double INTAKE_RETRACT_MIN_TIME_MS = 250; //retract must take at least this many milliseconds. hack to help prevent one-loop issues.
 	public static final double INTAKE_ERR_LIMIT_DEG = 10; //retract until we are within this many degrees of setpoint.
 	
 	public static final double LAUNCH_MOTOR_I_MIN_THRESH_A = 5;
@@ -160,8 +161,9 @@ public class IntakeLauncherStateMachine {
 				break;
 			case RETRACT:
 				//Retract using closed loop mechanism
+				//After minimum time is reached,
 				//Transition when error is below limit or timeout is hit
-				if(stateTimer.get()*1000 > INTAKE_RETRACT_TIMEOUT_MS || (Math.abs(intake.getPIDController().getError() < INTAKE_ERR_LIMIT_DEG && Math.abs(intake.getPIDController().getError()) ){
+				if(stateTimer.get()*1000 > INTAKE_RETRACT_TIMEOUT_MS || ((Math.abs(intake.getPIDController().getError()) < INTAKE_ERR_LIMIT_DEG) && (stateTimer.get()*1000 > INTAKE_RETRACT_MIN_TIME_MS))){
 					nextState = IntLncState.WAIT_FOR_SPOOLUP;
 					stateTimer.stop();
 					encFailedTimer.reset(); //start up the timer to ensure encoder hasn't failed.
