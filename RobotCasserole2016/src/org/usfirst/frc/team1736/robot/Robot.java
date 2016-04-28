@@ -930,6 +930,8 @@ public class Robot extends IterativeRobot {
     	SmartDashboard.putNumber("Avg Speed FTpS", Math.abs((driveTrain.getRightSpdFtPerSec() + driveTrain.getLeftSpdFtPerSec())/2.0));
     	SmartDashboard.putBoolean("Ball In CarryPos", intakeLauncherSM.ballSensorState);
     	SmartDashboard.putNumber("Selected Auto Mode", autoMode);
+    	SmartDashboard.putNumber("Intake Angle Actual  Pos", intakeLauncherSM.intake.getPosition());
+    	SmartDashboard.putNumber("Intake Angle Desired Pos", intakeLauncherSM.intake.getSetpoint());
     	if(gyro != null)
     	{
     		SmartDashboard.putNumber("Measured Robot Pose Angle", Math.round(gyro.getAngle()) % 360);
