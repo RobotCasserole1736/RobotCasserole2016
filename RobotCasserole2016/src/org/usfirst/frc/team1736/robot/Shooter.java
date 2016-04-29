@@ -15,21 +15,21 @@ public class Shooter extends PIDSubsystem {
 	int SHOOTER_CHANNEL = 1; //CMG - confirmed 2/2/2016
 	
 	//Aaron's neat variables for ball velocity estimation
-	double[] wheelValArray = new double[5];
-	int shooterLoops = 0;
-	double prevAverageWheelVal = 0;
-	boolean peakMet = false;
-	boolean troughMet = false;
-	boolean calculatedShotVel = false;
-	double peak = 0;
-	double trough = 0;
-	double shooterMomentOfInertia = 0.004801512; //More to be calculated..?
+	private double[] wheelValArray = new double[5];
+	private int shooterLoops = 0;
+	private double prevAverageWheelVal = 0;
+	private boolean peakMet = false;
+	private boolean troughMet = false;
+	private boolean calculatedShotVel = false;
+	private double peak = 0;
+	private double trough = 0;
+	private double shooterMomentOfInertia = 0.004801512; //More to be calculated..?
 		//All parts modeled as if they are cylinders (I = m*(R^2)/2)
 		//Factored into Moment of Inertia:
 		//Wheel * 4: mass = 0.24kg: radius = 0.1 meters
 		//Axle: mass = 0.084kg: radius = 0.006 meters
-	double massOfBoulder = 0.294835; //Andymark says ball is 0.65 pounds. This value is 0.65lbs converted to kg
-	double ballEstVelocity = 0;
+	private double massOfBoulder = 0.294835; //Andymark says ball is 0.65 pounds. This value is 0.65lbs converted to kg
+	private double ballEstVelocity = 0;
 	
 	//Squish sensor cal
 	AnalogInput squishSensor;	
@@ -152,6 +152,16 @@ public class Shooter extends PIDSubsystem {
 			averageVal += wheelValArray[i];
 		}
 		return (averageVal / wheelValArray.length);
+	}
+	
+	public double getPeak()
+	{
+		return peak*(Math.PI/30); //Rad per sec
+	}
+	
+	public double getTrough()
+	{
+		return trough*(Math.PI/30); //Rad per sec
 	}
 	
 	/**
