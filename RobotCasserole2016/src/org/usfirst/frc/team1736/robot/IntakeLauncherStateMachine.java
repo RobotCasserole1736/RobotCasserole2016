@@ -35,7 +35,7 @@ public class IntakeLauncherStateMachine {
 	
 	public static final double INTAKE_RETRACT_TIMEOUT_MS = 5000; //retract cannot take longer than this many ms.
 	public static final double INTAKE_RETRACT_MIN_TIME_MS = 250; //retract must take at least this many milliseconds. hack to help prevent one-loop issues.
-	public static final double INTAKE_ERR_LIMIT_DEG = 10; //retract until we are within this many degrees of setpoint.
+	public static final double INTAKE_ERR_LIMIT_DEG = 45; //retract until we are within this many degrees of setpoint.
 	
 	public static final double LAUNCH_MOTOR_I_MIN_THRESH_A = 5;
 	public static final double LAUNCH_MOTOR_I_MAX_THRESH_A = 20;

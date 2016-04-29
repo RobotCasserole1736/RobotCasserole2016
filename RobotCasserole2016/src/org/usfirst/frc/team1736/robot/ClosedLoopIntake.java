@@ -59,7 +59,7 @@ public class ClosedLoopIntake extends PIDSubsystem {
 			intake_motor.set(INTAKE_LAUNCH_FEED_SPEED);
 			this.setSetpoint(intake_encoder.getRaw()*ENCODER_DEG_PER_TICK);
 		}
-		else if(next_state == IntLncState.RETRACT){
+		else if(next_state == IntLncState.RETRACT || next_state == IntLncState.WAIT_FOR_SPOOLUP){ //Run PID while retracting or while waiting for shooter
 			if(present_state != IntLncState.RETRACT){
 				this.setSetpoint(intake_encoder.getRaw()*ENCODER_DEG_PER_TICK + RETRACT_DEGREES);
 			}
