@@ -156,12 +156,12 @@ public class Shooter extends PIDSubsystem {
 	
 	public double getPeak()
 	{
-		return peak*(Math.PI/30); //Rad per sec
+		return peak; //RPM
 	}
 	
 	public double getTrough()
 	{
-		return trough*(Math.PI/30); //Rad per sec
+		return trough; //RPM
 	}
 	
 	/**
