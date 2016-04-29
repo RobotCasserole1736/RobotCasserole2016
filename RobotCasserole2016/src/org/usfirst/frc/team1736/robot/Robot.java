@@ -838,7 +838,7 @@ public class Robot extends IterativeRobot {
     									  launchMotor.getSquishSensorVal(),
     									  currentStep,
     									  intakeLauncherSM.shooterDiagnostics.motorStalled?1.0:0.0,
-										  intakeLauncherSM.intake.intake_encoder.getDistance(),
+										  intakeLauncherSM.intake.getPosition(),
 										  intakeLauncherSM.intake.getSetpoint(),
 										  intakeLauncherSM.intake.intake_motor.get(),
 										  leds.ledStrips.audioIn.getVoltage(),
