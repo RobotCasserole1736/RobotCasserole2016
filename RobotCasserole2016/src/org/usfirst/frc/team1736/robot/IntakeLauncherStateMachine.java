@@ -30,6 +30,7 @@ public class IntakeLauncherStateMachine {
 	public static final double LAUNCH_SPEED_RPM_NEWBALL = 4500;
 	public static final double LAUNCH_SPEED_RPM_AUTO_NEWBALL = 4480;
 	public static final double LAUNCH_SPEED_ERR_LMT_RPM = 200;
+	public static final double LAUNCH_SPEED_MIN_ABS_RPM = LAUNCH_SPEED_RPM_DEFAULTVAL * 0.25; //fudge tune value to prevent the erronious transition to wait_for_spoolup while the shooter is still stopped.
 	public static final double MIN_LAUNCH_TIME_THRESH_MS = 1500;
 	public static final double SPOOLDOWN_THRESH_RPM = 100;
 	
@@ -173,7 +174,7 @@ public class IntakeLauncherStateMachine {
 			case WAIT_FOR_SPOOLUP:
 				if(intakeCmded)
 					nextState = IntLncState.WAIT_FOR_SPOOLDOWN;
-				else if((shooter.getAbsError() < LAUNCH_SPEED_ERR_LMT_RPM) |
+				else if((shooter.getAbsError() < LAUNCH_SPEED_ERR_LMT_RPM && shooter.getActSpeed() > LAUNCH_SPEED_MIN_ABS_RPM) | //Second condition is a fudge to prevent the one-loop bug where we went straight to wait for launch before actually spooling up the wheel
 					     calcEncoderFailed(shooter.getCurrent())){
 					nextState = IntLncState.WAIT_FOR_LAUNCH;
 					encFailedTimer.stop();//do not reset here, just stop accumulating since we're within a valid speed range
