@@ -20,18 +20,25 @@ public abstract class CasserolePID {
 	DerivativeCalculator dTermDeriv;
 	DerivativeCalculator setpointDeriv;
 	IntegralCalculator   iTermIntegral;
+
+	public volatile double setpoint;
 	
 	//Value limiters
-	public double setpointMin;
-	public double setpointMax;
-	public double outputMin;
+	public double outputMin; //output limit
 	public double outputMax;
+	
+	public double integratorDisableThresh; // If the abs val of the error goes above this, disable and reset the integrator to prevent windup
 	
 	//PID Thread
 	private Timer timerThread;
 	
 	//Thread frequency
-	private final long m_sample_period_ms = 10;
+	private final long pidSamplePeriod_ms = 10;
+	
+	//Watchdog Counter - counts up every time we run a periodic loop.
+	//An external obesrver can check this for positive verification the
+	//PID loop is still alive.
+	public volatile long watchdogCounter;
 	
 	
 	//Simple constructor. Makes nice PID easy
@@ -65,10 +72,12 @@ public abstract class CasserolePID {
 		
 		useErrForDerivTerm = true;
 		
-		setpointMin = Double.NEGATIVE_INFINITY;
-		setpointMax = Double.POSITIVE_INFINITY;
 		outputMin   = Double.NEGATIVE_INFINITY;
 		outputMax   = Double.POSITIVE_INFINITY;
+		
+		integratorDisableThresh = Double.POSITIVE_INFINITY;
+		
+		setpoint = 0;
 		
         timerThread = new java.util.Timer();
 		
@@ -76,11 +85,12 @@ public abstract class CasserolePID {
 	
 	//Start the PID thread
 	public void start(){
+		watchdogCounter = 0;
 		//Kick off the multi-threaded stuff.
-		//Will start calling the periodic update function at an interval of m_sample_period_ms,
+		//Will start calling the periodic update function at an interval of pidSamplePeriod_ms,
 		//asynchronously from any other code.
 		//Java magic here, don't touch!
-        timerThread.scheduleAtFixedRate(new PIDTask(this), 0L, (long) (m_sample_period_ms));
+        timerThread.scheduleAtFixedRate(new PIDTask(this), 0L, (long) (pidSamplePeriod_ms));
 	}
 	
 	public void stop(){
@@ -92,6 +102,12 @@ public abstract class CasserolePID {
 	public void resetIntegrators(){
 		iTermIntegral.resetIntegral();
 	}
+	
+	//Assign a setpoint. 
+	public void setSetpoint(double setpoint_in){
+			setpoint = setpoint_in;	
+	}
+	
 	
 	/**
 	 * Override this method!
@@ -111,11 +127,70 @@ public abstract class CasserolePID {
 	 * should send the output of the PID to one of the motor controllers. Make sure it runs fast!
 	 * @return
 	 */
-	public abstract boolean usePIDOutput(double pidOutput);
+	public abstract void usePIDOutput(double pidOutput);
 
 	//The big kahuna. This is where the magic happens.
 	private void periodicUpdate(){
+		double curInput = returnPIDInput();
+		double curOutput = 0.0;
+		double curSetpoint = setpoint; //latch the setpoint at start of loop
+		double curError = curInput - curSetpoint;
 		
+		
+		//Calculate P term
+		if(Kp != 0.0){ //speed optimization when terms are turned off
+			curOutput = curOutput + curError*Kp;
+		}
+		//Calculate I term
+		if(Ki != 0.0){
+			if(Math.abs(curError) > integratorDisableThresh){
+				iTermIntegral.resetIntegral();
+			} 
+			else {
+				curOutput = curOutput + iTermIntegral.calcIntegral(curError)*Ki;
+			}
+		}
+		//Calculate D term
+		if(Kd != 0.0){
+			if(useErrForDerivTerm){
+				curOutput = curOutput + dTermDeriv.calcDeriv(curError)*Kd;
+			}
+			else {
+				curOutput = curOutput + dTermDeriv.calcDeriv(curInput)*Kd;	
+			}
+		}
+		//Calculate FF term
+		if(Kf != 0.0){
+			curOutput = curOutput + curSetpoint*Kf;
+		}
+		//Calculate derivative FF term
+		if(Kdf != 0.0){
+			curOutput = curOutput + setpointDeriv.calcDeriv(curSetpoint)*Kdf;
+		}
+		//Calculate P^2 term
+		if(Kp2 != 0.0){
+			if(curError >= 0){
+				curOutput = curOutput + curError*curError*Kp;
+			}
+			else{
+				curOutput = curOutput - curError*curError*Kp;
+			}		
+		}
+		
+		
+		//Assign output
+		if(curOutput > outputMax){
+			usePIDOutput(outputMax);
+		}
+		else if (curOutput < outputMin){
+			usePIDOutput(outputMin);
+		}
+		else{
+			usePIDOutput(curOutput);
+		}	
+		
+		//Indicate we are still doing stuff with the watchdog
+		watchdogCounter = watchdogCounter + 1;
 	}
 	
 	
