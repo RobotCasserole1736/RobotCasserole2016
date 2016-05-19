@@ -117,7 +117,7 @@ public abstract class CasserolePID {
 	 * asynchronously by the underlying PID algorithm. Make sure it runs fast!
 	 * @return
 	 */
-	public abstract double returnPIDInput();
+	protected abstract double returnPIDInput();
 	
 	/**
 	 * Override this method!
@@ -127,7 +127,7 @@ public abstract class CasserolePID {
 	 * should send the output of the PID to one of the motor controllers. Make sure it runs fast!
 	 * @return
 	 */
-	public abstract void usePIDOutput(double pidOutput);
+	protected abstract void usePIDOutput(double pidOutput);
 
 	//The big kahuna. This is where the magic happens.
 	private void periodicUpdate(){
@@ -309,6 +309,15 @@ public abstract class CasserolePID {
 	 */
 	public void setKp2(double kp2) {
 		Kp2 = kp2;
+	}
+	
+	public void setOutputRange(double min, double max){
+		outputMin = min;
+		outputMax = max;
+	}
+	
+	public double getSetpoint(){
+		return setpoint;
 	}
 	
 	

@@ -6,7 +6,7 @@ import edu.wpi.first.wpilibj.CANTalon.FeedbackDevice;
 import edu.wpi.first.wpilibj.CANTalon.StatusFrameRate;
 import edu.wpi.first.wpilibj.command.PIDSubsystem;
 
-public class Shooter extends PIDSubsystem {
+public class Shooter extends CasserolePID {
 	CANTalon shooterController;
 	static double F = 0.0001737; //We use FF because setpoint is proportional to motor command
 	static double P = 0.0008; //CMG - tuned with two wheels, will need to tune 
@@ -48,7 +48,7 @@ public class Shooter extends PIDSubsystem {
 	volatile public int wdog_ctr;
 	
 	public Shooter() {
-		super("ShooterPID", P, I, D); //we don't need to WPILIB feed forward. we do feed fowrard ourselfs cuz they were silly with their implementation.
+		super(P, I, D); //we don't need to WPILIB feed forward. we do feed fowrard ourselfs cuz they were silly with their implementation.
 		shooterController = new CANTalon(SHOOTER_CHANNEL);
 		shooterController.changeControlMode(CANTalon.TalonControlMode.PercentVbus); //We'll use the standard 0-1 pct of input voltage method since our PID accounts for voltage drop.
 		shooterController.setFeedbackDevice(FeedbackDevice.CtreMagEncoder_Relative); //We're using the mag encoder
@@ -57,7 +57,7 @@ public class Shooter extends PIDSubsystem {
 		shooterController.setStatusFrameRateMs(StatusFrameRate.Feedback, 20); //Bump up the sample rates to get better response time (at the impact of higher CAN bus load)
 		shooterController.setStatusFrameRateMs(StatusFrameRate.General, 20);
 		setOutputRange(-0.5,1); //Must not command the motor in reverse since the input speed taken as unsigned (negative motor commands cause instability)
-		enable();
+		start();
 		
 		//Squish sensor - a force sensor that registers how much the ball is compressing
 		squishSensor = new AnalogInput(SQUISH_SENSOR_PORT);
@@ -170,8 +170,7 @@ public class Shooter extends PIDSubsystem {
 	 */
 	public void setSpeed(double speed){
 		if(speed == 0.0){
-			getPIDController().reset();
-			getPIDController().enable();
+			resetIntegrators();
 		}
 		
 		setSetpoint(speed);
@@ -250,10 +249,5 @@ public class Shooter extends PIDSubsystem {
 		
 	}
 
-	@Override
-	protected void initDefaultCommand() {
-		// TODO Auto-generated method stub
-		
-	}
 }
 	
