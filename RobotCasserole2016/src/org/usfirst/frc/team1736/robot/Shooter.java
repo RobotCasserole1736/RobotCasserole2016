@@ -237,7 +237,8 @@ public class Shooter extends CasserolePID {
 	@Override
 	protected double returnPIDInput() {
 		filtered_act_speed = -shooterController.getSpeed();
-		return filtered_act_speed + (getSquishSensorVal() - squishSensorZeroOffsetPoint) * squishSensorOffsetGain;
+		//return filtered_act_speed + (getSquishSensorVal() - squishSensorZeroOffsetPoint) * squishSensorOffsetGain;
+		return filtered_act_speed;
 	}
 
 	@Override

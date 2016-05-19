@@ -85,6 +85,7 @@ public abstract class CasserolePID {
 	
 	//Start the PID thread
 	public void start(){
+		resetIntegrators();
 		watchdogCounter = 0;
 		//Kick off the multi-threaded stuff.
 		//Will start calling the periodic update function at an interval of pidSamplePeriod_ms,
