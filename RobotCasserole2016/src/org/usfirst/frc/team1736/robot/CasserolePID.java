@@ -134,7 +134,7 @@ public abstract class CasserolePID {
 		double curInput = returnPIDInput();
 		double curOutput = 0.0;
 		double curSetpoint = setpoint; //latch the setpoint at start of loop
-		double curError = curInput - curSetpoint;
+		double curError = curSetpoint - curInput;
 		
 		
 		//Calculate P term
