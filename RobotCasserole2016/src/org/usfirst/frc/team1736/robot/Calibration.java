@@ -21,9 +21,9 @@ package org.usfirst.frc.team1736.robot;
 * candidate. Port number for left drivetrain motor A is a bad candidate). 
 * USAGE:    
 * <ol>   
-* <li>Instantiate a CalManager first</li> 
-* <li>Instantiate </li> 
-* <li>Call start() method to begin background execution of algorithm.</li>    
+* <li>Instantiate a CalManager first (if not done yet)</li> 
+* <li>Instantiate the calibration with a default value, and reference to the wrangler</li> 
+* <li>At runtime, use the get() method to read the calibrated value. The returned value may change depending on what the wrangler has overwritten.</li>    
 * </ol>
 * 
 * 
@@ -51,7 +51,10 @@ public class Calibration {
 	}
 	
 	public double get(){
-		return cur_val;
+		if(overridden)
+			return cur_val;
+		else
+			return default_val;
 	}
 	
 	public double getDefault(){
