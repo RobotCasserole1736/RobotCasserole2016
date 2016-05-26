@@ -48,7 +48,8 @@ public class Shooter extends CasserolePID {
 	volatile public int wdog_ctr;
 	
 	public Shooter() {
-		super(P, I, D); //we don't need to WPILIB feed forward. we do feed fowrard ourselfs cuz they were silly with their implementation.
+		super(P, I, D); 
+		setKf(F);
 		shooterController = new CANTalon(SHOOTER_CHANNEL);
 		shooterController.changeControlMode(CANTalon.TalonControlMode.PercentVbus); //We'll use the standard 0-1 pct of input voltage method since our PID accounts for voltage drop.
 		shooterController.setFeedbackDevice(FeedbackDevice.CtreMagEncoder_Relative); //We're using the mag encoder
@@ -235,10 +236,10 @@ public class Shooter extends CasserolePID {
 	}
 	
 	public void updateGains(){
-		this.getPIDController().setPID(RobotCalibrations.cal_ShooterP.get(),
-									   RobotCalibrations.cal_ShooterI.get(), 
-									   RobotCalibrations.cal_ShooterD.get());
-		F = RobotCalibrations.cal_ShooterF.get();
+		setKp(RobotCalibrations.cal_ShooterP.get());
+		setKi(RobotCalibrations.cal_ShooterI.get()); 
+		setKd(RobotCalibrations.cal_ShooterD.get());
+		setKf(RobotCalibrations.cal_ShooterF.get());
 	}
 	
 	@Override
@@ -250,7 +251,8 @@ public class Shooter extends CasserolePID {
 
 	@Override
 	protected void usePIDOutput(double arg0) {
-		double cmd = Math.max(Math.min(arg0 + F*getDesSpeed(), 1), 0);
+		//double cmd = Math.max(Math.min(arg0 + F*getDesSpeed(), 1), 0);
+		double cmd = arg0;
 		shooterController.set(cmd);	
 		motorCmd = cmd;
 		wdog_ctr = 0;
