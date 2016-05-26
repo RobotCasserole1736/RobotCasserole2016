@@ -23,6 +23,18 @@ import java.util.ArrayList;
 * <br>
 * Calibration Wrangler. Manages the full set of calibrations in the software. Can override calibration values
 * based on a .csv file at a specific location on the RIO's filesystem
+* <br>
+* <br>
+* Calibration file format:
+* <br>
+* calibrationName,value
+* <br>
+* <br>
+* Ex:
+* ShooterSpeed,3200.5 <br>
+* Pgain,0.125 <br>
+* <br>
+* <br>
 * USAGE:    
 * <ol>   
 * <li>Instantiate a CalManager first</li> 
@@ -36,8 +48,16 @@ import java.util.ArrayList;
 
 public class CalWrangler {
 	
+	private final int CAL_NAME_COL = 0;
+	private final int CAL_VAL_COL = 1;
+	private final int NUM_COLUMNS = 2;
+	
 	ArrayList<Calibration> registeredCals;
 	final String calFile = "/U/calibration/present_cal.csv";
+	
+	/**
+	 * Constructor. Just does init on internal values.
+	 */
 	
 	CalWrangler(){
 		registeredCals = new ArrayList<Calibration>(0);
@@ -52,16 +72,73 @@ public class CalWrangler {
 	 */
 	public int loadCalValues(){
 		BufferedReader br = null;
+		String str_line;
+		boolean errors_present = false;
+		boolean match_found = false;
+		
+		resetAllCalsToDefault();
 		
 		/*Load file, checking for errors*/
 		try {
 			br = new BufferedReader(new FileReader(calFile));
+			
+			//For lines in cal file
+			while((str_line = br.readLine()) != null){
+				//Split line into each tokenized part
+				String[] line_parts = str_line.trim().split(",");
+				
+				//Check that the line is the right size
+				if(line_parts.length != NUM_COLUMNS){
+					System.out.println("Warning: Calibration Wrangler: line does not have correct number of columns. Got " + Integer.toString(line_parts.length) + ", but expected " + Integer.toString(NUM_COLUMNS) + ". Do not know how to process " + str_line);
+					continue;
+				}
+				
+				match_found = false;
+				//for all registered cals...
+				for(Calibration cal :  registeredCals){
+					//Skip empty lines
+					if(line_parts[CAL_NAME_COL].trim().equalsIgnoreCase("")){
+						continue;
+					}
+					
+					//If registered cal name matches name in cal file, override it.
+					if(cal.name.equals(line_parts[CAL_NAME_COL].trim())){
+						if(match_found == false){
+							match_found = true;
+							try{
+								cal.cur_val = Double.parseDouble(line_parts[CAL_VAL_COL].trim());
+								cal.overridden = true;
+								System.out.println("Info: Calibration Wrangler: " + cal.name + " was overridden to " + Double.toString(cal.cur_val));
+							}catch(NumberFormatException e){
+								System.out.println("Warning: Calibration Wrangler: " + line_parts[CAL_NAME_COL] + " was overridden to " + line_parts[CAL_VAL_COL] + ", but that override value is not recognized as a number. No override applied.");
+								cal.overridden = false;
+							}	
+						} else {
+							System.out.println("Warning: Calibration Wrangler: " + line_parts[CAL_NAME_COL].trim() + " has been overriden more than once. Only first override will apply.");
+						}
+					}
+				}
+				
+				if(match_found == false){
+					System.out.println("Warning: Calibration Wrangler: Override was specified for " + line_parts[CAL_NAME_COL] + " but this calibration is not registered with the wrangler. No value overriden.");
+				}
+			}
+			
+			//close cal file
+			if(br != null){
+				br.close();
+			}
+			
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
+			errors_present = true;
 		} catch (IOException e) {
 			e.printStackTrace();
+			errors_present = true;
 		} finally {
 			if (br != null) {
+				System.out.println("Error: Calibration Wrangler: Cannot open file " + calFile + " for reading. Leaving all calibrations at default values.");
+				resetAllCalsToDefault();
 				try {
 					br.close();
 				} catch (IOException e) {
@@ -70,22 +147,15 @@ public class CalWrangler {
 			}
 		}
 		
-		//If we dont' have a valid bufferedReader at this point, we have nothing else to try.
-		if(br == null){
-			System.out.println("Calibration Wrangler Error: Cannot open file " + calFile + " for reading. Leaving all calibrations at default values.");
-			resetAllCalsToDefault();
+		//Indicate any errors
+		if(errors_present){
 			return -1;
+		}else{
+			return 0;
 		}
-		
-		//For lines in cal file
-			//for all registered cals
-				//If registered cal name matches name in cal file, override it.
-		
-		//close cal file
-		
-		
-		return 0;
+
 	}
+	
 	/**
 	 * Resets all registered calibrations back to default values
 	 * @return 0 on success, nonzero on failure
@@ -107,9 +177,15 @@ public class CalWrangler {
 	 * @return 0 on success, nonzero on failure
 	 */
 	public int register(Calibration cal_in){
-		//TODO: Check the cal is not already registered
-		registeredCals.add(cal_in);
-		return 0;
+		int ret_val = 0;
+		if(registeredCals.contains(cal_in)){
+			System.out.println("Warning: Calibration Wrangler: " + cal_in.name + " has already been added to the cal wrangler. Nothing done.");
+			ret_val = -1;
+		} else {
+			registeredCals.add(cal_in);
+			ret_val = 0;
+		}
+		return ret_val;
 	}
 
 }

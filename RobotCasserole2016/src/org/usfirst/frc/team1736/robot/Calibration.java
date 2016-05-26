@@ -33,23 +33,32 @@ package org.usfirst.frc.team1736.robot;
 public class Calibration {
 	public final double default_val;
 	private final CalWrangler wrangler;
-	private final String name;
+	public final String name;
 	public double cur_val;
 	public boolean overridden;
 	
-	
+	/**
+	 * Constructor for a new calibratable value.
+	 * @param name_in String for the name of the calibration. Best to make it the same of the variable name. 
+	 * @param default_val_in Default value for the calibration. Will keep this value unless the wrangler overwrites it.
+	 * @param wrangler_in Reference to the wrangler which will control this calibration. 
+	 */
 	Calibration(String name_in, double default_val_in, CalWrangler wrangler_in){
 		
 		/*default stuff and stuff*/
 		default_val = default_val_in;
 		wrangler = wrangler_in;
-		name = name_in;
+		name = name_in.trim();
 		overridden = false;
 		
 		wrangler.register(this);
 		
 	}
 	
+	/**
+	 * Retrieve the present value of this calibration. This is the method to use whenever the calibratable value is to be read.
+	 * @return Present value of the calibration
+	 */
 	public double get(){
 		if(overridden)
 			return cur_val;
@@ -57,6 +66,11 @@ public class Calibration {
 			return default_val;
 	}
 	
+	/**
+	 * Get the default value of the calibration. Will not be overridden by wrangler. Do not use unless you're certain you don't wan't 
+	 * any updates the wrangler may apply to this calibration. 
+	 * @return Default value for the calibration
+	 */
 	public double getDefault(){
 		return default_val;
 	}
