@@ -85,8 +85,6 @@ public class IntakeLauncherStateMachine {
 		stateTimer = new Timer();
 		encFailedTimer = new Timer();
 		
-		//leave values at default
-		LAUNCH_SPEED_RPM = LAUNCH_SPEED_RPM_DEFAULTVAL; 
 
 	}
 	
@@ -98,6 +96,7 @@ public class IntakeLauncherStateMachine {
 		
 		//Step 0 - process inputs. Mostly these are arguments
 		dbncBallSensor();
+		LAUNCH_SPEED_RPM = RobotCalibrations.cal_ShooterLaunchRPM.get();
 		
 		//STEP 1 - Calculate Next State based on current state and Inputs
 		

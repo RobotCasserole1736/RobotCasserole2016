@@ -578,6 +578,10 @@ public class Robot extends IterativeRobot {
      * This function is called once right before the start of teleop
      */
     public void teleopInit() {
+    	//Re-load calibration values
+    	RobotCalibrations.main_wrangler.loadCalValues();
+    	intakeLauncherSM.shooter.updateGains();
+    	
     	if(enable_logging){
     		//Initialize the new log file for Teleop
     		logger.init(logger_fields, units_fields);

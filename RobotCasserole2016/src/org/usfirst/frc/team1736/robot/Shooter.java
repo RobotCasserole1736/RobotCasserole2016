@@ -8,10 +8,10 @@ import edu.wpi.first.wpilibj.command.PIDSubsystem;
 
 public class Shooter extends PIDSubsystem {
 	CANTalon shooterController;
-	static double F = 0.0001737; //We use FF because setpoint is proportional to motor command
-	static double P = 0.0008; //CMG - tuned with two wheels, will need to tune 
-	static double I = 0.000001; //I is definitely needed to overcome friction, otherwise there is a noticeable steady-state error
-	static double D = 0.00004; 
+	static double F = RobotCalibrations.cal_ShooterF.get(); //We use FF because setpoint is proportional to motor command
+	static double P = RobotCalibrations.cal_ShooterP.get(); //CMG - tuned with two wheels, will need to tune 
+	static double I = RobotCalibrations.cal_ShooterI.get(); //I is definitely needed to overcome friction, otherwise there is a noticeable steady-state error
+	static double D = RobotCalibrations.cal_ShooterD.get(); 
 	int SHOOTER_CHANNEL = 1; //CMG - confirmed 2/2/2016
 	
 	//Aaron's neat variables for ball velocity estimation
@@ -233,6 +233,13 @@ public class Shooter extends PIDSubsystem {
 	 */
 	public double getSquishSensorVal(){
 		return squishSensor.getVoltage()/5.0;
+	}
+	
+	public void updateGains(){
+		this.getPIDController().setPID(RobotCalibrations.cal_ShooterP.get(),
+									   RobotCalibrations.cal_ShooterI.get(), 
+									   RobotCalibrations.cal_ShooterD.get());
+		F = RobotCalibrations.cal_ShooterF.get();
 	}
 	
 	@Override

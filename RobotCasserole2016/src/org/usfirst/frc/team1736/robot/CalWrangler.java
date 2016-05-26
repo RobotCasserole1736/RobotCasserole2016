@@ -106,9 +106,19 @@ public class CalWrangler {
 						if(match_found == false){
 							match_found = true;
 							try{
-								cal.cur_val = Double.parseDouble(line_parts[CAL_VAL_COL].trim());
+								double override_val = Double.parseDouble(line_parts[CAL_VAL_COL].trim());
+								if(override_val < cal.min_cal){
+									System.out.println("Warning: Calibration Wrangler: " + line_parts[CAL_NAME_COL] + " was overridden to " + Double.toString(override_val) + ", but that override value is smaller than the minimum. Overriding to minimum value of " + Double.toString(cal.min_cal));
+									cal.cur_val = cal.min_cal;
+								} else if (override_val > cal.max_cal){
+									System.out.println("Warning: Calibration Wrangler: " + line_parts[CAL_NAME_COL] + " was overridden to " + Double.toString(override_val) + ", but that override value is larger than the maximum. Overriding to maximum value of " + Double.toString(cal.max_cal));
+									cal.cur_val = cal.max_cal;
+								} else{
+									cal.cur_val = override_val;
+									System.out.println("Info: Calibration Wrangler: " + cal.name + " was overridden to " + Double.toString(cal.cur_val));
+								}
 								cal.overridden = true;
-								System.out.println("Info: Calibration Wrangler: " + cal.name + " was overridden to " + Double.toString(cal.cur_val));
+								
 							}catch(NumberFormatException e){
 								System.out.println("Warning: Calibration Wrangler: " + line_parts[CAL_NAME_COL] + " was overridden to " + line_parts[CAL_VAL_COL] + ", but that override value is not recognized as a number. No override applied.");
 								cal.overridden = false;
