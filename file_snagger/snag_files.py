@@ -30,14 +30,17 @@ def log_log_result(fsnag_list):
     return
 
 # Attempt an FTP connection. Bomb out if we can't.
-print('Attempting to connect to roboRIO on ftp://' + RIO_ADDRESS + " ...")
-try:
-    ftp = FTP(RIO_ADDRESS)
-    ftp.login()
-except:
-    print('Error - could not connect to roboRIO! Files not snagged!')
-    log_log_result(None)
-    sys.exit(-1)
+failed = 1;
+while(failed == 1):
+    print('Attempting to connect to roboRIO on ftp://' + RIO_ADDRESS + " ...")
+    failed = 0;
+    try:
+        ftp = FTP(RIO_ADDRESS)
+        ftp.login()
+    except:
+        failed = 1;
+        print('Error - could not connect to roboRIO! Retrying...')
+        
     
 # FTP Connected! Change to correct working proper working directory
 # and snag the list of files

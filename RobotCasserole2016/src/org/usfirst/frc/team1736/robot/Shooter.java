@@ -253,7 +253,11 @@ public class Shooter extends CasserolePID {
 	protected void usePIDOutput(double arg0) {
 		//double cmd = Math.max(Math.min(arg0 + F*getDesSpeed(), 1), 0);
 		double cmd = arg0;
-		shooterController.set(cmd);	
+		if(getDesSpeed() == 0.0){
+			shooterController.set(0);
+		}else{
+			shooterController.set(cmd);
+		}
 		motorCmd = cmd;
 		wdog_ctr = 0;
 		

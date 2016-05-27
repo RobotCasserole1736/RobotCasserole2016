@@ -591,7 +591,10 @@ public class Robot extends IterativeRobot {
     	autopp.stopPlayback();
     	
     	//Turn the watchdog back on
-		driveTrain.setSafetyEnabled(true);
+		//driveTrain.setSafetyEnabled(true);
+    	
+    	//watchdog produces annoying warnings
+    	driveTrain.setSafetyEnabled(false);
     	
     	//compressor starts automatically, but just in case...
     	Pneumatics.startCompressor();

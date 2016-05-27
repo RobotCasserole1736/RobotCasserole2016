@@ -34,8 +34,8 @@ public class Calibration {
 	public final double default_val;
 	private final CalWrangler wrangler;
 	public final String name;
-	public double cur_val;
-	public boolean overridden;
+	public volatile double cur_val;
+	public volatile boolean overridden;
 	public double max_cal;
 	public double min_cal;
 	

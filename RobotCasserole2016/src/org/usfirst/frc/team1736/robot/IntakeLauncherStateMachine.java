@@ -96,7 +96,7 @@ public class IntakeLauncherStateMachine {
 		
 		//Step 0 - process inputs. Mostly these are arguments
 		dbncBallSensor();
-		LAUNCH_SPEED_RPM = RobotCalibrations.cal_ShooterLaunchRPM.get();
+		
 		
 		//STEP 1 - Calculate Next State based on current state and Inputs
 		
@@ -254,17 +254,17 @@ public class IntakeLauncherStateMachine {
 			
 			break;
 		case WAIT_FOR_SPOOLUP:
-			shooterCmd_RPM = LAUNCH_SPEED_RPM;
+			shooterCmd_RPM = RobotCalibrations.cal_ShooterLaunchRPM.get();
 
 			
 			break;
 		case WAIT_FOR_LAUNCH:
-			shooterCmd_RPM = LAUNCH_SPEED_RPM;
+			shooterCmd_RPM = RobotCalibrations.cal_ShooterLaunchRPM.get();
 
 			
 			break;
 		case LAUNCH:
-			shooterCmd_RPM = LAUNCH_SPEED_RPM;
+			shooterCmd_RPM = RobotCalibrations.cal_ShooterLaunchRPM.get();
 
 			
 			break;
@@ -334,6 +334,7 @@ public class IntakeLauncherStateMachine {
 	}
 
 	public void setBallType(int type, boolean isAuto ){
+		/* Temp - no ball type control
 		if (type== 0 && isAuto)
 			LAUNCH_SPEED_RPM= LAUNCH_SPEED_RPM_AUTO_DEFAULTVAL;
 		else if (type==1 && isAuto)
@@ -342,6 +343,7 @@ public class IntakeLauncherStateMachine {
 			LAUNCH_SPEED_RPM= LAUNCH_SPEED_RPM_DEFAULTVAL;
 		else 
 			LAUNCH_SPEED_RPM= LAUNCH_SPEED_RPM_NEWBALL;
+			*/
 	}
 	
 	public double getEncoderValue() {
