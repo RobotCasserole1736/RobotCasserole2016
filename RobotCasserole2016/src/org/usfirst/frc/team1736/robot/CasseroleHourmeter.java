@@ -1,6 +1,9 @@
 package org.usfirst.frc.team1736.robot;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.TimerTask;
 
 import edu.wpi.first.wpilibj.DriverStation;
@@ -71,7 +74,27 @@ public class CasseroleHourmeter {
 	}
 	
 	private void writeCurrentValuesToHourmeterFile(){
-		
+		try{
+			//Open File
+			FileWriter fstream = new FileWriter(HOURMETER_FNAME, true);
+			BufferedWriter log_file = new BufferedWriter(fstream);
+			
+			//Write the lines. Changes here will need corresponding updates in the read function.
+			log_file.write("TOTAL_MINUTES:"+Double.toString(minutesTotal));
+			log_file.write("DISABLED_MINUTES:"+Double.toString(minutesDisabled));
+			log_file.write("TELEOP_MINUTES:"+Double.toString(minutesTeleop));
+			log_file.write("AUTO_MINUTES:"+Double.toString(minutesAutonomous));
+			log_file.write("TEST_MINUTES:"+Double.toString(minutesTest));
+			log_file.write("TELEOP_ENABLES:"+Long.toString(numTeleopEnables));
+			log_file.write("AUTO_ENABLES:"+Long.toString(numAutonomousEnables));
+			log_file.write("TEST_ENABLES:"+Long.toString(numTestEnables));
+			
+		} catch	(IOException e){
+			System.out.println("Error writing to hourmeter file:" + e.getMessage());
+			return;
+		}
+
+
 	}
 	
 	private int readCurrentValuesFromHourmeterFile(){
@@ -128,12 +151,8 @@ public class CasseroleHourmeter {
 			else if(cur_state == OperationState.AUTO)
 				numAutonomousEnables++;
 			else if(cur_state == OperationState.TEST)
-				numTestEnables++;
-			
+				numTestEnables++;	
 		}
-		numTeleopEnables = 0;
-		numAutonomousEnables = 0;
-		numTestEnables = 0;
 		
 		//write all the updated variables to file
 		writeCurrentValuesToHourmeterFile();

@@ -8,5 +8,5 @@ package org.usfirst.frc.team1736.robot;
  *
  */
 public enum OperationState {
-	DISABLED,TELEOP,AUTO,TEST
+	DISABLED,TELEOP,AUTO,TEST,UNKNOWN
 }
