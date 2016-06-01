@@ -29,8 +29,8 @@ public class CasseroleHourmeter {
 	public long  numAutonomousEnables;
 	public long  numTestEnables;
 	
-	public double prev_call_time = 0;
-	public int prev_state = 0; //0 = disabled, 1 = teleop, 2 = auto, 3 = test
+	public double prev_call_time;
+	public OperationState prev_state; 
 	
 	DriverStation ds;
 	
@@ -46,6 +46,7 @@ public class CasseroleHourmeter {
 		ds = DriverStation.getInstance();
 		
 		prev_call_time = Timer.getFPGATimestamp();
+		prev_state = OperationState.UNKNOWN;
 		
 		if(!checkHourmeterFileExists()){
 			initNewHourmeterFile();
@@ -96,22 +97,40 @@ public class CasseroleHourmeter {
 	private void updateHourmeterFile(){
 		//Update hour & counts with previous call information
 		double delta_time_min = (Timer.getFPGATimestamp() - prev_call_time)/60;
+		OperationState cur_state = OperationState.UNKNOWN;
 		
+		
+		//Update total time
 		minutesTotal += delta_time_min;
 		
+		//Update individual time values and present state
 		if(ds.isEnabled()){
 			if(ds.isOperatorControl()){
 				minutesTeleop += delta_time_min;
+				cur_state = OperationState.TELEOP;
 			} else if (ds.isAutonomous()){
 				minutesAutonomous += delta_time_min;
+				cur_state = OperationState.AUTO;
 			} else if(ds.isTest()){
 				minutesTest += delta_time_min;
+				cur_state = OperationState.TEST;
 			}
 		}
 		else{
 			minutesDisabled += delta_time_min;
+			cur_state = OperationState.DISABLED;
 		}
 		
+		//If we've changed operational state, record that
+		if(cur_state != prev_state){
+			if(cur_state == OperationState.TELEOP)
+				numTeleopEnables++;
+			else if(cur_state == OperationState.AUTO)
+				numAutonomousEnables++;
+			else if(cur_state == OperationState.TEST)
+				numTestEnables++;
+			
+		}
 		numTeleopEnables = 0;
 		numAutonomousEnables = 0;
 		numTestEnables = 0;
