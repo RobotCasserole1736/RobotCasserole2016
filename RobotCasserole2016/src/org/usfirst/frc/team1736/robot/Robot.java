@@ -316,6 +316,9 @@ public class Robot extends IterativeRobot {
 	//Auto PathPlanner
 	casserolePathAuto autopp;
 	
+	//hourmeter
+	CasseroleHourmeter hourmeter;
+	
 	//SDB Read counter in Disabled
 	int disabled_sbd_counter;
 	
@@ -332,6 +335,8 @@ public class Robot extends IterativeRobot {
      */
     public void robotInit() {
     	//Initialize each peripheral
+    	
+    	hourmeter = new CasseroleHourmeter();
 
     	//Stuff for Autonomous
     	autoChooser = new SendableChooser();

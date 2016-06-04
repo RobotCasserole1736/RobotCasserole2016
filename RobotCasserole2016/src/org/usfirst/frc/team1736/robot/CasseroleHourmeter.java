@@ -1,7 +1,9 @@
 package org.usfirst.frc.team1736.robot;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.TimerTask;
@@ -28,9 +30,9 @@ public class CasseroleHourmeter {
 	public double minutesTeleop;
 	public double minutesAutonomous;
 	public double minutesTest;
-	public long  numTeleopEnables;
-	public long  numAutonomousEnables;
-	public long  numTestEnables;
+	public double  numTeleopEnables;
+	public double  numAutonomousEnables;
+	public double  numTestEnables;
 	
 	public double prev_call_time;
 	public OperationState prev_state; 
@@ -38,6 +40,7 @@ public class CasseroleHourmeter {
 	DriverStation ds;
 	
 	private java.util.Timer updater;
+	private HourmeterUpdater updater_task;
 	
 	
 	/**
@@ -46,18 +49,28 @@ public class CasseroleHourmeter {
 	 * back over smartdashboard or something like that.
 	 */
 	CasseroleHourmeter(){
+		int ret_val;
+		
+		updater = new java.util.Timer();
+		updater_task = new HourmeterUpdater();
+		
 		ds = DriverStation.getInstance();
 		
 		prev_call_time = Timer.getFPGATimestamp();
 		prev_state = OperationState.UNKNOWN;
 		
 		if(!checkHourmeterFileExists()){
-			initNewHourmeterFile();
+			ret_val = initNewHourmeterFile();
 		} else {
-			readCurrentValuesFromHourmeterFile();
+			ret_val = readCurrentValuesFromHourmeterFile();
 		}
 		
-		updater.scheduleAtFixedRate(new HourmeterUpdater(), 0, HOURMETER_UPDATE_RATE_MS);
+		// Presuming we were able to initialize the hourmeter, kick off the periodic update.
+		if(ret_val != 0){
+			System.out.println("ERROR: Cannot initialize hourmeter. Not starting it.");
+		} else {
+			updater.scheduleAtFixedRate(updater_task, 0, HOURMETER_UPDATE_RATE_MS);
+		}
 	}
 	
 	/**
@@ -73,35 +86,161 @@ public class CasseroleHourmeter {
 		}
 	}
 	
-	private void writeCurrentValuesToHourmeterFile(){
+	private int writeCurrentValuesToHourmeterFile(){
 		try{
 			//Open File
 			FileWriter fstream = new FileWriter(HOURMETER_FNAME, true);
 			BufferedWriter log_file = new BufferedWriter(fstream);
 			
 			//Write the lines. Changes here will need corresponding updates in the read function.
-			log_file.write("TOTAL_MINUTES:"+Double.toString(minutesTotal));
-			log_file.write("DISABLED_MINUTES:"+Double.toString(minutesDisabled));
-			log_file.write("TELEOP_MINUTES:"+Double.toString(minutesTeleop));
-			log_file.write("AUTO_MINUTES:"+Double.toString(minutesAutonomous));
-			log_file.write("TEST_MINUTES:"+Double.toString(minutesTest));
-			log_file.write("TELEOP_ENABLES:"+Long.toString(numTeleopEnables));
-			log_file.write("AUTO_ENABLES:"+Long.toString(numAutonomousEnables));
-			log_file.write("TEST_ENABLES:"+Long.toString(numTestEnables));
+			log_file.write("TOTAL_MINUTES:"+Double.toString(minutesTotal)+"\n");
+			log_file.write("DISABLED_MINUTES:"+Double.toString(minutesDisabled)+"\n");
+			log_file.write("TELEOP_MINUTES:"+Double.toString(minutesTeleop)+"\n");
+			log_file.write("AUTO_MINUTES:"+Double.toString(minutesAutonomous)+"\n");
+			log_file.write("TEST_MINUTES:"+Double.toString(minutesTest)+"\n");
+			log_file.write("TELEOP_ENABLES:"+Double.toString(numTeleopEnables)+"\n");
+			log_file.write("AUTO_ENABLES:"+Double.toString(numAutonomousEnables)+"\n");
+			log_file.write("TEST_ENABLES:"+Double.toString(numTestEnables)+"\n");
+			
+			log_file.close();
 			
 		} catch	(IOException e){
 			System.out.println("Error writing to hourmeter file:" + e.getMessage());
-			return;
+			return -1;
 		}
+		return 0;
 
 
 	}
 	
 	private int readCurrentValuesFromHourmeterFile(){
+		double temp_double;
+		try{
+			//Open File
+			FileReader fstream = new FileReader(HOURMETER_FNAME);
+			BufferedReader log_file = new BufferedReader(fstream);
+			
+			//Read each line, error-checking as we go.
+			temp_double = parseLineWithErrorcheck(log_file.readLine(), "TOTAL_MINUTES");
+			if(temp_double < 0){
+				log_file.close();
+				return -1;
+			} else {
+				minutesTotal = temp_double;
+			}
+			
+			temp_double = parseLineWithErrorcheck(log_file.readLine(), "DISABLED_MINUTES");
+			if(temp_double < 0){
+				log_file.close();
+				return -1;
+			} else {
+				minutesDisabled = temp_double;
+			}
+			
+			temp_double = parseLineWithErrorcheck(log_file.readLine(), "TELEOP_MINUTES");
+			if(temp_double < 0){
+				log_file.close();
+				return -1;
+			} else {
+				minutesTeleop = temp_double;
+			}
+			
+			temp_double = parseLineWithErrorcheck(log_file.readLine(), "AUTO_MINUTES");
+			if(temp_double < 0){
+				log_file.close();
+				return -1;
+			} else {
+				minutesAutonomous = temp_double;
+			}
+			
+			temp_double = parseLineWithErrorcheck(log_file.readLine(), "TEST_MINUTES");
+			if(temp_double < 0){
+				log_file.close();
+				return -1;
+			} else {
+				minutesTest = temp_double;
+			}
+			
+			temp_double = parseLineWithErrorcheck(log_file.readLine(), "TELEOP_ENABLES");
+			if(temp_double < 0){
+				log_file.close();
+				return -1;
+			} else {
+				numTeleopEnables = temp_double;
+			}
+			
+			temp_double = parseLineWithErrorcheck(log_file.readLine(), "AUTO_ENABLES");
+			if(temp_double < 0){
+				log_file.close();
+				return -1;
+			} else {
+				numAutonomousEnables = temp_double;
+			}
+			
+			temp_double = parseLineWithErrorcheck(log_file.readLine(), "TEST_ENABLES");
+			if(temp_double < 0){
+				log_file.close();
+				return -1;
+			} else {
+				numTestEnables = temp_double;
+			}
+			
+			log_file.close();
+		} catch	(IOException e){
+			System.out.println("Error writing to hourmeter file:" + e.getMessage());
+			return -1;
+		}
 		
 		return 0;
 	}
 	
+	/**
+	 * Takes a string and an expected name, and parses the number out of it. Returns -1.0 if errors are found. -1 should be fine because all stored times are positive.
+	 * @param line_array
+	 * @param name
+	 * @return
+	 */
+	private double parseLineWithErrorcheck(String line, String name){
+		String[] working_array;
+		try{
+			working_array = line.split(":");
+			if( working_array.length != 2 ||
+				!working_array[0].equals(name)){
+				System.out.println("ERROR: Cannot process line in hourmeter file. Looking for " + name);
+				return -1.0;
+			} else {
+				double temp = Double.parseDouble(working_array[1]);
+				return temp;
+			}
+		} catch(NumberFormatException nfe)
+		{
+			return -1.0;
+		}
+	}
+	
+	
+	/**
+	 * This method will shut down the hourmeter operation. Not good for usual things, but if the file somehow gets corrupted, 
+	 * it will keep the robot from getting bogged down or locked up on a bogus file.
+	 */
+	private void shutDownHourmeter(){
+		minutesTotal = -1;
+		minutesDisabled = -1;
+		minutesTeleop = -1;
+		minutesAutonomous = -1;
+		minutesTest = -1;
+		numTeleopEnables = -1;
+		numAutonomousEnables = -1;
+		numTestEnables = -1;
+		System.out.println("ERROR: Hourmeter has stopped.");
+		this.updater.cancel();
+		
+	}
+	
+	/**
+	 * This method will properly initialize the time/count totals and write the file to disk.
+	 * @return
+	 */
 	private int initNewHourmeterFile(){
 		minutesTotal = 0;
 		minutesDisabled = 0;
@@ -112,9 +251,8 @@ public class CasseroleHourmeter {
 		numAutonomousEnables = 0;
 		numTestEnables = 0;
 		
-		writeCurrentValuesToHourmeterFile();
+		return writeCurrentValuesToHourmeterFile();
 		
-		return 0;
 	}
 	
 	private void updateHourmeterFile(){
@@ -155,7 +293,10 @@ public class CasseroleHourmeter {
 		}
 		
 		//write all the updated variables to file
-		writeCurrentValuesToHourmeterFile();
+		if(writeCurrentValuesToHourmeterFile() != 0){
+			//something weird happened, exit gracefully.
+			shutDownHourmeter();
+		}
 		
 	}
 	
