@@ -3,9 +3,11 @@ package org.usfirst.frc.team1736.robot;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.Thread.State;
 import java.util.TimerTask;
 
 import edu.wpi.first.wpilibj.DriverStation;
@@ -21,7 +23,7 @@ import edu.wpi.first.wpilibj.Timer;
  */
 public class CasseroleHourmeter {
 	
-	final String HOURMETER_FNAME = "/U/hourmeter/runtime_data.txt";
+	final String HOURMETER_FNAME = "/home/lvuser/hourmeter/runtime_data.txt";
 	
 	final int HOURMETER_UPDATE_RATE_MS = 5000;
 	
@@ -34,8 +36,10 @@ public class CasseroleHourmeter {
 	public double  numAutonomousEnables;
 	public double  numTestEnables;
 	
-	public double prev_call_time;
+	public double prev_call_time_sec;
 	public OperationState prev_state; 
+	
+	public boolean isRunning;
 	
 	DriverStation ds;
 	
@@ -50,17 +54,22 @@ public class CasseroleHourmeter {
 	 */
 	CasseroleHourmeter(){
 		int ret_val;
+		isRunning = false;
 		
 		updater = new java.util.Timer();
 		updater_task = new HourmeterUpdater();
 		
 		ds = DriverStation.getInstance();
 		
-		prev_call_time = Timer.getFPGATimestamp();
+		prev_call_time_sec = Timer.getFPGATimestamp();
 		prev_state = OperationState.UNKNOWN;
 		
+		//create new file if it doesn't exist, checking errors along the way.
 		if(!checkHourmeterFileExists()){
-			ret_val = initNewHourmeterFile();
+			ret_val = makeHourmeterDirectories();
+			if(ret_val == 0){
+				ret_val = initNewHourmeterFile();
+			}
 		} else {
 			ret_val = readCurrentValuesFromHourmeterFile();
 		}
@@ -70,7 +79,19 @@ public class CasseroleHourmeter {
 			System.out.println("ERROR: Cannot initialize hourmeter. Not starting it.");
 		} else {
 			updater.scheduleAtFixedRate(updater_task, 0, HOURMETER_UPDATE_RATE_MS);
+			isRunning = true;
 		}
+	}
+	
+	/**
+	 * Perform an immediate update of the hourmeter. This does add some overhead so use it sparingly. However, 
+	 * it's good to use in any of the *_init methods to be sure the file is properly updated.
+	 */
+	public void immedeateUpdate(){
+		//single-shot Call. Note this method must be synchronzied since it could be called from either the background
+		//hourmeter thread or the main one.
+		if(isRunning)
+			updateHourmeterFile(); 
 	}
 	
 	/**
@@ -86,10 +107,26 @@ public class CasseroleHourmeter {
 		}
 	}
 	
+	/**
+	 * Creates directories for hourmeter file. Should be called during initial creation, before first write.
+	 * @return 0 on directory-making success, -1 if directories were not created.
+	 */
+	
+	private int makeHourmeterDirectories(){
+		
+		File tempFobj = new File(HOURMETER_FNAME);
+		File tempPathObj = new File(tempFobj.getParent());
+		if(tempPathObj.mkdirs()){
+			return 0;
+		} else {
+			return -1;
+		}
+	}
+	
 	private int writeCurrentValuesToHourmeterFile(){
 		try{
 			//Open File
-			FileWriter fstream = new FileWriter(HOURMETER_FNAME, true);
+			FileWriter fstream = new FileWriter(HOURMETER_FNAME, false);
 			BufferedWriter log_file = new BufferedWriter(fstream);
 			
 			//Write the lines. Changes here will need corresponding updates in the read function.
@@ -104,8 +141,8 @@ public class CasseroleHourmeter {
 			
 			log_file.close();
 			
-		} catch	(IOException e){
-			System.out.println("Error writing to hourmeter file:" + e.getMessage());
+		} catch	(IOException e ){
+			System.out.println("ERROR: cannot write to hourmeter file:" + e.getMessage());
 			return -1;
 		}
 		return 0;
@@ -187,7 +224,7 @@ public class CasseroleHourmeter {
 			
 			log_file.close();
 		} catch	(IOException e){
-			System.out.println("Error writing to hourmeter file:" + e.getMessage());
+			System.out.println("ERROR: cannot read from hourmeter file:" + e.getMessage());
 			return -1;
 		}
 		
@@ -224,6 +261,7 @@ public class CasseroleHourmeter {
 	 * it will keep the robot from getting bogged down or locked up on a bogus file.
 	 */
 	private void shutDownHourmeter(){
+		isRunning = false;
 		minutesTotal = -1;
 		minutesDisabled = -1;
 		minutesTeleop = -1;
@@ -255,9 +293,10 @@ public class CasseroleHourmeter {
 		
 	}
 	
-	private void updateHourmeterFile(){
+	private synchronized void updateHourmeterFile(){
 		//Update hour & counts with previous call information
-		double delta_time_min = (Timer.getFPGATimestamp() - prev_call_time)/60;
+		double current_time_sec = Timer.getFPGATimestamp();
+		double delta_time_min = (current_time_sec - prev_call_time_sec)/60;
 		OperationState cur_state = OperationState.UNKNOWN;
 		
 		
@@ -298,6 +337,8 @@ public class CasseroleHourmeter {
 			shutDownHourmeter();
 		}
 		
+		prev_state = cur_state;
+		prev_call_time_sec = current_time_sec;
 	}
 	
 	/**
