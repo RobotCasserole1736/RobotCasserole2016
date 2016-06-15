@@ -68,7 +68,7 @@ public abstract class CasserolePID {
 		
 		dTermDeriv    = new DerivativeCalculator();
 		setpointDeriv = new DerivativeCalculator();
-		iTermIntegral = new IntegralCalculator();
+		iTermIntegral = new IntegralCalculator(5);
 		
 		useErrForDerivTerm = true;
 		
