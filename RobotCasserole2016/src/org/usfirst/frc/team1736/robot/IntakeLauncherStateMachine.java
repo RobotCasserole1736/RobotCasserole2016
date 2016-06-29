@@ -3,6 +3,8 @@
  */
 package org.usfirst.frc.team1736.robot;
 
+import org.usfirst.frc.team1736.lib.Calibration.Calibration;
+
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Talon;
@@ -24,11 +26,13 @@ public class IntakeLauncherStateMachine {
 	
 	//Tune Params
 	private static final IntLncState initState = IntLncState.STOPPED_NO_BALL;
-	public static double LAUNCH_SPEED_RPM;
 	public static final double LAUNCH_SPEED_RPM_DEFAULTVAL = 4500;
 	public static final double LAUNCH_SPEED_RPM_AUTO_DEFAULTVAL = 4480;
 	public static final double LAUNCH_SPEED_RPM_NEWBALL = 4500;
 	public static final double LAUNCH_SPEED_RPM_AUTO_NEWBALL = 4480;
+	
+	public Calibration launchSpeed;
+	
 	public static final double LAUNCH_SPEED_ERR_LMT_RPM = 200;
 	public static final double LAUNCH_SPEED_MIN_ABS_RPM = LAUNCH_SPEED_RPM_DEFAULTVAL * 0.25; //fudge tune value to prevent the erronious transition to wait_for_spoolup while the shooter is still stopped.
 	public static final double MIN_LAUNCH_TIME_THRESH_MS = 1500;
@@ -86,8 +90,7 @@ public class IntakeLauncherStateMachine {
 		stateTimer = new Timer();
 		encFailedTimer = new Timer();
 		
-		//leave values at default
-		LAUNCH_SPEED_RPM = LAUNCH_SPEED_RPM_DEFAULTVAL; 
+		launchSpeed = new Calibration("LaunchSpeed(RPM)",4500, 2000.0, 6500.0);		
 
 	}
 	
@@ -256,17 +259,17 @@ public class IntakeLauncherStateMachine {
 			
 			break;
 		case WAIT_FOR_SPOOLUP:
-			shooterCmd_RPM = LAUNCH_SPEED_RPM;
+			shooterCmd_RPM = launchSpeed.get();
 
 			
 			break;
 		case WAIT_FOR_LAUNCH:
-			shooterCmd_RPM = LAUNCH_SPEED_RPM;
+			shooterCmd_RPM = launchSpeed.get();
 
 			
 			break;
 		case LAUNCH:
-			shooterCmd_RPM = LAUNCH_SPEED_RPM;
+			shooterCmd_RPM = launchSpeed.get();
 
 			
 			break;
@@ -336,14 +339,7 @@ public class IntakeLauncherStateMachine {
 	}
 
 	public void setBallType(int type, boolean isAuto ){
-		if (type== 0 && isAuto)
-			LAUNCH_SPEED_RPM= LAUNCH_SPEED_RPM_AUTO_DEFAULTVAL;
-		else if (type==1 && isAuto)
-			LAUNCH_SPEED_RPM= LAUNCH_SPEED_RPM_AUTO_NEWBALL;
-		else if (type == 0 && !isAuto)
-			LAUNCH_SPEED_RPM= LAUNCH_SPEED_RPM_DEFAULTVAL;
-		else 
-			LAUNCH_SPEED_RPM= LAUNCH_SPEED_RPM_NEWBALL;
+		//Stubbed! Shouldn't do anything.
 	}
 	
 	public double getEncoderValue() {

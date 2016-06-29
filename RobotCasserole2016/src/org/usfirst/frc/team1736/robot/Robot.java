@@ -1,6 +1,9 @@
 
 package org.usfirst.frc.team1736.robot;
 
+import org.usfirst.frc.team1736.lib.Calibration.CalWrangler;
+import org.usfirst.frc.team1736.lib.WebServer.CasseroleWebServer;
+
 import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 import edu.wpi.first.wpilibj.BuiltInAccelerometer;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -322,6 +325,9 @@ public class Robot extends IterativeRobot {
 	//ball tune selector state
 	int ballmode;
 	
+	//web server
+	CasseroleWebServer webserver;
+	
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	// PUBLIC METHODS 
     ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -419,6 +425,10 @@ public class Robot extends IterativeRobot {
     	
     	//init pathPlanner
     	autopp = new casserolePathAuto(driveTrain, intakeLauncherSM, gyro);
+    	
+    	//Web server init
+    	webserver = new CasseroleWebServer();
+    	webserver.startServer();
     }
     
     /**
@@ -426,6 +436,9 @@ public class Robot extends IterativeRobot {
      * on startup (since default state is disabled), and then once after the match is done
      */
     public void disabledInit() {
+        //load calibration values
+    	CalWrangler.loadCalValues();
+    	
     	if(enable_logging){
 	    	//Ensure any open file gets closed
 	    	logger.close();
@@ -474,6 +487,9 @@ public class Robot extends IterativeRobot {
      * This function is called once right before the start of autonomous
      */
     public void autonomousInit() {
+        //load calibration values
+    	CalWrangler.loadCalValues();
+    	
     	if(enable_logging){
 	    	//Initialize the new log file for autonomous
 	    	logger.init(logger_fields, units_fields);
@@ -578,6 +594,9 @@ public class Robot extends IterativeRobot {
      * This function is called once right before the start of teleop
      */
     public void teleopInit() {
+        //load calibration values
+    	CalWrangler.loadCalValues();
+    	
     	if(enable_logging){
     		//Initialize the new log file for Teleop
     		logger.init(logger_fields, units_fields);
