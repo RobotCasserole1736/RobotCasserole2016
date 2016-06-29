@@ -90,7 +90,7 @@ public class IntakeLauncherStateMachine {
 		stateTimer = new Timer();
 		encFailedTimer = new Timer();
 		
-		launchSpeed = new Calibration("LaunchSpeed(RPM)",4500, 2000.0, 6500.0);		
+		launchSpeed = new Calibration("LaunchSpeed_RPM",4500, 2000.0, 6500.0);		
 
 	}
 	
