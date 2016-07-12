@@ -2,6 +2,7 @@
 package org.usfirst.frc.team1736.robot;
 
 import org.usfirst.frc.team1736.lib.Calibration.CalWrangler;
+import org.usfirst.frc.team1736.lib.WebServer.CasseroleDriverView;
 import org.usfirst.frc.team1736.lib.WebServer.CasseroleWebServer;
 
 import edu.wpi.first.wpilibj.ADXRS450_Gyro;
@@ -425,6 +426,11 @@ public class Robot extends IterativeRobot {
     	
     	//init pathPlanner
     	autopp = new casserolePathAuto(driveTrain, intakeLauncherSM, gyro);
+    	
+    	//Setup driver view
+    	CasseroleDriverView.newDial("ShooterRPM", 0, 7000, 1000);
+    	CasseroleDriverView.newDial("SystemVoltage", 0, 14, 1);
+    	CasseroleDriverView.newDial("SysPressurePSI", 0, 130, 15);
     	
     	//Web server init
     	webserver = new CasseroleWebServer();
@@ -961,6 +967,10 @@ public class Robot extends IterativeRobot {
     	{
     		SmartDashboard.putNumber("Measured Robot Pose Angle", Math.round(gyro.getAngle()) % 360);
     	}
+    	
+    	CasseroleDriverView.setDialValue("ShooterRPM",launchMotor.getActSpeed());
+    	CasseroleDriverView.setDialValue("SystemVoltage", pdp.getVoltage());
+    	CasseroleDriverView.setDialValue("SysPressurePSI",Pneumatics.getPressurePsi());
     	
     }
     
