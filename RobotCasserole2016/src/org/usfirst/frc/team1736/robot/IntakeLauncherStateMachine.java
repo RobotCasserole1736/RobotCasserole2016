@@ -44,7 +44,7 @@ public class IntakeLauncherStateMachine {
 	
 	public static final double LAUNCH_MOTOR_I_MIN_THRESH_A = 5;
 	public static final double LAUNCH_MOTOR_I_MAX_THRESH_A = 20;
-	public static final double LAUNCH_MOTOR_ERR_DBNC_TIME_MS = 4000;
+	public static final double LAUNCH_MOTOR_ERR_DBNC_TIME_MS = 10000;
 	
 	//Sensor for ball detection
 	protected DigitalInput ballSensor;
@@ -90,7 +90,7 @@ public class IntakeLauncherStateMachine {
 		stateTimer = new Timer();
 		encFailedTimer = new Timer();
 		
-		launchSpeed = new Calibration("LaunchSpeed_RPM",4500, 2000.0, 6500.0);		
+		launchSpeed = new Calibration("LaunchSpeed_RPM",4500, 2000.0, 5200.0);		
 
 	}
 	

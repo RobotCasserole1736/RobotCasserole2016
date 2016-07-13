@@ -431,6 +431,8 @@ public class Robot extends IterativeRobot {
     	CasseroleDriverView.newDial("ShooterRPM", 0, 7000, 1000);
     	CasseroleDriverView.newDial("SystemVoltage", 0, 14, 1);
     	CasseroleDriverView.newDial("SysPressurePSI", 0, 130, 15);
+    	CasseroleDriverView.newWebcam("http://roborio-1736-frc.local:5800/?action=stream", "Cam1");
+    	CasseroleDriverView.newWebcam("http://roborio-1736-frc.local:5801/?action=stream", "Cam2");
     	
     	//Web server init
     	webserver = new CasseroleWebServer();
