@@ -21,7 +21,7 @@
 		<height>538</height>
 		<property name="Degrees Rotation" value="180"/>
 		<property name="Crosshair X" value="295"/>
-		<property name="Crosshair Y" value="142"/>
+		<property name="Crosshair Y" value="242"/>
 		<property name="Crosshair size" value="4"/>
 	</static-widget>
 	<widget field="Measured Robot Pose Angle" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.FormattedField">
@@ -142,5 +142,4 @@
 </dashboard>
 <live-window>
 </live-window>
-	<hidden field="Intake Encoder Count"/>
 </xml>
