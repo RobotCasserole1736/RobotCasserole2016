@@ -8,7 +8,7 @@ print('*************************************************************')
 
 RIO_ADDRESS = 'roboRIO-1736-FRC.local'
 RIO_LOG_FPATH = '/media/sda1/data_captures_2016/'
-LOCAL_PATH = 'C:\\RoboRIO_data_captures\\'
+LOCAL_PATH = 'D:\\RobotCasserole\\2016\\RoboRIO_data_captures\\'
 LOG_LOGS_DIR = '.\\file_snagger\\logs\\'
 
 def log_log_result(fsnag_list):
