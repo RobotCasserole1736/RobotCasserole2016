@@ -641,18 +641,6 @@ public class Robot extends IterativeRobot {
     	//Execution time metric - this must be first!
     	prev_loop_start_timestamp = Timer.getFPGATimestamp();
     	
-    	//increment the shooter watchdog in an attempt to catch if its PID thread dies.
-    	launchMotor.wdog_ctr = launchMotor.wdog_ctr + 1;
-    	if(launchMotor.wdog_ctr > WDOG_LIMIT && resets_attempted < RESET_ATTEMPT_LIMIT){ //don't reset too many times, just in case so we don't lock out processor on this
-    		launchMotor.disable();
-    		launchMotor.enable(); //If the watchdog gets too loud, reset the launch motor in a last-ditch attempt...
-    		wdog_timeout = true;
-    		resets_attempted = resets_attempted + 1;
-    	}
-    	else{
-    		wdog_timeout = false;
-    	}
-    	
     	// set the ball state
     	ballmode = (int) ballChooser.getSelected();
     	intakeLauncherSM.setBallType(ballmode, false);
