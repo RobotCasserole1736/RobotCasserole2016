@@ -6,6 +6,7 @@ package org.usfirst.frc.team1736.robot;
 import org.usfirst.frc.team1736.lib.Calibration.Calibration;
 
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Talon;
 import edu.wpi.first.wpilibj.Timer;
@@ -31,7 +32,8 @@ public class IntakeLauncherStateMachine {
 	public static final double LAUNCH_SPEED_RPM_NEWBALL = 4500;
 	public static final double LAUNCH_SPEED_RPM_AUTO_NEWBALL = 4480;
 	
-	public Calibration launchSpeed;
+	public Calibration launchSpeed_teleop;
+	public Calibration launchSpeed_auto;
 	
 	public static final double LAUNCH_SPEED_ERR_LMT_RPM = 200;
 	public static final double LAUNCH_SPEED_MIN_ABS_RPM = LAUNCH_SPEED_RPM_DEFAULTVAL * 0.25; //fudge tune value to prevent the erronious transition to wait_for_spoolup while the shooter is still stopped.
@@ -90,7 +92,8 @@ public class IntakeLauncherStateMachine {
 		stateTimer = new Timer();
 		encFailedTimer = new Timer();
 		
-		launchSpeed = new Calibration("LaunchSpeed_RPM",4500, 2000.0, 5200.0);		
+		launchSpeed_teleop = new Calibration("LaunchSpeed_teleop_RPM",4500, 2000.0, 5200.0);
+		launchSpeed_auto   = new Calibration("LaunchSpeed_auto_RPM",4500, 2000.0, 5200.0);
 
 	}
 	
@@ -100,8 +103,17 @@ public class IntakeLauncherStateMachine {
 			              boolean launchCmded, 
 			              boolean intakeOvdCmded){
 		
+		double launch_speed_local = 0;
+		
 		//Step 0 - process inputs. Mostly these are arguments
 		dbncBallSensor();
+		
+		if(DriverStation.getInstance().isAutonomous()){
+			launch_speed_local = launchSpeed_auto.get();
+		} else {
+			launch_speed_local = launchSpeed_teleop.get();
+		}
+		
 		
 		//STEP 1 - Calculate Next State based on current state and Inputs
 		
@@ -259,17 +271,17 @@ public class IntakeLauncherStateMachine {
 			
 			break;
 		case WAIT_FOR_SPOOLUP:
-			shooterCmd_RPM = launchSpeed.get();
+			shooterCmd_RPM = launch_speed_local;
 
 			
 			break;
 		case WAIT_FOR_LAUNCH:
-			shooterCmd_RPM = launchSpeed.get();
+			shooterCmd_RPM = launch_speed_local;
 
 			
 			break;
 		case LAUNCH:
-			shooterCmd_RPM = launchSpeed.get();
+			shooterCmd_RPM = launch_speed_local;
 
 			
 			break;
