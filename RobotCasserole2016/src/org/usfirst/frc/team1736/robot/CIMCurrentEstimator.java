@@ -44,9 +44,9 @@ public class CIMCurrentEstimator {
 	 */
 	public double getCurrentEstimate(double motorSpeed_radpersec, double motorCommand) {
 		if(motorCommand > 0.05)
-			return Math.max(((double)numMotorsInSystem)*(((pdp.getVoltage()-contVDrop)*motorCommand)-Ki*motorSpeed_radpersec)/ESR, 0);
+			return Math.max((numMotorsInSystem)*(((pdp.getVoltage()-contVDrop)*motorCommand)-Ki*motorSpeed_radpersec)/ESR, 0);
 		else if(motorCommand < -0.05)
-			return -Math.min(((double)numMotorsInSystem)*(((pdp.getVoltage()-contVDrop)*motorCommand)-Ki*motorSpeed_radpersec)/ESR, 0);
+			return -Math.min((numMotorsInSystem)*(((pdp.getVoltage()-contVDrop)*motorCommand)-Ki*motorSpeed_radpersec)/ESR, 0);
 		else
 			return 0.0;
 	}

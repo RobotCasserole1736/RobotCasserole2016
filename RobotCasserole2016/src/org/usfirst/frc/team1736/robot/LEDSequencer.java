@@ -78,7 +78,7 @@ public class LEDSequencer {
 				
 			//RED ALERT! RED ALERT!
 			case PULSE_RED:
-				double intensity = (0.75 + 0.25*Math.sin((double)callCounter*0.02*2*Math.PI*PULSE_FREQ_HZ));
+				double intensity = (0.75 + 0.25*Math.sin(callCounter*0.02*2*Math.PI*PULSE_FREQ_HZ));
 				for(i = 0; i < NUM_LEDS_TOTAL; i++)
 					ledStrips.setLEDColor(i, CASSEROLE_RED_R*intensity, CASSEROLE_RED_G*intensity, CASSEROLE_RED_B*intensity);
 				break;
@@ -137,10 +137,10 @@ public class LEDSequencer {
 			
 			//Classy refinement.
 			case TWINKLE_WEIRD:
-				double intensity1 = ((1-TWINKLE_DEPTH1) + TWINKLE_DEPTH1*Math.sin((double)callCounter*0.02*2*Math.PI*TWINKLE_FREQ1_HZ));
-				double intensity2 = ((1-TWINKLE_DEPTH2) + TWINKLE_DEPTH2*Math.sin((double)callCounter*0.02*2*Math.PI*TWINKLE_FREQ2_HZ));
-				double intensity3 = ((1-TWINKLE_DEPTH3) + TWINKLE_DEPTH3*Math.sin((double)callCounter*0.02*2*Math.PI*TWINKLE_FREQ3_HZ));
-				double intensity4 = ((1-TWINKLE_DEPTH4) + TWINKLE_DEPTH4*Math.sin((double)callCounter*0.02*2*Math.PI*TWINKLE_FREQ4_HZ));
+				double intensity1 = ((1-TWINKLE_DEPTH1) + TWINKLE_DEPTH1*Math.sin(callCounter*0.02*2*Math.PI*TWINKLE_FREQ1_HZ));
+				double intensity2 = ((1-TWINKLE_DEPTH2) + TWINKLE_DEPTH2*Math.sin(callCounter*0.02*2*Math.PI*TWINKLE_FREQ2_HZ));
+				double intensity3 = ((1-TWINKLE_DEPTH3) + TWINKLE_DEPTH3*Math.sin(callCounter*0.02*2*Math.PI*TWINKLE_FREQ3_HZ));
+				double intensity4 = ((1-TWINKLE_DEPTH4) + TWINKLE_DEPTH4*Math.sin(callCounter*0.02*2*Math.PI*TWINKLE_FREQ4_HZ));
 				for(i = 0; i < NUM_LEDS_TOTAL; i++){
 					if(i%2 == 1){ //only twinkle ever other LED
 						ledStrips.setLEDColor(i, CASSEROLE_WHITE_R, CASSEROLE_WHITE_G, CASSEROLE_WHITE_B);
@@ -187,8 +187,8 @@ public class LEDSequencer {
 			//Smooth operator.
 			case GRADIENT:
 				for(i = 0; i < NUM_LEDS_R; i++){
-					redIntensity = Math.pow(((double)i)/((double)NUM_LEDS_R-1.0),3);
-					whiteIntensity = Math.pow(((double)(NUM_LEDS_R-i))/((double)NUM_LEDS_R-1.0),3);
+					redIntensity = Math.pow((i)/(NUM_LEDS_R-1.0),3);
+					whiteIntensity = Math.pow((NUM_LEDS_R-i)/(NUM_LEDS_R-1.0),3);
 					rval = (CASSEROLE_WHITE_R*whiteIntensity + CASSEROLE_RED_R*redIntensity)/2; //Assumes linear something something...
 					gval = (CASSEROLE_WHITE_G*whiteIntensity + CASSEROLE_RED_G*redIntensity)/2;
 					bval = (CASSEROLE_WHITE_B*whiteIntensity + CASSEROLE_RED_B*redIntensity)/2;
@@ -533,7 +533,7 @@ public class LEDSequencer {
 	//red alliance and robot casserole colors
 	public void redAlliance(){
 	int index = 0;
-	int superiterlimit = (int)Math.round((Math.ceil((double)NUM_LEDS_TOTAL/5.0)*5));
+	int superiterlimit = (int)Math.round((Math.ceil(NUM_LEDS_TOTAL/5.0)*5));
 	for(int i = 0; i < superiterlimit; i++)
 	{	
 		index = (int)Math.round(led_counter + i)%superiterlimit;  // Neelika "requested" we fix the mismatch in overall size of the LED stripes

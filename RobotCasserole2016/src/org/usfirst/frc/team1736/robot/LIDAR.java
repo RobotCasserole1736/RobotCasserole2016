@@ -42,7 +42,7 @@ public class LIDAR { //We don't need any pid system, So I took out the code wher
 	 * @return distance in inches
 	 */
 	public double getDistanceIn() { //I made this function better. It used to be part of a PID system. We didn't need a PID system.
-		return (double)getDistance()*0.393701; //inches cuz Merica.
+		return getDistance()*0.393701; //inches cuz Merica.
 	}
 	
 	/**
@@ -76,6 +76,7 @@ public class LIDAR { //We don't need any pid system, So I took out the code wher
 	 *
 	 */
 	private class LIDARUpdater extends TimerTask {
+		@Override
 		public void run() {
 			while(true) {
 				update();

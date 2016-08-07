@@ -195,7 +195,7 @@ public class casserolePathAuto {
 		timerThread = new java.util.Timer(); //create new thread for the playback function
 		shotTimer.reset(); //Make sure the shot timer is ready to be used (zeroed out)
 		playbackActive = true; //Mark that playback has begun (or, will begin shortly)
-		timerThread.schedule(new PathPlanningPlayback(this), 0L, (long) ((double)PLANNER_SAMPLE_RATE_S*1000)); //Kick off playback thread. Here we go!
+		timerThread.schedule(new PathPlanningPlayback(this), 0L, (long) (PLANNER_SAMPLE_RATE_S*1000)); //Kick off playback thread. Here we go!
 		return 0;
 	}
 	

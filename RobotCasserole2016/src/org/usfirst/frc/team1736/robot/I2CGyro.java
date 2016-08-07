@@ -367,7 +367,7 @@ public class I2CGyro {
 		zero_motion_offset = 0;
 		double gyro_zero_read_accumulator = 0;
 		for(int i = 0; i < GYRO_INIT_READS; i++){
-			gyro_zero_read_accumulator += (double)read_gyro_z_reg(); //add up all the reads
+			gyro_zero_read_accumulator += read_gyro_z_reg(); //add up all the reads
 			try {
 				Thread.sleep(10); //pause for 10ms between each read.
 			} catch (InterruptedException e) {
@@ -376,7 +376,7 @@ public class I2CGyro {
 			}
 		}
 		//Calculate the average of all the reads by dividing their total sum by the number of reads
-		zero_motion_offset = (short)((double)gyro_zero_read_accumulator/(double)GYRO_INIT_READS);
+		zero_motion_offset = (short)(gyro_zero_read_accumulator/GYRO_INIT_READS);
 		System.out.println("Done! \nDetermined a zero-offset of " + zero_motion_offset); 
 		
 		//Kick off the multi-threaded stuff.
@@ -463,7 +463,7 @@ public class I2CGyro {
 		//The desired 16-bit reading is split into two eight-bit bytes in memory and over I2C com's. This line just recombines those
 		//two bytes into a 16bit number, and applies the zero-motion-offset.
 		//Typecasting magic here, don't touch!
-		short ret_val = (short)(((buffer_low_and_high_bytes[1] << 8) | (buffer_low_and_high_bytes[0] & 0xFF)) - (short)zero_motion_offset);
+		short ret_val = (short)(((buffer_low_and_high_bytes[1] << 8) | (buffer_low_and_high_bytes[0] & 0xFF)) - zero_motion_offset);
 		//Detect if the gyro has exceeded its measurement range
 		//If so, print a debugging message.
 		if(ret_val > gyro_max_limit || ret_val < -gyro_max_limit)
@@ -481,7 +481,7 @@ public class I2CGyro {
 		//shift existing values
     	gyro_z_val_deg_per_sec[2] = gyro_z_val_deg_per_sec[1]; //note we discard the oldest sample
     	gyro_z_val_deg_per_sec[1] = gyro_z_val_deg_per_sec[0];
-    	gyro_z_val_deg_per_sec[0] = gyro_median_filter((double)read_gyro_z_reg()*degPerSecPerLSB); //Read new value, scale, and add to gyro_z_vals array
+    	gyro_z_val_deg_per_sec[0] = gyro_median_filter(read_gyro_z_reg()*degPerSecPerLSB); //Read new value, scale, and add to gyro_z_vals array
     	//Apply deadzone to gyro reading
 		if(gyro_z_val_deg_per_sec[0] < gyro_deadzone && gyro_z_val_deg_per_sec[0] > -gyro_deadzone)
 			gyro_z_val_deg_per_sec[0] = 0;

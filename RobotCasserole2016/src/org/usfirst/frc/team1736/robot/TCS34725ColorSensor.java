@@ -151,10 +151,10 @@ public class TCS34725ColorSensor {
 		color_sen.read(TCS34725_CDATAH, 2, clear_bytes);
 
 		//Perform typecasting and bit-shifting on the recieved data.
-		red_val = (int)((red_bytes[1] << 8) | (red_bytes[0] & 0xFF));
-		green_val = (int)((green_bytes[1] << 8) | (green_bytes[0] & 0xFF));
-		blue_val = (int)((blue_bytes[1] << 8) | (blue_bytes[0] & 0xFF));
-		clear_val = (int)((clear_bytes[1] << 8) | (clear_bytes[0] & 0xFF));
+		red_val = (red_bytes[1] << 8) | (red_bytes[0] & 0xFF);
+		green_val = (green_bytes[1] << 8) | (green_bytes[0] & 0xFF);
+		blue_val = (blue_bytes[1] << 8) | (blue_bytes[0] & 0xFF);
+		clear_val = (clear_bytes[1] << 8) | (clear_bytes[0] & 0xFF);
 		
 		//Set that we've got good data and return.
 		good_data_read = true;

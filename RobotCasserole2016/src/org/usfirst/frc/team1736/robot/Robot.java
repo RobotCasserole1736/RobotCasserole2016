@@ -337,7 +337,8 @@ public class Robot extends IterativeRobot {
      * This function is run when the robot is first started up and should be
      * used for any initialization code.
      */
-    public void robotInit() {
+    @Override
+	public void robotInit() {
     	//Initialize each peripheral
 
     	//Stuff for Autonomous
@@ -443,7 +444,8 @@ public class Robot extends IterativeRobot {
      * This function is run when the robot enters disabled state. This happens once
      * on startup (since default state is disabled), and then once after the match is done
      */
-    public void disabledInit() {
+    @Override
+	public void disabledInit() {
         //load calibration values
     	CalWrangler.loadCalValues();
     	
@@ -467,7 +469,8 @@ public class Robot extends IterativeRobot {
 
     }
     
-    public void disabledPeriodic() {
+    @Override
+	public void disabledPeriodic() {
 
     	//set LED's to proper color
     	//leds.sequencerPeriodic(LEDPatterns.VOLUME_CTRL1); //makes dustin happy
@@ -494,7 +497,8 @@ public class Robot extends IterativeRobot {
     /**
      * This function is called once right before the start of autonomous
      */
-    public void autonomousInit() {
+    @Override
+	public void autonomousInit() {
         //load calibration values
     	CalWrangler.loadCalValues();
     	
@@ -554,7 +558,8 @@ public class Robot extends IterativeRobot {
     /**
      * This function is called periodically during autonomous
      */
-    public void autonomousPeriodic() {
+    @Override
+	public void autonomousPeriodic() {
     	
     	//Execution time metric - this must be first!
     	prev_loop_start_timestamp = Timer.getFPGATimestamp();
@@ -601,7 +606,8 @@ public class Robot extends IterativeRobot {
     /**
      * This function is called once right before the start of teleop
      */
-    public void teleopInit() {
+    @Override
+	public void teleopInit() {
         //load calibration values
     	CalWrangler.loadCalValues();
     	
@@ -637,7 +643,8 @@ public class Robot extends IterativeRobot {
     /** 
      * This function is called periodically during operator control (teleop)
      */
-    public void teleopPeriodic() {
+    @Override
+	public void teleopPeriodic() {
     	//Execution time metric - this must be first!
     	prev_loop_start_timestamp = Timer.getFPGATimestamp();
     	
@@ -764,14 +771,16 @@ public class Robot extends IterativeRobot {
      * This function is called just before the start of test mode
      * This is a random comment
      */
-    public void testInit() {
+    @Override
+	public void testInit() {
     
     }
     
     /**
      * This function is called periodically during test mode
      */
-    public void testPeriodic() {
+    @Override
+	public void testPeriodic() {
 
     }
     

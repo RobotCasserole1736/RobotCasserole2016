@@ -4,7 +4,6 @@ import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.CANTalon;
 import edu.wpi.first.wpilibj.CANTalon.FeedbackDevice;
 import edu.wpi.first.wpilibj.CANTalon.StatusFrameRate;
-import edu.wpi.first.wpilibj.command.PIDSubsystem;
 
 public class Shooter extends CasserolePID {
 	CANTalon shooterController;

@@ -321,8 +321,8 @@ class FalconLinePlot extends JPanel implements ClipboardOwner{
     	for(int i=0; i<link.size(); i++)
     	{
 	        // Draw lines.
-	        double xScale = (double)(w - 2*xPAD)/(upperXtic-lowerXtic);
-	        double yScale = (double)(h - 2*yPAD)/(upperYtic-lowerYtic);
+	        double xScale = (w - 2*xPAD)/(upperXtic-lowerXtic);
+	        double yScale = (h - 2*yPAD)/(upperYtic-lowerYtic);
 	        
 	        for(int j = 0; j < link.get(i).y.length-1; j++) 
 	        {
@@ -746,10 +746,11 @@ class FalconLinePlot extends JPanel implements ClipboardOwner{
 
         item.addActionListener(new ActionListener() 
         {
-          public void actionPerformed(ActionEvent e) 
+          @Override
+		public void actionPerformed(ActionEvent e) 
           {
             
-            BufferedImage i = new BufferedImage(p.getSize().width, p.getSize().height,BufferedImage.TRANSLUCENT);
+            BufferedImage i = new BufferedImage(p.getSize().width, p.getSize().height,Transparency.TRANSLUCENT);
             p.setOpaque(false);
             p.paint(i.createGraphics()); 
             TransferableImage trans = new TransferableImage( i );
@@ -763,7 +764,8 @@ class FalconLinePlot extends JPanel implements ClipboardOwner{
         item = new JMenuItem("Desktop ScreenShot");
         item.addActionListener(new ActionListener() 
         {
-          public void actionPerformed(ActionEvent e) 
+          @Override
+		public void actionPerformed(ActionEvent e) 
           {
             System.out.println("NOT Copy files to clipboard");
             
@@ -788,19 +790,22 @@ class FalconLinePlot extends JPanel implements ClipboardOwner{
     }
 
     class PopupTriggerListener extends MouseAdapter {
-    	public void mousePressed(MouseEvent ev) {
+    	@Override
+		public void mousePressed(MouseEvent ev) {
     		if (ev.isPopupTrigger()) {
     			menu.show(ev.getComponent(), ev.getX(), ev.getY());
     		}
     	}
 
-    	public void mouseReleased(MouseEvent ev) {
+    	@Override
+		public void mouseReleased(MouseEvent ev) {
     		if (ev.isPopupTrigger()) {
     			menu.show(ev.getComponent(), ev.getX(), ev.getY());
     		}
     	}
 
-    	public void mouseClicked(MouseEvent ev) {
+    	@Override
+		public void mouseClicked(MouseEvent ev) {
 
     	}
     }
@@ -813,7 +818,8 @@ class FalconLinePlot extends JPanel implements ClipboardOwner{
             this.i = i;
         }
 
-        public Object getTransferData( DataFlavor flavor )
+        @Override
+		public Object getTransferData( DataFlavor flavor )
         throws UnsupportedFlavorException, IOException {
             if ( flavor.equals( DataFlavor.imageFlavor ) && i != null ) {
                 return i;
@@ -823,13 +829,15 @@ class FalconLinePlot extends JPanel implements ClipboardOwner{
             }
         }
 
-        public DataFlavor[] getTransferDataFlavors() {
+        @Override
+		public DataFlavor[] getTransferDataFlavors() {
             DataFlavor[] flavors = new DataFlavor[ 1 ];
             flavors[ 0 ] = DataFlavor.imageFlavor;
             return flavors;
         }
 
-        public boolean isDataFlavorSupported( DataFlavor flavor ) {
+        @Override
+		public boolean isDataFlavorSupported( DataFlavor flavor ) {
             DataFlavor[] flavors = getTransferDataFlavors();
             for ( int i = 0; i < flavors.length; i++ ) {
                 if ( flavor.equals( flavors[ i ] ) ) {

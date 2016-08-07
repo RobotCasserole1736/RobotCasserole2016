@@ -82,8 +82,8 @@ public class DriveTrain extends RobotDrive { //Inherits methods from RobotDrive 
 		rightEncoder = new Encoder(rightEncoderChannel_1, rightEncoderChannel_2);
 
 		//Return encoder distance in radians
-		leftEncoder.setDistancePerPulse(Math.PI*2.0/(double)ENCODER_TICKS_PER_REV);
-		rightEncoder.setDistancePerPulse(Math.PI*2.0/(double)ENCODER_TICKS_PER_REV);
+		leftEncoder.setDistancePerPulse(Math.PI*2.0/ENCODER_TICKS_PER_REV);
+		rightEncoder.setDistancePerPulse(Math.PI*2.0/ENCODER_TICKS_PER_REV);
 		leftEncoder.setReverseDirection(true);
 		
 		//Disable safety timeout?
@@ -106,6 +106,7 @@ public class DriveTrain extends RobotDrive { //Inherits methods from RobotDrive 
 			return false;
 	}
 	
+	@Override
 	public void setLeftRightMotorOutputs(double leftOutput, double rightOutput)
 	{		
 		//If motor induces acceptable voltage drop, just set it
