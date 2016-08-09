@@ -7,6 +7,8 @@ import org.json.simple.JSONObject;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.WebSocketAdapter;
 
+import java.util.Timer;
+
 /**
  * DESCRIPTION:
  * <br>
@@ -79,7 +81,7 @@ public class CasseroleDriverViewStreamerSocket extends WebSocketAdapter {
             	
             	//Package all data array elements into a JSON array
             	int index = 0;
-            	for(String val : CasseroleDriverView.dial_vals.toArray(new String[CasseroleDriverView.dial_vals.size()])){
+            	for(String val : CasseroleDriverView.obj_vals.toArray(new String[CasseroleDriverView.obj_vals.size()])){
             		JSONObject val_obj = new JSONObject();
             		val_obj.put("index", index);
             		val_obj.put("value", val);
@@ -106,7 +108,6 @@ public class CasseroleDriverViewStreamerSocket extends WebSocketAdapter {
 	 *
 	 */
 	private class dataBroadcastTask extends TimerTask {
-		@Override
 		public void run() {
 				broadcastData();
 		}
