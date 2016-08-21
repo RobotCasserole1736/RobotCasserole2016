@@ -1,13 +1,13 @@
-package org.usfirst.frc.team1736.robot;
+package org.usfirst.frc.team1736.lib.FalconPathPlanner;
 
-	import java.awt.Color;
-	import java.awt.GraphicsEnvironment;
-	import java.util.LinkedList;
-	import java.util.List;
+import java.awt.Color;
+import java.awt.GraphicsEnvironment;
+import java.util.LinkedList;
+import java.util.List;
 
 
 
-	/**
+/**
  * This Class provides many useful algorithms for Robot Path Planning. It uses optimization techniques and knowledge
  * of Robot Motion in order to calculate smooth path trajectories, if given only discrete waypoints. The Benefit of these optimization
  * algorithms are very efficient path planning that can be used to Navigate in Real-time.
@@ -26,9 +26,11 @@ package org.usfirst.frc.team1736.robot;
  * 
  * Initial tests on the 2015 FRC NI RoboRio, the complete algorithm finishes in under 15ms using the Java System Timer for paths with less than 50 nodes. 
  * 
+ * FRC 1736 Casserole has made some modifications for documentation and exposing more calibration parameters. Hence the version bump.
+ * 
  * @author Kevin Harrilal
  * @email kevin@team2168.org
- * @version 1.0
+ * @version 1.1
  * @date 2014-Aug-11
  *
  */
@@ -36,28 +38,31 @@ public class FalconPathPlanner
 {
 
 	//Path Variables
-	public double[][] origPath;
-	public double[][] nodeOnlyPath;
-	public double[][] smoothPath;
-	public double[][] leftPath;
-	public double[][] rightPath;
+	double[][] origPath;
+	double[][] nodeOnlyPath;
+	double[][] smoothPath;
+	double[][] leftPath;
+	double[][] rightPath;
 
 	//Orig Velocity
-	public double[][] origCenterVelocity;
-	public double[][] origRightVelocity;
-	public double[][] origLeftVelocity;
+	double[][] origCenterVelocity;
+	double[][] origRightVelocity;
+	double[][] origLeftVelocity;
 
 	//smooth velocity
-	public double[][] smoothCenterVelocity;
+	double[][] smoothCenterVelocity;
+	/** Array of desired right wheel velocities. Use these to assign setpoints to the PID which controls the speed of the right wheels */
 	public double[][] smoothRightVelocity;
+	/** Array of desired left wheel velocities. Use these to assign setpoints to the PID which controls the speed of the left wheels */
 	public double[][] smoothLeftVelocity;
 
-	//accumulated heading
+	/** Array of expected heading readings (in degrees). Use these to assign setpoints to the controller which adjusts wheel speed based on gyro readings vs. heading error.*/
 	public double[][] heading;
 
 	double totalTime;
 	double totalDistance;
-	double numFinalPoints;
+	/** Total number of setpoints generated as part of the path planning process */
+	public double numFinalPoints;
 
 	double pathAlpha;
 	double pathBeta;
@@ -84,7 +89,7 @@ public class FalconPathPlanner
 		};
 		This path goes from {1,1} -> {5,1} -> {9,12} -> {12, 9} -> {15,6} -> {15,4}
 		The units of these coordinates are position units assumed by the user (i.e inch, foot, meters) 
-	 * @param path
+	 * @param path array of waypoints to plot a path for.
 	 */
 	public FalconPathPlanner(double[][] path)
 	{
@@ -129,7 +134,7 @@ public class FalconPathPlanner
 	 * @param arr
 	 * @return
 	 */
-	public static double[][] doubleArrayCopy(double[][] arr)
+	static double[][] doubleArrayCopy(double[][] arr)
 	{
 
 		//size first dimension of array
@@ -158,7 +163,7 @@ public class FalconPathPlanner
 	 * @param numToInject
 	 * @return
 	 */
-	public double[][] inject(double[][] orig, int numToInject)
+	double[][] inject(double[][] orig, int numToInject)
 	{
 		double morePoints[][];
 
@@ -240,7 +245,7 @@ public class FalconPathPlanner
 	 * @param path
 	 * @return
 	 */
-	public static double[][] nodeOnlyWayPoints(double[][] path)
+	static double[][] nodeOnlyWayPoints(double[][] path)
 	{
 
 		List<double[]> li = new LinkedList<double[]>();
@@ -383,7 +388,7 @@ public class FalconPathPlanner
 	 * @param smoothVelocity
 	 * @return
 	 */
-	private double[] errorSum(double[][] origVelocity, double[][] smoothVelocity)
+	double[] errorSum(double[][] origVelocity, double[][] smoothVelocity)
 	{
 		//copy vectors
 		double[] tempOrigDist = new double[origVelocity.length];
@@ -421,7 +426,7 @@ public class FalconPathPlanner
 	 * @param maxTimeToComplete
 	 * @param timeStep
 	 */
-	public int[] injectionCounter2Steps(double numNodeOnlyPoints, double maxTimeToComplete, double timeStep)
+	int[] injectionCounter2Steps(double numNodeOnlyPoints, double maxTimeToComplete, double timeStep)
 	{
 		int first = 0;
 		int second = 0;
@@ -496,7 +501,7 @@ public class FalconPathPlanner
  * @param smoothPath - center smooth path of robot
  * @param robotTrackWidth - width between left and right wheels of robot of skid steer chassis. 
  */
-	public void leftRight(double[][] smoothPath, double robotTrackWidth)
+	void leftRight(double[][] smoothPath, double robotTrackWidth)
 	{
 
 		double[][] leftPath = new double[smoothPath.length][2];
@@ -547,7 +552,7 @@ public class FalconPathPlanner
 	 * @return array of doubles representing the 1st column of the initial parameter
 	 */
 
-	public static double[] getXVector(double[][] arr)
+	static double[] getXVector(double[][] arr)
 	{
 		double[] temp = new double[arr.length];
 
@@ -563,7 +568,7 @@ public class FalconPathPlanner
 	 * @param arr 2D array of doubles
 	 * @return array of doubles representing the 1st column of the initial parameter
 	 */
-	public static double[] getYVector(double[][] arr)
+	static double[] getYVector(double[][] arr)
 	{
 		double[] temp = new double[arr.length];
 
@@ -573,7 +578,7 @@ public class FalconPathPlanner
 		return temp;		
 	}
 
-	public static double[][] transposeVector(double[][] arr)
+	static double[][] transposeVector(double[][] arr)
 	{
 		double[][] temp = new double[arr[0].length][arr.length];
 
@@ -583,31 +588,70 @@ public class FalconPathPlanner
 
 		return temp;		
 	}
-
+	
+	/**
+	 * Advanced path adjustment. Experimiental, may cause path non-convergence
+	 * <br><br>
+	 * Path Beta & Alpha determine the allowed divergence from sharp corners in the waypoint set. 
+	 * Lower alpha allows the robot to diverge more from the waypoints given, 
+	 * but causes direction transistions to be more gradual.
+	 * Tested reasonable range seems to be around 0.1 to 1.0 or so.
+	 * @param alpha
+	 */
 	public void setPathAlpha(double alpha)
 	{
 		pathAlpha = alpha;
 	}
-
+	/**
+	 * Advanced path adjustment. Experimiental, may cause path non-convergence.
+	 * <br><br>
+	 * Path Beta & Alpha determine the allowed divergence from sharp corners in the waypoint set. 
+	 * Higher beta allows the robot to diverge more from the waypoints given, 
+	 * but causes direction transistions to be more gradual.
+	 * Tested reasonable range seems to be around 0.01 to 0.6 or so.
+	 * @param alpha
+	 */
 	public void setPathBeta(double beta)
 	{
 		pathBeta = beta; //derp
 	}
-
+	
+	/**
+	 * Advanced path adjustment. Experimiental, may cause path non-convergence
+	 * Totally untested by casserole. Probably does something useful.
+	 * @param alpha
+	 */
 	public void setPathTolerance(double tolerance)
 	{
 		pathTolerance = tolerance; //derp
 	}
 	
+	/**
+	 * Advanced path adjustment. Experimiental, may cause path non-convergence
+	 * <br><br>
+	 * Velocity Beta & Alpha determine the agressivness of acceleration of the drivetrain
+	 * Lower alpha causes the desired velocity curves to be much smoother and less agressive.
+	 * Tested reasonable range seemsto be around 0.1 to 0.0001
+	 * @param alpha
+	 */
 	//Expose that which is hidden. MUA HAHAHAHAHAHAH!
 	public void setVelocityAlpha(double alpha){
 		velocityAlpha = alpha;
 	}
-	
+
+	/**
+	 * Advanced path adjustment. Experimiental, may cause path non-convergence
+	 * <br><br>
+	 * Velocity Beta & Alpha determine the agressivness of acceleration of the drivetrain
+	 * Higher beta causes the desired velocity curves to be much smoother and less agressive.
+	 * Tested reasonable range seems to be around 0.1 to 0.8 or so.
+	 * @param alpha
+	 */
 	public void setVelocityBeta(double beta){
 		velocityBeta = beta;
 	}
 
+	
 	/**
 	 * This code will calculate a smooth path based on the program parameters. If the user doesn't set any parameters, the will use the defaults optimized for most cases. The results will be saved into the corresponding
 	 * class members. The user can then access .smoothPath, .leftPath, .rightPath, .smoothCenterVelocity, .smoothRightVelocity, .smoothLeftVelocity as needed.
@@ -616,7 +660,7 @@ public class FalconPathPlanner
 	 * 
 	 * @param totalTime - time the user wishes to complete the path in seconds. (this is the maximum amount of time the robot is allowed to take to traverse the path.)
 	 * @param timeStep - the frequency at which the robot controller is running on the robot. 
-	 * @param robotTrackWidth - distance between left and right side wheels of a skid steer chassis. Known as the track width.
+	 * @param robotTrackWidth - total distance between left and right side wheels of a skid steer chassis. Known as the track width.
 	 */
 	public void calculate(double totalTime, double timeStep, double robotTrackWidth)
 	{
@@ -700,10 +744,17 @@ public class FalconPathPlanner
 
 		final FalconPathPlanner path = new FalconPathPlanner(waypoints);
 		
+		/*
 		path.setPathBeta(0.1);
 		path.setPathAlpha(0.5);
 		path.setVelocityAlpha(0.01);
 		path.setVelocityBeta(0.8);
+		*/
+		path.setPathBeta(0.5);
+		path.setPathAlpha(0.5);
+		path.setVelocityAlpha(0.01);
+		path.setVelocityBeta(0.8);
+		
 		path.calculate(totalTime, timeStep, robotTrackWidth);
 
 		System.out.println("Time in ms: " + (System.currentTimeMillis()-start));
@@ -738,7 +789,7 @@ public class FalconPathPlanner
 
 
 			//generate poof path used in 2014 Einstein
-			path.poofExample();
+			//path.poofExample();
 
 		}
 

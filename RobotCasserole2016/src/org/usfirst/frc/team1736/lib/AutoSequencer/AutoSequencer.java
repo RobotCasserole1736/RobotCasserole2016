@@ -11,9 +11,9 @@ import java.util.ArrayList;
  */
 public class AutoSequencer {
 
-	public static ArrayList<AutoEvent> events = new ArrayList<AutoEvent>();
+	static ArrayList<AutoEvent> events = new ArrayList<AutoEvent>();
 	
-	public static AutoEvent activeEvent = null;
+	static AutoEvent activeEvent = null;
 	
 	public static long globalUpdateCount = 0;
 	
@@ -103,6 +103,14 @@ public class AutoSequencer {
 		}
 		globalUpdateCount++;
 		
+	}
+	
+	/** 
+	 * Determine if the sequencer is active. As long as this is true, any calls to update() will trigger various events run.
+	 * @return True if the auto sequencer is executing something, false otherwise
+	 */
+	public static boolean isRunning(){
+		return activeEvent != null;
 	}
 	
 	

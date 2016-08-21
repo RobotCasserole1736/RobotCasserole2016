@@ -1,6 +1,7 @@
 
 package org.usfirst.frc.team1736.robot;
 
+import org.usfirst.frc.team1736.lib.AutoSequencer.AutoSequencer;
 import org.usfirst.frc.team1736.lib.Calibration.CalWrangler;
 import org.usfirst.frc.team1736.lib.WebServer.CasseroleDriverView;
 import org.usfirst.frc.team1736.lib.WebServer.CasseroleWebServer;
@@ -543,10 +544,13 @@ public class Robot extends IterativeRobot {
     	Pneumatics.shiftToLowGear();
     	
     	//Kill off any autonomous that may have been running
-    	autopp.stopPlayback();
-    	//Calc a path
+    	AutoSequencer.stop();
+    	
+    	//Set up the selected auto mode
     	if(autoMode != -1){
     		autopp.calcPath(autoMode);
+    		
+    		AutoSequencer.start();
     	}
     	
     	//path planner one-time call guard boolean
@@ -571,28 +575,13 @@ public class Robot extends IterativeRobot {
     	leds.sequencerPeriodic(LEDPatterns.CASS);
     	
     	if(autoMode == -1){
-	    	//Ensure safe state while not running
-	    	if(!autopp.isPlaybackActive()){
-	    		intakeLauncherSM.periodicStateMach(false, false, false, false, false);
-	    	}
-    	}
-    	else{
-	    	//call the start function once
-	    	if(!alreadyStarted){
-	    		autopp.startPlayback();
-	    		alreadyStarted = true;
-	    	}
-	    	//Ensure safe state while not running
-	    	if(!autopp.isPlaybackActive()){
-	    		intakeLauncherSM.periodicStateMach(false, false, false, false, false);
-	    	}
+	    	AutoSequencer.update();
     	}
 
     	//Add autonomous code here
     	//Estimate battery Parameters
     	bpe.updateEstimate(pdp.getVoltage(), pdp.getTotalCurrent());
     		
-    	
     	//Log data from this timestep
     	log_data();
     	
@@ -617,7 +606,7 @@ public class Robot extends IterativeRobot {
     	}
 
     	//Kill off any autonomous that may have been running
-    	autopp.stopPlayback();
+    	AutoSequencer.stop();
     	
     	//Turn the watchdog back on
 		driveTrain.setSafetyEnabled(true);
