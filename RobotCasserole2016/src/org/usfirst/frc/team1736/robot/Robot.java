@@ -429,11 +429,16 @@ public class Robot extends IterativeRobot {
     	autopp = new casserolePathAuto(driveTrain, intakeLauncherSM, gyro);
     	
     	//Setup driver view
-    	CasseroleDriverView.newDial("ShooterRPM", 0, 7000, 1000);
-    	CasseroleDriverView.newDial("SystemVoltage", 0, 14, 1);
-    	CasseroleDriverView.newDial("SysPressurePSI", 0, 130, 15);
-    	CasseroleDriverView.newWebcam("http://roborio-1736-frc.local:5800/?action=stream", "Cam1");
-    	CasseroleDriverView.newWebcam("http://roborio-1736-frc.local:5801/?action=stream", "Cam2");
+    	CasseroleDriverView.newDial("ShooterRPM", 0, 7000, 1000, 4000, 6000);
+    	CasseroleDriverView.newDial("SystemVoltage", 0, 14, 1, 10, 13);
+    	CasseroleDriverView.newDial("SysPressurePSI", 0, 135, 15, 85, 125 );
+    	CasseroleDriverView.newBoolean("High Gear", "green");
+    	CasseroleDriverView.newBoolean("DT Limit Active", "yellow");
+    	CasseroleDriverView.newBoolean("System Press Low", "red");
+    	CasseroleDriverView.newBoolean("Ball In Carry", "green");
+    	CasseroleDriverView.newBoolean("Launch Speed Low", "yellow");
+    	CasseroleDriverView.newWebcam("Cam1", "http://roborio-1736-frc.local:5800/?action=stream", 50, 50, 0);
+    	CasseroleDriverView.newWebcam("Cam2", "http://roborio-1736-frc.local:5801/?action=stream", 50, 25, 0);
     	
     	//Web server init
     	webserver = new CasseroleWebServer();
@@ -946,6 +951,7 @@ public class Robot extends IterativeRobot {
      * 
      */
     private void updateSmartDashboard(){
+    	/*
     	SmartDashboard.putNumber("Pneumatic System Pressure (PSI)", Math.round(Pneumatics.getPressurePsi()));
     	if(shifter.gear)
     		SmartDashboard.putString("Gear", "HIGH GEAR");
@@ -966,10 +972,15 @@ public class Robot extends IterativeRobot {
     	{
     		SmartDashboard.putNumber("Measured Robot Pose Angle", Math.round(gyro.getAngle()) % 360);
     	}
-    	
+    	*/
     	CasseroleDriverView.setDialValue("ShooterRPM",launchMotor.getActSpeed());
     	CasseroleDriverView.setDialValue("SystemVoltage", pdp.getVoltage());
     	CasseroleDriverView.setDialValue("SysPressurePSI",Pneumatics.getPressurePsi());
+    	CasseroleDriverView.setBoolean("High Gear", shifter.gear);
+    	CasseroleDriverView.setBoolean("DT Limit Active", (driveTrain.reductionFactor < 0.95));
+    	CasseroleDriverView.setBoolean("System Press Low", (Pneumatics.getPressurePsi() < 70.0));
+    	CasseroleDriverView.setBoolean("Ball In Carry", intakeLauncherSM.ballSensorState);
+    	CasseroleDriverView.setBoolean("Launch Speed Changing", (launchMotor.getAbsError() > 200));
     	
     }
     

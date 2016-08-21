@@ -7,6 +7,8 @@ import org.json.simple.JSONObject;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.WebSocketAdapter;
 
+import java.util.Timer;
+
 /**
  * DESCRIPTION:
  * <br>
@@ -83,7 +85,6 @@ public class CasseroleStateStreamerSocket extends WebSocketAdapter {
 	 *
 	 */
 	private class dataBroadcastTask extends TimerTask {
-		@Override
 		public void run() {
 				broadcastData();
 		}
