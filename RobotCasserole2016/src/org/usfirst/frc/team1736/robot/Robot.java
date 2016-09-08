@@ -980,7 +980,7 @@ public class Robot extends IterativeRobot {
     	CasseroleDriverView.setBoolean("DT Limit Active", (driveTrain.reductionFactor < 0.95));
     	CasseroleDriverView.setBoolean("System Press Low", (Pneumatics.getPressurePsi() < 70.0));
     	CasseroleDriverView.setBoolean("Ball In Carry", intakeLauncherSM.ballSensorState);
-    	CasseroleDriverView.setBoolean("Launch Speed Changing", (launchMotor.getAbsError() > 200));
+    	CasseroleDriverView.setBoolean("Launch Speed Low", (launchMotor.getAbsError() > 200));
     	
     }
     
