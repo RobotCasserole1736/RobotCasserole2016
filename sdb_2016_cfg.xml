@@ -1,38 +1,31 @@
 <xml version="1.0">
 <dashboard>
-	<widget field="Intake Angle Desired Pos" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
-		<location x="29" y="501"/>
-	</widget>
-	<widget field="Intake Angle Actual  Pos" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
-		<location x="34" y="473"/>
-	</widget>
 	<static-widget class="edu.wpi.first.smartdashboard.gui.elements.Label">
-		<location x="1126" y="551"/>
+		<location x="1280" y="110"/>
 		<property name="Text" value="Ball Selector"/>
 	</static-widget>
 	<widget field="Selected Auto Mode" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.FormattedField">
-		<location x="15" y="565"/>
+		<location x="0" y="474"/>
 		<width>145</width>
 		<height>29</height>
 	</widget>
-	<static-widget class="edu.wpi.first.smartdashboard.gui.elements.MJPGStreamerViewerExtension">
-		<location x="396" y="10"/>
-		<width>656</width>
-		<height>538</height>
-		<property name="Degrees Rotation" value="180"/>
-		<property name="Crosshair X" value="295"/>
-		<property name="Crosshair Y" value="242"/>
-		<property name="Crosshair size" value="4"/>
-	</static-widget>
 	<widget field="Measured Robot Pose Angle" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.FormattedField">
-		<location x="177" y="531"/>
+		<location x="157" y="441"/>
 		<width>206</width>
 		<height>57</height>
 		<property name="Foreground" value="51.0.204.255"/>
 		<property name="Font Size" value="24"/>
 	</widget>
+	<static-widget class="edu.wpi.first.smartdashboard.gui.elements.Label">
+		<location x="1058" y="607"/>
+		<property name="Text" value="Robot Preferences"/>
+	</static-widget>
+	<static-widget class="edu.wpi.first.smartdashboard.gui.elements.RobotPreferences">
+		<location x="1063" y="475"/>
+		<height>118</height>
+	</static-widget>
 	<widget field="useCamera1" type="Boolean" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
-		<location x="13" y="540"/>
+		<location x="0" y="453"/>
 	</widget>
 	<static-widget class="edu.wpi.first.smartdashboard.gui.elements.Label">
 		<location x="1115" y="183"/>
@@ -90,7 +83,7 @@
 		<property name="Font Size" value="25"/>
 	</widget>
 	<widget field="IntakeShooter State" type="String" class="edu.wpi.first.smartdashboard.gui.elements.FormattedField">
-		<location x="12" y="597"/>
+		<location x="11" y="508"/>
 		<width>372</width>
 		<height>37</height>
 		<property name="Background" value="153.255.153.255"/>
@@ -133,7 +126,7 @@
 		<location x="53" y="317"/>
 	</widget>
 	<widget field="Ball Chooser" type="String Chooser" class="edu.wpi.first.smartdashboard.gui.elements.Chooser">
-		<location x="1128" y="567"/>
+		<location x="1280" y="150"/>
 	</widget>
 	<static-widget class="edu.wpi.first.smartdashboard.gui.elements.ConnectionIndicator">
 		<location x="10" y="3"/>

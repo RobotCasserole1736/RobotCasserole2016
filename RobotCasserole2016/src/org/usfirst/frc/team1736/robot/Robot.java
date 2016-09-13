@@ -357,8 +357,8 @@ public class Robot extends IterativeRobot {
     	ballChooser.addObject("new", 1);
     	SmartDashboard.putData("Ball Chooser", ballChooser);
     	
-    	/* This will be disabled for competition to prevent anything freaky from happening, 
-    	 * but may be rolled back in after competition so the kids can demo awesome colors
+    	// This will be disabled for competition to prevent anything freaky from happening, 
+    	 //but may be rolled back in after competition so the kids can demo awesome colors
     	//LED Color Choose
     	colorChooser = new SendableChooser();
     	colorChooser.addObject("Solid Red", LEDPatterns.SOLID_RED);
@@ -384,7 +384,7 @@ public class Robot extends IterativeRobot {
     			//default
     	colorChooser.addDefault("Off", LEDPatterns.OFF);
     	SmartDashboard.putData("LED Pattern Chooser", colorChooser);
-    	*/
+    	
     	
     	//Other Peripherals
     	ds = DriverStation.getInstance();
