@@ -1,6 +1,6 @@
 package org.usfirst.frc.team1736.robot;
 
-import edu.wpi.first.wpilibj.CANTalon;
+import com.ctre.CANTalon;
 
 public class DrawbridgeArmControls {
 	CANTalon  RMotorController;

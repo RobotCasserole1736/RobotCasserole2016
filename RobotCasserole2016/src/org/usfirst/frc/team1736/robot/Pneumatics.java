@@ -28,7 +28,7 @@ public class Pneumatics {
 		return compressor.getPressureSwitchValue();
 	}
 	
-	public static float getCurrent(){
+	public static double getCurrent(){
 		return compressor.getCompressorCurrent();
 	}
 	

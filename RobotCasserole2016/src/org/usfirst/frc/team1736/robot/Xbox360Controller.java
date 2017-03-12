@@ -1,7 +1,7 @@
 package org.usfirst.frc.team1736.robot;
 
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.Joystick.RumbleType;
 
 public class Xbox360Controller {
 	
