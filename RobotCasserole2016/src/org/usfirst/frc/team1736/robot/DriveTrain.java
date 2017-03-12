@@ -24,7 +24,7 @@ public class DriveTrain extends RobotDrive { //Inherits methods from RobotDrive 
 	public CIMCurrentEstimator leftCCE;
 	public CIMCurrentEstimator rightCCE;
 	public double reductionFactor = 1;
-	public boolean disableCurrentLimiter = false;
+	public final boolean DISABLE_CURRENT_LIMITER = false;
 	
 	//Using Chris' naming convention
 	double controllerVDrop_V = 0;
@@ -129,7 +129,7 @@ public class DriveTrain extends RobotDrive { //Inherits methods from RobotDrive 
 		}
 		
 		//if we want to disable current limiting protection, don't apply the reduction factor
-		if(disableCurrentLimiter)
+		if(DISABLE_CURRENT_LIMITER)
 			super.setLeftRightMotorOutputs(leftOutput, rightOutput);
 		else
 			super.setLeftRightMotorOutputs(leftOutput*reductionFactor, rightOutput*reductionFactor);
