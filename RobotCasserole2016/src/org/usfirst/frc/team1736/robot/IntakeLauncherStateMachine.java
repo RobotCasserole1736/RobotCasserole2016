@@ -103,11 +103,7 @@ public class IntakeLauncherStateMachine {
 			              boolean intakeOvdCmded){
 		
 		double launch_speed_local = 0;
-		
-		//step -1 = debug
-		CassesroleWebStates.putDouble("Retract Encoder Val", intake.getPIDController().get());
-		CassesroleWebStates.putDouble("Retract Encoder Err", intake.getPIDController().getError());
-		
+
 		//Step 0 - process inputs. Mostly these are arguments
 		dbncBallSensor();
 		
