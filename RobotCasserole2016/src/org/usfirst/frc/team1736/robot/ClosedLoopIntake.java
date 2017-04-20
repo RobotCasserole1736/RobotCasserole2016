@@ -18,8 +18,8 @@ public class ClosedLoopIntake extends PIDSubsystem {
 	
 	//Mechanism constants
 	final double ENCODER_DEG_PER_TICK = 360.0/(120.0*4.0); //measure in degrees. 120 ticks per revolution, decoded as quadrature (4x)
-	final int ENCODER_CH_1 = 6;
-	final int ENCODER_CH_2 = 7;
+	final int ENCODER_CH_1 = 7;
+	final int ENCODER_CH_2 = 6;
 	final static int INTAKE_MOTOR_ID = 5;
 	
 	Victor intake_motor;
