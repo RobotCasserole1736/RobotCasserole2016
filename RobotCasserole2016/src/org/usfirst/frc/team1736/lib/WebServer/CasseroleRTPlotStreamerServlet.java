@@ -20,25 +20,18 @@ package org.usfirst.frc.team1736.lib.WebServer;
  *   if you would consider donating to our club to help further STEM education.
  */
 
-import java.io.IOException;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import javax.servlet.annotation.WebServlet;
+import org.eclipse.jetty.websocket.servlet.WebSocketServlet;
+import org.eclipse.jetty.websocket.servlet.WebSocketServletFactory;
 
-class CasseroleBasicServlet extends HttpServlet {
+@SuppressWarnings("serial")
+@WebServlet(name = "Casserole Real-time Plotting Data Streamer Servlet", urlPatterns = {"/rtplot"})
+class CasseroleRTPlotStreamerServlet extends WebSocketServlet {
 
-    /**
-	 * This prevents warnings. I do not know why. Eclipse did this. Not me.
-	 */
-	private static final long serialVersionUID = -5455816632333702006L;
-
-	@Override
-    public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        response.setContentType("text/html");
-        response.setStatus(HttpServletResponse.SC_OK);
-        response.getWriter().println("<h1>FRC1736 Robot Casserole 2016 </h1>");
-
+    @Override
+    public void configure(WebSocketServletFactory factory) {
+        factory.getPolicy().setIdleTimeout(999999999); // I really don't want a timeout, and dont
+                                                       // care if it stays open indefinitely...
+        factory.register(CasseroleRTPlotStreamerSocket.class);
     }
-
 }

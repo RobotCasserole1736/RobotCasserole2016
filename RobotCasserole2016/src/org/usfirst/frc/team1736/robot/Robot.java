@@ -49,6 +49,10 @@ public class Robot extends IterativeRobot {
     	webserver = new CasseroleWebServer();
     	webserver.startServer();
     	
+    	//give a first value to some things we want to see on the website
+    	CassesroleWebStates.putDouble("Test Value (nounit)", 42.0);
+    	CassesroleWebStates.putDouble("Time Since Boot (s)", 0.0);
+    	
     }
     
     
@@ -74,7 +78,6 @@ public class Robot extends IterativeRobot {
     	//Set outputs
     	
     	//Update website states
-    	CassesroleWebStates.putDouble("Test Value (nounit)", 42.0);
     	CassesroleWebStates.putDouble("Time Since Boot (s)", Timer.getFPGATimestamp());
     	
     	//We just finished a control loop, so update total number of loops run
