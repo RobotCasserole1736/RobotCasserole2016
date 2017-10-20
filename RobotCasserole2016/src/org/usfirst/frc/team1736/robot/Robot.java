@@ -52,6 +52,8 @@ public class Robot extends IterativeRobot {
     	//give a first value to some things we want to see on the website
     	CassesroleWebStates.putDouble("Test Value (nounit)", 42.0);
     	CassesroleWebStates.putDouble("Time Since Boot (s)", 0.0);
+    	CassesroleWebStates.putString("This is text, no?", "Unimportant text");
+    	CassesroleWebStates.putBoolean("BOO!", true);
     	
     }
     
@@ -72,14 +74,15 @@ public class Robot extends IterativeRobot {
 	public void teleopPeriodic() {
     	
     	//Read Inputs
-    	
+    		boolean getAButton();
     	//Perform periodic control update functions
     	
     	//Set outputs
     	
     	//Update website states
     	CassesroleWebStates.putDouble("Time Since Boot (s)", Timer.getFPGATimestamp());
-    	
+    	CassesroleWebStates.putString("This is text, no?", "Unimportant text");
+    	CassesroleWebStates.putBoolean("BOO!", true);
     	//We just finished a control loop, so update total number of loops run
     	loopCounter++;
     

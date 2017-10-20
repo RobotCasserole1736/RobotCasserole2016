@@ -118,4 +118,10 @@ public class CassesroleWebStates {
 
     }
 
+
+	public static void println(String string) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }
