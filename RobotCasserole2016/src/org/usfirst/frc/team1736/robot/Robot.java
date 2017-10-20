@@ -52,7 +52,7 @@ public class Robot extends IterativeRobot {
     	//give a first value to some things we want to see on the website
     	CassesroleWebStates.putDouble("Test Value (nounit)", 42.0);
     	CassesroleWebStates.putDouble("Time Since Boot (s)", 0.0);
-    	
+    	CassesroleWebStates.putDouble("compressorPressure", 0.0);
     }
     
     
