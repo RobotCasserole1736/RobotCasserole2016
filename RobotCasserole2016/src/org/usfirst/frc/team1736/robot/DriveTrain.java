@@ -24,7 +24,7 @@ public class DriveTrain extends RobotDrive { //Inherits methods from RobotDrive 
 	public CIMCurrentEstimator leftCCE;
 	public CIMCurrentEstimator rightCCE;
 	public double reductionFactor = 1;
-	public final boolean DISABLE_CURRENT_LIMITER = false;
+	public final boolean DISABLE_CURRENT_LIMITER = true;
 	
 	//Using Chris' naming convention
 	double controllerVDrop_V = 0;
